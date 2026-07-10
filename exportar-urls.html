@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exportar URLs — Mi Colección</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #100d14; color: #fff; min-height: 100vh;
+    font-family: -apple-system, sans-serif; padding: 30px 18px 60px;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; }
+  h1 { font-size: 1.15rem; font-weight: 800; margin-bottom: 6px; }
+  p.sub { color: #8a7fa0; font-size: 0.82rem; margin-bottom: 24px; }
+  select, button {
+    width: 100%; padding: 12px 14px; border-radius: 8px; font-size: 0.9rem;
+    font-family: inherit; margin-bottom: 12px; border: 1px solid rgba(155,138,196,0.3);
+  }
+  select { background: #211d2c; color: #fff; }
+  button {
+    background: #9b8ac4; color: #100d14; font-weight: 700; border: none; cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; }
+  #status { font-size: 0.8rem; color: #c9bfe0; min-height: 20px; margin-top: 6px; }
+  #result {
+    margin-top: 18px; background: #211d2c; border-radius: 8px; padding: 14px;
+    font-size: 0.75rem; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto;
+    display: none;
+  }
+  #copyBtn { display: none; background: #c9bfe0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Exportar URLs de una playlist</h1>
+  <p class="sub">Elige un juego, trae todas las URLs de sus videos desde YouTube, y descárgalas como texto.</p>
+
+  <select id="gameSelect"></select>
+  <button id="exportBtn">Exportar URLs</button>
+  <div id="status"></div>
+  <button id="copyBtn">Copiar todo</button>
+  <div id="result"></div>
+</div>
+
+<script>
+const YOUTUBE_API_KEY = "AIzaSyBXD2oIzXfZzGiwJ1Ap7Hc6nTIZoSfy5_I";
+
+// Mismos juegos que la app principal (solo título + URL, no necesita el resto de datos)
+const games = [
+  { title: "Pokemon Let's Go Eevee", url: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c" },
+  { title: "Resident Evil Remake", url: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M" },
+  { title: "Resident Evil Director's Cut", url: "https://www.youtube.com/playlist?list=PLW92QaHn0kvw" },
+  { title: "F1 2000 (PSX)", url: "https://www.youtube.com/playlist?list=PLJXk52AjnOAM" },
+  { title: "Minecraft", url: "https://www.youtube.com/playlist?list=PLC7qZUo5o1dU" },
+  { title: "Final Fantasy IX", url: "https://www.youtube.com/playlist?list=PLeGuSdYfxKFw" },
+  { title: "Final Fantasy 7 Remake | Intergrade", url: "https://www.youtube.com/playlist?list=PLV8T9JsLJRxs" },
+  { title: "Grand Theft Auto Online", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQ_UzOly3QDKYhkCrF711Mx" },
+  { title: "Sheep Raider", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQe4wyV0VCpb6SnP5whF1t2" },
+  { title: "Crash Nitro Fuelled", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2" },
+  { title: "Spyro Reignited Trilogy - Spyro 3 Year of the Dragon", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSyqFFRSLydJgFQeVXhsEGC" },
+  { title: "Spyro Reignited Trilogy - Spyro 2 Ripto's Rage", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSEbhi3Wg97QiuJ0dD9r9US" },
+  { title: "Klonoa: Door to Phantomile", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBRTK1HVJkNGD3eFzN6kWiq8" },
+  { title: "Crash Bandicoot 2: Cortex Strikes Back", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe" },
+];
+
+const gameSelect = document.getElementById('gameSelect');
+const exportBtn = document.getElementById('exportBtn');
+const statusEl = document.getElementById('status');
+const resultEl = document.getElementById('result');
+const copyBtn = document.getElementById('copyBtn');
+
+games.forEach((g, i) => {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = g.title;
+  gameSelect.appendChild(opt);
+});
+
+function extractPlaylistId(url) {
+  const match = url.match(/[?&]list=([^&]+)/);
+  return match ? match[1] : null;
+}
+
+let lastContent = '';
+
+exportBtn.addEventListener('click', async () => {
+  const game = games[gameSelect.value];
+  const playlistId = extractPlaylistId(game.url);
+  if (!playlistId) { statusEl.textContent = 'No se encontró el ID de la playlist.'; return; }
+
+  exportBtn.disabled = true;
+  statusEl.textContent = '🔄 Consultando YouTube...';
+  resultEl.style.display = 'none';
+  copyBtn.style.display = 'none';
+
+  try {
+    let videos = [];
+    let pageToken = '';
+    do {
+      const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${playlistId}&pageToken=${pageToken}&key=${YOUTUBE_API_KEY}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      data.items.forEach(item => {
+        videos.push({
+          position: item.snippet.position + 1,
+          title: item.snippet.title,
+          id: item.contentDetails.videoId
+        });
+      });
+      pageToken = data.nextPageToken || '';
+    } while (pageToken);
+
+    const lines = videos.map(v => `${v.position}. ${v.title}\nhttps://www.youtube.com/watch?v=${v.id}&list=${playlistId}\n`);
+    lastContent = `${game.title.toUpperCase()} — ${videos.length} videos\n\n` + lines.join('\n');
+
+    resultEl.textContent = lastContent;
+    resultEl.style.display = 'block';
+    copyBtn.style.display = 'block';
+    statusEl.textContent = `✓ ${videos.length} videos encontrados`;
+
+    // Intento de descarga automática (funciona en la mayoría de navegadores móviles también)
+    const blob = new Blob([lastContent], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-urls.txt';
+    link.click();
+  } catch (err) {
+    statusEl.textContent = '❌ Error: ' + err.message;
+  } finally {
+    exportBtn.disabled = false;
+  }
+});
+
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(lastContent).then(() => {
+    copyBtn.textContent = '¡Copiado!';
+    setTimeout(() => { copyBtn.textContent = 'Copiar todo'; }, 2000);
+  });
+});
+</script>
+</body>
+</html>
