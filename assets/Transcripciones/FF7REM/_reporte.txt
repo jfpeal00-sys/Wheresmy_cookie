@@ -1,0 +1,8 @@
+JUEGO: Final Fantasy 7 Remake | Intergrade
+ARCHIVO FUENTE: final-fantasy-7-remake-intergrade-urls.txt
+FECHA: 2026-07-10T12:36:57
+VIDEOS DETECTADOS: 21
+CORRECTOS EN ESTA EJECUCIÓN: 21
+OMITIDOS: 0
+FALLIDOS: 0
+
