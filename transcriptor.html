@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transcriptor de gameplays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="onGisLoaded()"></script>
+<script src="https://apis.google.com/js/api.js" async defer onload="onGapiLoaded()"></script>
+<style>
+  :root {
+    --bg: #100d14;
+    --panel: #211d2c;
+    --panel-2: #2a2538;
+    --line: #3a3350;
+    --accent: #9b8ac4;
+    --accent-light: #c9bfe0;
+    --text: #f4f1fa;
+    --muted: #a49cb8;
+    --error: #d98a9b;
+    --radius-lg: 18px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Raleway', 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    font-variant-numeric: lining-nums;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+  }
+  .shell { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 26px;
+  }
+  header.top h1 { font-size: 26px; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+  header.top p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .session { display: flex; align-items: center; gap: 10px; }
+  .session .who { font-size: 13px; color: var(--accent-light); }
+
+  button {
+    font: inherit; font-weight: 700; font-size: 14px;
+    border-radius: 999px; padding: 10px 18px; cursor: pointer;
+    border: 1.5px solid var(--accent); background: transparent; color: var(--accent-light);
+  }
+  button.primary { background: var(--accent); color: var(--bg); }
+  button.small { padding: 6px 12px; font-size: 13px; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  button:focus-visible, input:focus-visible, summary:focus-visible, label.pl:focus-within {
+    outline: 2px solid var(--accent-light); outline-offset: 2px;
+  }
+
+  .panel { background: var(--panel); border-radius: var(--radius-lg); padding: 20px; }
+  .panel h2 { font-size: 16px; font-weight: 700; margin: 0 0 12px; }
+
+  input[type=text] {
+    font: inherit; width: 100%;
+    background: var(--bg); color: var(--text);
+    border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 9px 12px;
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+
+  .pl-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .pl-head h2 { margin: 0; }
+  .pl-list { display: flex; flex-direction: column; gap: 6px; }
+  label.pl {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    background: var(--panel-2); border-radius: var(--radius-sm); cursor: pointer;
+    border: 1px solid transparent;
+  }
+  label.pl:has(input:checked) { border-color: var(--accent); }
+  label.pl input { accent-color: var(--accent); width: 17px; height: 17px; }
+  label.pl .name { flex: 1; font-weight: 600; }
+  label.pl .count { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .empty { color: var(--muted); font-size: 14px; padding: 18px 4px; }
+
+  .side { display: flex; flex-direction: column; gap: 20px; }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  legend { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+  .opt { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; font-size: 14px; cursor: pointer; }
+  .opt input { accent-color: var(--accent); margin-top: 4px; }
+  .opt small { display: block; color: var(--muted); font-size: 12px; }
+  .opt.disabled { opacity: .45; cursor: not-allowed; }
+
+  .drive-box {
+    margin: 4px 0 12px 24px; padding: 12px; border-radius: var(--radius-sm);
+    background: var(--panel-2); font-size: 13px;
+  }
+  .drive-box .line { margin-bottom: 4px; }
+  .drive-box .line span { color: var(--muted); }
+  .drive-box .line b { font-weight: 600; word-break: break-word; }
+  .drive-box .btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 8px; }
+  .drive-box small { color: var(--muted); font-size: 12px; display: block; }
+
+  .quota { font-size: 13px; color: var(--muted); }
+  .quota strong { color: var(--text); font-size: 20px; font-weight: 800; display: block; }
+  .quota .bar { height: 6px; border-radius: 3px; background: var(--bg); margin: 8px 0 4px; overflow: hidden; }
+  .quota .bar span { display: block; height: 100%; background: var(--accent); width: 0; }
+  .quota .bar span.over { background: var(--error); }
+
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 22px 0 8px; }
+  .status { color: var(--accent-light); font-size: 14px; min-height: 21px; margin-bottom: 18px; }
+
+  /* Tira de capítulos: una celda por video, en orden */
+  .strips { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+  .strip h3 { font-size: 14px; font-weight: 700; margin: 0 0 8px; display: flex; justify-content: space-between; gap: 10px; }
+  .strip h3 span { color: var(--muted); font-weight: 500; }
+  .cells { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cell {
+    width: 34px; height: 34px; border-radius: 7px;
+    display: grid; place-items: center;
+    font-size: 12px; font-weight: 700; font-variant-numeric: lining-nums tabular-nums;
+    border: 1.5px solid var(--line); color: var(--muted);
+    transition: background-color .25s, border-color .25s, color .25s;
+  }
+  .cell.working { border-color: var(--accent-light); color: var(--text); animation: pulse 1s ease-in-out infinite; }
+  .cell.ok { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .cell.skip { border-style: dashed; border-color: var(--accent); color: var(--accent-light); }
+  .cell.error { background: var(--error); border-color: var(--error); color: var(--bg); }
+  @keyframes pulse { 50% { background: var(--panel-2); } }
+  @media (prefers-reduced-motion: reduce) { .cell.working { animation: none; background: var(--panel-2); } .cell { transition: none; } }
+  .legend-line { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .legend-line i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; border: 1.5px solid var(--line); }
+  .legend-line i.ok { background: var(--accent); border-color: var(--accent); }
+  .legend-line i.skip { border: 1.5px dashed var(--accent); }
+  .legend-line i.error { background: var(--error); border-color: var(--error); }
+
+  .preview { margin-bottom: 20px; display: none; }
+  .preview pre {
+    white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow: auto;
+    background: var(--bg); border-radius: var(--radius-sm); padding: 14px; margin: 0;
+    font-family: inherit; font-size: 13px; color: var(--accent-light);
+  }
+  .preview .meta { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+
+  .log {
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-sm);
+    height: 220px; overflow-y: auto; padding: 10px 12px; font-size: 13px;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .log div { padding: 1px 0; }
+  .log .t { color: var(--muted); margin-right: 8px; }
+  .log .err { color: var(--error); }
+  .log .warn { color: #e6c98f; }
+  .log .ok { color: var(--accent-light); }
+  .foot { display: flex; justify-content: space-between; align-items: center; margin: 22px 0 8px; }
+  .foot h2 { margin: 0; font-size: 16px; }
+  a.back { color: var(--accent-light); font-size: 14px; }
+
+  dialog.slugs {
+    background: var(--panel); color: var(--text); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); padding: 24px; width: min(520px, calc(100vw - 32px));
+  }
+  dialog.slugs::backdrop { background: rgba(16, 13, 20, .75); }
+  dialog.slugs h2 { font-size: 18px; margin: 0 0 6px; }
+  dialog.slugs .where { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  dialog.slugs .where b { color: var(--accent-light); font-weight: 600; }
+  dialog.slugs .rows { display: grid; gap: 14px; max-height: 50vh; overflow-y: auto; padding: 2px; }
+  dialog.slugs label { display: grid; gap: 5px; font-size: 14px; font-weight: 600; }
+  dialog.slugs .hint { font-size: 12px; color: var(--muted); font-weight: 400; }
+  dialog.slugs .err { font-size: 12px; color: var(--error); min-height: 0; }
+  dialog.slugs input.bad { border-color: var(--error); }
+  dialog.slugs .btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+  .analyze .btns { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .analyze .hint { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+  .analyze .hint b { color: var(--accent-light); font-weight: 600; }
+
+  details.config { margin-top: 28px; }
+  details.config summary { cursor: pointer; font-weight: 700; font-size: 15px; }
+  details.config .fields { display: grid; gap: 14px; margin-top: 16px; }
+  details.config label { font-size: 13px; color: var(--muted); display: grid; gap: 5px; }
+  details.config p { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div>
+      <h1>Transcriptor de gameplays</h1>
+      <p>Baja las transcripciones automáticas en español de tus playlists y arma una carpeta por juego.</p>
+    </div>
+    <div class="session">
+      <span class="who" id="who"></span>
+      <button id="loginBtn" class="primary" disabled>Iniciar sesión con Google</button>
+      <button id="logoutBtn" class="small" hidden>Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="pl-head">
+        <h2>Tus playlists</h2>
+        <div>
+          <button id="refreshBtn" class="small" disabled>Actualizar</button>
+          <button id="selectAllBtn" class="small" disabled>Seleccionar todas</button>
+        </div>
+      </div>
+      <div class="pl-list" id="plList">
+        <div class="empty">Inicia sesión con la cuenta dueña del canal para ver tus playlists.</div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <fieldset>
+          <legend>Dónde guardar</legend>
+          <label class="opt">
+            <input type="radio" name="dest" value="drive">
+            <span>En Google Drive<small>Puede ser una cuenta distinta a la del canal.</small></span>
+          </label>
+          <div class="drive-box" id="driveBox" hidden>
+            <div class="line"><span>Cuenta: </span><b id="driveAccount">sin conectar</b></div>
+            <div class="line"><span>Carpeta: </span><b id="driveFolder">sin elegir</b></div>
+            <div class="btns">
+              <button id="driveConnect" class="small" disabled>Conectar Drive</button>
+              <button id="drivePick" class="small" disabled>Elegir carpeta</button>
+            </div>
+            <small>Usa una carpeta nueva o vacía: la app solo ve los archivos que ella misma crea ahí.</small>
+          </div>
+          <label class="opt" id="optFolder">
+            <input type="radio" name="dest" value="folder">
+            <span>En una carpeta del computador<small>Por ejemplo "transcripciones OR". Solo Chrome y Edge.</small></span>
+          </label>
+          <label class="opt">
+            <input type="radio" name="dest" value="zip">
+            <span>Descargar un ZIP<small>Funciona en cualquier navegador. No detecta lo que ya bajaste.</small></span>
+          </label>
+        </fieldset>
+      </section>
+
+      <section class="panel">
+        <fieldset>
+          <legend>Modo</legend>
+          <label class="opt"><input type="radio" name="mode" value="missing" checked><span>Bajar solo las que faltan</span></label>
+          <label class="opt"><input type="radio" name="mode" value="overwrite"><span>Sobrescribir transcripciones</span></label>
+          <label class="opt"><input type="radio" name="mode" value="skip_folder"><span>Omitir juegos cuya carpeta ya existe</span></label>
+        </fieldset>
+      </section>
+
+      <section class="panel analyze">
+        <fieldset>
+          <legend>Análisis con Claude</legend>
+          <label class="opt"><input type="radio" name="anmode" value="analizar" checked><span>Analizar ahora<small>Abre una ventana de PowerShell en este PC.</small></span></label>
+          <label class="opt"><input type="radio" name="anmode" value="programar"><span>Programar hasta terminar<small>Crea una tarea que se repite cada pocas horas (5 por defecto) hasta completar el juego.</small></span></label>
+        </fieldset>
+        <div class="btns">
+          <button id="analyzeBtn" disabled>Analizar con Claude</button>
+          <button id="analyzeSlugBtn" class="small" hidden>Cambiar carpeta</button>
+        </div>
+        <p class="hint" id="analyzeHint">Selecciona el juego que quieres analizar.</p>
+      </section>
+
+      <section class="panel quota">
+        Cuota estimada de esta selección
+        <strong id="quotaEst">0 unidades</strong>
+        <div class="bar"><span id="quotaBar"></span></div>
+        <div id="quotaToday">Usadas hoy desde esta página: 0 de 10.000</div>
+      </section>
+    </aside>
+  </div>
+
+  <div class="actions">
+    <button id="runBtn" class="primary" disabled>Extraer transcripciones</button>
+    <button id="testBtn" disabled>Probar con un video</button>
+    <button id="cancelBtn" disabled>Cancelar</button>
+  </div>
+  <div class="status" id="status">Inicia sesión con la cuenta dueña del canal.</div>
+
+  <section class="panel preview" id="preview">
+    <h2>Prueba de un video</h2>
+    <div class="meta" id="previewMeta"></div>
+    <pre id="previewText"></pre>
+  </section>
+
+  <div class="strips" id="strips"></div>
+
+  <div class="foot">
+    <h2>Registro</h2>
+    <a class="back" href="index.html">Volver a la app</a>
+  </div>
+  <div class="log" id="log" aria-live="polite"></div>
+  <div class="legend-line">
+    <span><i class="ok"></i>Descargado</span>
+    <span><i class="skip"></i>Ya existía</span>
+    <span><i class="error"></i>Error</span>
+  </div>
+
+  <dialog class="slugs" id="slugDialog">
+    <form method="dialog" id="slugForm" novalidate>
+      <h2>Nombre de la carpeta del juego</h2>
+      <p class="where" id="slugWhere"></p>
+      <div class="rows" id="slugRows"></div>
+      <div class="btns">
+        <button type="button" id="slugCancel">Cancelar</button>
+        <button type="submit" class="primary" id="slugSubmit">Extraer transcripciones</button>
+      </div>
+    </form>
+  </dialog>
+
+  <details class="panel config" id="config">
+    <summary>Configuración de Google</summary>
+    <div class="fields">
+      <label>ID de cliente OAuth
+        <input type="text" id="cfgClientId" placeholder="xxxxxxxx.apps.googleusercontent.com" autocomplete="off">
+      </label>
+      <label>API key para el selector de carpetas de Drive
+        <input type="text" id="cfgPickerKey" placeholder="AIza..." autocomplete="off">
+      </label>
+      <label>Número del proyecto de Google Cloud
+        <input type="text" id="cfgProjectNumber" placeholder="123456789012" autocomplete="off" inputmode="numeric">
+      </label>
+      <div><button id="cfgSave" class="primary small">Guardar configuración</button></div>
+    </div>
+    <p>Se guarda solo en este navegador. La API key y el número de proyecto solo se usan para elegir la carpeta de Drive.</p>
+  </details>
+</div>
+
+<script>
+/* ============================================================
+   Configuración
+   ============================================================ */
+// Si prefieres dejar los valores fijos en el código, pégalos aquí.
+// Si quedan vacíos, se toman de "Configuración de Google" (guardados en el navegador).
+const CLIENT_ID_FIXED = "";
+const PICKER_KEY_FIXED = "";
+const PROJECT_NUMBER_FIXED = "";
+
+const YT_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
+const YT_API = "https://www.googleapis.com/youtube/v3";
+const DRIVE_API = "https://www.googleapis.com/drive/v3";
+const DRIVE_UPLOAD = "https://www.googleapis.com/upload/drive/v3";
+const FOLDER_MIME = "application/vnd.google-apps.folder";
+const DAILY_QUOTA = 10000;
+const COST = { list: 1, captionsList: 50, download: 200 };
+const LANG_PRIORITY = ["es-419","es-US","es-MX","es-CO","es-AR","es-CL","es-PE","es-VE","es-EC","es"];
+
+/* ============================================================
+   Estado
+   ============================================================ */
+const yt = { client: null, token: null, exp: 0 };
+const drive = { client: null, token: null, exp: 0, email: "", folder: null };
+let gisLoaded = false, pickerReady = false;
+let playlists = [];
+let running = false, stopRequested = false;
+
+const $ = id => document.getElementById(id);
+const els = {
+  login: $("loginBtn"), logout: $("logoutBtn"), who: $("who"),
+  plList: $("plList"), refresh: $("refreshBtn"), selectAll: $("selectAllBtn"),
+  run: $("runBtn"), test: $("testBtn"), cancel: $("cancelBtn"),
+  status: $("status"), log: $("log"), strips: $("strips"),
+  preview: $("preview"), previewMeta: $("previewMeta"), previewText: $("previewText"),
+  quotaEst: $("quotaEst"), quotaBar: $("quotaBar"), quotaToday: $("quotaToday"),
+  optFolder: $("optFolder"),
+  driveBox: $("driveBox"), driveAccount: $("driveAccount"), driveFolder: $("driveFolder"),
+  driveConnect: $("driveConnect"), drivePick: $("drivePick"),
+  config: $("config"), cfgClientId: $("cfgClientId"), cfgPickerKey: $("cfgPickerKey"),
+  cfgProjectNumber: $("cfgProjectNumber"), cfgSave: $("cfgSave"),
+  analyze: $("analyzeBtn"), analyzeSlug: $("analyzeSlugBtn"), analyzeHint: $("analyzeHint")
+};
+
+/* ============================================================
+   Almacenamiento local (siempre protegido)
+   ============================================================ */
+function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
+
+const cfg = {
+  clientId: () => CLIENT_ID_FIXED || lsGet("tr_client_id") || "",
+  pickerKey: () => PICKER_KEY_FIXED || lsGet("tr_picker_key") || "",
+  projectNumber: () => PROJECT_NUMBER_FIXED || lsGet("tr_project_number") || ""
+};
+
+try { drive.folder = JSON.parse(lsGet("tr_drive_folder") || "null"); } catch { drive.folder = null; }
+
+// La cuota de YouTube se reinicia a medianoche, hora del Pacífico.
+function quotaKey() {
+  return "tr_quota_" + new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" });
+}
+function quotaUsedToday() { return parseInt(lsGet(quotaKey()) || "0", 10); }
+function addQuota(units) { lsSet(quotaKey(), String(quotaUsedToday() + units)); renderQuota(); }
+
+/* ============================================================
+   Limpieza de texto (portada del original en Python)
+   ============================================================ */
+const TIMESTAMP_RE = /^\d{2}:\d{2}(?::\d{2})?\.\d{3}\s+-->\s+\d{2}:\d{2}(?::\d{2})?\.\d{3}(?:\s+.*)?$/;
+const TAG_RE = /<[^>]+>/g;
+const VOICE_TAG_RE = /<\/?v(?:\.[^ >]+)?[^>]*>/gi;
+const SPACE_RE = /[ \t]+/g;
+const INVALID_WIN_CHARS = /[<>:"\/\\|?*\x00-\x1f]/g;
+
+const _ta = document.createElement("textarea");
+function unescapeHtml(s) { _ta.innerHTML = s; return _ta.value; }
+function stripEdges(s) { return s.replace(/^[ .\-_]+|[ .\-_]+$/g, ""); }
+
+function safeName(text, maxLen = 120) {
+  let t = unescapeHtml(text).replace(INVALID_WIN_CHARS, "-");
+  t = stripEdges(t.replace(SPACE_RE, " "));
+  return stripEdges(t.slice(0, maxLen)) || "Sin nombre";
+}
+
+function normalizeCaption(text) {
+  let t = unescapeHtml(text);
+  t = t.replace(VOICE_TAG_RE, "").replace(TAG_RE, "");
+  t = t.replace(/\u200b/g, "").replace(/\ufeff/g, "");
+  return t.replace(SPACE_RE, " ").trim();
+}
+
+// Los subtítulos automáticos de YouTube "ruedan": cada línea repite parte de la anterior.
+function removeRollingDuplicates(lines) {
+  const cleaned = [];
+  for (let current of lines) {
+    current = current.trim();
+    if (!current) continue;
+    if (!cleaned.length) { cleaned.push(current); continue; }
+    const previous = cleaned[cleaned.length - 1];
+    if (current === previous) continue;
+    if (current.startsWith(previous) && current.length > previous.length) { cleaned[cleaned.length - 1] = current; continue; }
+    if (previous.startsWith(current)) continue;
+    const pw = previous.split(/\s+/), cw = current.split(/\s+/);
+    let overlap = 0;
+    for (let size = Math.min(pw.length, cw.length, 20); size > 1; size--) {
+      const a = pw.slice(-size).map(w => w.toLocaleLowerCase());
+      const b = cw.slice(0, size).map(w => w.toLocaleLowerCase());
+      if (a.every((w, i) => w === b[i])) { overlap = size; break; }
+    }
+    const remainder = overlap ? cw.slice(overlap).join(" ").trim() : current;
+    if (remainder) cleaned.push(remainder);
+  }
+  return cleaned;
+}
+
+function vttToText(raw) {
+  const candidates = [];
+  for (const rawLine of raw.replace(/^\ufeff/, "").split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line === "WEBVTT" || /^(Kind:|Language:|NOTE|STYLE|REGION)/.test(line)) continue;
+    if (TIMESTAMP_RE.test(line) || /^\d+$/.test(line)) continue;
+    const norm = normalizeCaption(line);
+    if (norm) candidates.push(norm);
+  }
+  return removeRollingDuplicates(candidates).join("\n").trim();
+}
+
+const pad2 = n => String(n).padStart(2, "0");
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ============================================================
+   Sesiones con Google: una para YouTube y otra para Drive
+   ============================================================ */
+function onGisLoaded() { gisLoaded = true; initAuth(); }
+function onGapiLoaded() { gapi.load("picker", () => { pickerReady = true; renderDrive(); }); }
+
+function initAuth() {
+  const clientId = cfg.clientId();
+  if (!clientId) {
+    els.config.open = true;
+    setStatus("Falta el ID de cliente. Pégalo en \"Configuración de Google\", al final de la página.");
+    els.login.disabled = true; els.driveConnect.disabled = true;
+    return;
+  }
+  if (!gisLoaded) return;
+  yt.client = google.accounts.oauth2.initTokenClient({
+    client_id: clientId, scope: YT_SCOPE, include_granted_scopes: false,
+    callback: resp => {
+      if (resp.error) { setStatus("No se pudo iniciar sesión en YouTube: " + resp.error); return; }
+      yt.token = resp.access_token;
+      yt.exp = Date.now() + (resp.expires_in || 3600) * 1000;
+      onYouTubeSignedIn();
+    }
+  });
+  drive.client = google.accounts.oauth2.initTokenClient({
+    client_id: clientId, scope: DRIVE_SCOPE, include_granted_scopes: false,
+    callback: resp => {
+      if (resp.error) { setStatus("No se pudo conectar Drive: " + resp.error); return; }
+      drive.token = resp.access_token;
+      drive.exp = Date.now() + (resp.expires_in || 3600) * 1000;
+      onDriveConnected();
+    }
+  });
+  els.login.disabled = false;
+  renderDrive();
+}
+
+const tokenOk = s => s.token && Date.now() < s.exp - 60000;
+
+els.login.onclick = () => yt.client && yt.client.requestAccessToken({ prompt: "select_account" });
+
+els.logout.onclick = () => {
+  if (yt.token && window.google?.accounts?.oauth2) google.accounts.oauth2.revoke(yt.token, () => {});
+  yt.token = null; yt.exp = 0; playlists = [];
+  els.logout.hidden = true; els.login.hidden = false; els.who.textContent = "";
+  els.plList.innerHTML = '<div class="empty">Inicia sesión con la cuenta dueña del canal para ver tus playlists.</div>';
+  updateButtons(); renderQuota();
+  setStatus("Sesión de YouTube cerrada.");
+};
+
+async function onYouTubeSignedIn() {
+  els.login.hidden = true; els.logout.hidden = false;
+  try {
+    const ch = await ytApi("channels", { part: "snippet", mine: "true" });
+    els.who.textContent = ch.items?.[0]?.snippet?.title ? "YouTube: " + ch.items[0].snippet.title : "";
+  } catch {}
+  await loadPlaylists();
+}
+
+els.driveConnect.onclick = () => drive.client && drive.client.requestAccessToken({ prompt: "select_account" });
+
+async function onDriveConnected() {
+  try {
+    const about = await driveFetch(DRIVE_API + "/about?fields=user(emailAddress,displayName)");
+    const email = about.user?.emailAddress || "";
+    if (drive.email && drive.email !== email) {
+      // Cambió de cuenta: la carpeta guardada pertenece a la otra.
+      drive.folder = null; lsSet("tr_drive_folder", "null");
+    }
+    drive.email = email;
+    const saved = lsGet("tr_drive_email");
+    if (saved && saved !== email) { drive.folder = null; lsSet("tr_drive_folder", "null"); }
+    lsSet("tr_drive_email", email);
+    if (drive.folder) {
+      // Confirma que la carpeta guardada sigue accesible.
+      try { await driveFetch(DRIVE_API + "/files/" + drive.folder.id + "?fields=id,name,trashed&supportsAllDrives=true"); }
+      catch { drive.folder = null; lsSet("tr_drive_folder", "null"); }
+    }
+    setStatus("Drive conectado como " + email + ".");
+  } catch (e) {
+    setStatus("Drive conectado, pero no se pudo leer la cuenta: " + e.message);
+  }
+  renderDrive(); updateButtons();
+}
+
+els.drivePick.onclick = () => {
+  if (!tokenOk(drive)) { setStatus("La sesión de Drive venció. Conéctala de nuevo."); return; }
+  if (!pickerReady) { setStatus("El selector de Drive todavía está cargando. Intenta en unos segundos."); return; }
+  if (!cfg.pickerKey() || !cfg.projectNumber()) {
+    els.config.open = true;
+    setStatus("Para elegir la carpeta faltan la API key del selector y el número de proyecto, en \"Configuración de Google\".");
+    return;
+  }
+  const view = new google.picker.DocsView()
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(true)
+    .setMimeTypes(FOLDER_MIME)
+    .setParent("root");
+  new google.picker.PickerBuilder()
+    .addView(view)
+    .setOAuthToken(drive.token)
+    .setDeveloperKey(cfg.pickerKey())
+    .setAppId(cfg.projectNumber())
+    .setTitle("Elige la carpeta donde se guardan las transcripciones")
+    .setCallback(data => {
+      if (data.action !== google.picker.Action.PICKED) return;
+      const d = data.docs[0];
+      drive.folder = { id: d.id, name: d.name };
+      lsSet("tr_drive_folder", JSON.stringify(drive.folder));
+      renderDrive(); updateButtons();
+      setStatus("Carpeta de Drive elegida: " + d.name + ".");
+    })
+    .build()
+    .setVisible(true);
+};
+
+function renderDrive() {
+  els.driveAccount.textContent = tokenOk(drive) ? drive.email || "conectada" : "sin conectar";
+  els.driveFolder.textContent = drive.folder ? drive.folder.name : "sin elegir";
+  els.driveConnect.textContent = tokenOk(drive) ? "Cambiar cuenta" : "Conectar Drive";
+  els.driveConnect.disabled = !drive.client || running;
+  els.drivePick.disabled = !tokenOk(drive) || running;
+}
+
+/* ============================================================
+   Configuración guardada en el navegador
+   ============================================================ */
+els.cfgClientId.value = cfg.clientId();
+els.cfgPickerKey.value = cfg.pickerKey();
+els.cfgProjectNumber.value = cfg.projectNumber();
+els.cfgSave.onclick = () => {
+  const id = els.cfgClientId.value.trim();
+  const key = els.cfgPickerKey.value.trim();
+  const num = els.cfgProjectNumber.value.trim();
+  if (id && !id.endsWith(".apps.googleusercontent.com")) { setStatus("El ID de cliente debe terminar en .apps.googleusercontent.com."); return; }
+  if (num && !/^\d+$/.test(num)) { setStatus("El número de proyecto son solo dígitos (no es el ID del proyecto)."); return; }
+  lsSet("tr_client_id", id); lsSet("tr_picker_key", key); lsSet("tr_project_number", num);
+  setStatus("Configuración guardada.");
+  initAuth();
+};
+
+/* ============================================================
+   Llamadas a las APIs
+   ============================================================ */
+class QuotaError extends Error {}
+class AuthError extends Error {}
+
+async function ytApi(path, params = {}, { text = false, cost = COST.list } = {}) {
+  const url = YT_API + "/" + path + (Object.keys(params).length ? "?" + new URLSearchParams(params) : "");
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt) await sleep(1500 * 2 ** (attempt - 1));
+    let res;
+    try { res = await fetch(url, { headers: { Authorization: "Bearer " + yt.token } }); }
+    catch { lastErr = new Error("Sin conexión con la API de YouTube"); continue; }
+    addQuota(cost);
+    if (res.ok) return text ? res.text() : res.json();
+    let body = {};
+    try { body = await res.json(); } catch {}
+    const reason = body.error?.errors?.[0]?.reason || "";
+    const msg = body.error?.message || ("HTTP " + res.status);
+    if (res.status === 401) throw new AuthError("La sesión de YouTube venció. Vuelve a iniciar sesión.");
+    if (res.status === 403 && /quota/i.test(reason)) throw new QuotaError("Se acabó la cuota diaria de la API de YouTube.");
+    if (res.status === 429 || res.status >= 500) { lastErr = new Error(msg); continue; }
+    throw new Error(msg + (reason ? " (" + reason + ")" : ""));
+  }
+  throw lastErr;
+}
+
+async function driveFetch(url, opts = {}) {
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt) await sleep(1000 * 2 ** (attempt - 1));
+    let res;
+    try {
+      res = await fetch(url, { ...opts, headers: { Authorization: "Bearer " + drive.token, ...(opts.headers || {}) } });
+    } catch { lastErr = new Error("Sin conexión con Google Drive"); continue; }
+    if (res.ok) return res.status === 204 ? null : res.json();
+    let body = {};
+    try { body = await res.json(); } catch {}
+    const reason = body.error?.errors?.[0]?.reason || "";
+    const msg = body.error?.message || ("HTTP " + res.status);
+    if (res.status === 401) throw new AuthError("La sesión de Drive venció. Conéctala de nuevo.");
+    if (res.status === 429 || res.status >= 500 || /rateLimit/i.test(reason)) { lastErr = new Error(msg); continue; }
+    throw new Error("Drive: " + msg + (reason ? " (" + reason + ")" : ""));
+  }
+  throw lastErr;
+}
+
+/* ---------- YouTube ---------- */
+async function loadPlaylists() {
+  setStatus("Cargando tus playlists...");
+  els.plList.innerHTML = '<div class="empty">Cargando...</div>';
+  try {
+    const all = [];
+    let pageToken = "";
+    do {
+      const params = { part: "snippet,contentDetails", mine: "true", maxResults: "50" };
+      if (pageToken) params.pageToken = pageToken;
+      const data = await ytApi("playlists", params);
+      for (const p of data.items || []) all.push({ id: p.id, title: p.snippet.title, count: p.contentDetails.itemCount });
+      pageToken = data.nextPageToken || "";
+    } while (pageToken);
+    playlists = all;
+    renderPlaylists();
+    setStatus(all.length ? all.length + " playlist(s) encontrada(s)." : "Esta cuenta no tiene playlists. Revisa que hayas entrado con la cuenta dueña del canal.");
+  } catch (e) {
+    els.plList.innerHTML = '<div class="empty">No se pudieron cargar las playlists.</div>';
+    setStatus(e.message);
+    if (e instanceof AuthError) els.logout.onclick();
+  }
+  updateButtons();
+}
+
+async function loadVideos(playlist) {
+  const vids = [];
+  let pageToken = "";
+  do {
+    const params = { part: "snippet,contentDetails", playlistId: playlist.id, maxResults: "50" };
+    if (pageToken) params.pageToken = pageToken;
+    const data = await ytApi("playlistItems", params);
+    for (const it of data.items || []) {
+      const vid = it.contentDetails?.videoId;
+      const title = it.snippet?.title || "";
+      if (!vid || title === "Deleted video") continue;
+      vids.push({ videoId: vid, title, position: it.snippet.position });
+    }
+    pageToken = data.nextPageToken || "";
+  } while (pageToken);
+  vids.sort((a, b) => a.position - b.position);
+  // Numeración consecutiva de los videos válidos: coincide con los capítulos del análisis.
+  return vids.map((v, i) => ({ number: i + 1, title: v.title, videoId: v.videoId, url: "https://www.youtube.com/watch?v=" + v.videoId }));
+}
+
+// Elige la pista: primero automática (asr) en español según prioridad; si no hay, una subida a mano.
+function chooseTrack(items) {
+  const tracks = items.map(it => ({ id: it.id, lang: it.snippet.language || "", kind: (it.snippet.trackKind || "").toLowerCase() }));
+  const pick = list => {
+    for (const lang of LANG_PRIORITY) { const t = list.find(x => x.lang === lang); if (t) return t; }
+    const es = list.filter(x => x.lang.toLowerCase().startsWith("es"))
+      .sort((a, b) => a.lang.length - b.lang.length || a.lang.localeCompare(b.lang));
+    return es[0] || null;
+  };
+  const asr = pick(tracks.filter(t => t.kind === "asr"));
+  if (asr) return asr;
+  const other = pick(tracks.filter(t => t.kind !== "asr"));
+  if (other) return other;
+  const available = tracks.map(t => t.lang + " (" + (t.kind || "?") + ")").join(", ") || "ninguna";
+  throw new Error("No hay transcripción en español. Disponibles: " + available);
+}
+
+async function fetchTranscript(video) {
+  const list = await ytApi("captions", { part: "snippet", videoId: video.videoId }, { cost: COST.captionsList });
+  const track = chooseTrack(list.items || []);
+  const vtt = await ytApi("captions/" + encodeURIComponent(track.id), { tfmt: "vtt" }, { text: true, cost: COST.download });
+  const transcript = vttToText(vtt);
+  if (!transcript) throw new Error("La transcripción quedó vacía después de limpiarla.");
+  return { track, transcript };
+}
+
+function buildFileText(video, track, transcript) {
+  return "TÍTULO: " + video.title + "\n" +
+         "VIDEO ID: " + video.videoId + "\n" +
+         "IDIOMA DE LA TRANSCRIPCIÓN: " + track.lang + "\n" +
+         "URL: " + video.url + "\n" +
+         "=".repeat(80) + "\n\n" + transcript + "\n";
+}
+
+/* ---------- Drive ---------- */
+const qEsc = s => s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+
+async function driveList(q) {
+  const files = [];
+  let pageToken = "";
+  do {
+    const p = new URLSearchParams({
+      q, fields: "nextPageToken,files(id,name,mimeType)", pageSize: "1000",
+      supportsAllDrives: "true", includeItemsFromAllDrives: "true"
+    });
+    if (pageToken) p.set("pageToken", pageToken);
+    const d = await driveFetch(DRIVE_API + "/files?" + p);
+    files.push(...(d.files || []));
+    pageToken = d.nextPageToken || "";
+  } while (pageToken);
+  return files;
+}
+
+async function driveFindFolder(parentId, name) {
+  const found = await driveList("'" + parentId + "' in parents and name = '" + qEsc(name) +
+    "' and mimeType = '" + FOLDER_MIME + "' and trashed = false");
+  return found[0] || null;
+}
+
+function driveCreateFolder(parentId, name) {
+  return driveFetch(DRIVE_API + "/files?supportsAllDrives=true&fields=id,name", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, mimeType: FOLDER_MIME, parents: [parentId] })
+  });
+}
+
+function driveUpload(parentId, name, content, existingId) {
+  if (existingId) {
+    return driveFetch(DRIVE_UPLOAD + "/files/" + existingId + "?uploadType=media&supportsAllDrives=true&fields=id", {
+      method: "PATCH", headers: { "Content-Type": "text/plain; charset=UTF-8" }, body: content
+    });
+  }
+  const boundary = "trx" + Math.random().toString(36).slice(2);
+  const meta = JSON.stringify({ name, parents: [parentId], mimeType: "text/plain" });
+  const body = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + meta +
+               "\r\n--" + boundary + "\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + content +
+               "\r\n--" + boundary + "--";
+  return driveFetch(DRIVE_UPLOAD + "/files?uploadType=multipart&supportsAllDrives=true&fields=id", {
+    method: "POST", headers: { "Content-Type": "multipart/related; boundary=" + boundary }, body
+  });
+}
+
+/* ============================================================
+   Destinos: Drive, carpeta del computador o ZIP
+   Cada destino entrega, por juego, los capítulos que ya existen y cómo escribir un archivo.
+   ============================================================ */
+const canUseFolder = "showDirectoryPicker" in window;
+if (!canUseFolder) {
+  els.optFolder.classList.add("disabled");
+  els.optFolder.querySelector("input").disabled = true;
+}
+
+function numbersFromNames(names) {
+  const nums = new Set();
+  for (const n of names) { const m = n.match(/^(\d{2,}) - .*\.txt$/); if (m) nums.add(parseInt(m[1], 10)); }
+  return nums;
+}
+
+async function makeSink(dest) {
+  if (dest === "drive") {
+    const rootId = drive.folder.id;
+    return {
+      label: "Drive, carpeta " + drive.folder.name,
+      needsDrive: true,
+      async game(name, mode) {
+        let folder = await driveFindFolder(rootId, name);
+        if (mode === "skip_folder" && folder) return null;
+        if (!folder) folder = await driveCreateFolder(rootId, name);
+        const files = await driveList("'" + folder.id + "' in parents and trashed = false");
+        const byName = new Map(files.map(f => [f.name, f.id]));
+        return {
+          existing: numbersFromNames(files.map(f => f.name)),
+          async write(fileName, content) {
+            const res = await driveUpload(folder.id, fileName, content, byName.get(fileName));
+            if (res?.id) byName.set(fileName, res.id);
+          }
+        };
+      },
+      async finish() {}
+    };
+  }
+
+  if (dest === "folder") {
+    const root = await window.showDirectoryPicker({ mode: "readwrite" });
+    return {
+      label: "carpeta " + root.name,
+      async game(name, mode) {
+        let exists = true;
+        try { await root.getDirectoryHandle(name); } catch { exists = false; }
+        if (mode === "skip_folder" && exists) return null;
+        const dir = await root.getDirectoryHandle(name, { create: true });
+        const names = [];
+        for await (const [n, h] of dir.entries()) if (h.kind === "file") names.push(n);
+        return {
+          existing: numbersFromNames(names),
+          async write(fileName, content) {
+            const fh = await dir.getFileHandle(fileName, { create: true });
+            const w = await fh.createWritable();
+            await w.write(content); await w.close();
+          }
+        };
+      },
+      async finish() {}
+    };
+  }
+
+  const zip = new JSZip();
+  return {
+    label: "ZIP",
+    async game(name) {
+      const f = zip.folder(name);
+      return { existing: new Set(), async write(fileName, content) { f.file(fileName, content); } };
+    },
+    async finish() {
+      if (!Object.values(zip.files).some(f => !f.dir)) return;
+      setStatus("Armando el ZIP...");
+      const blob = await zip.generateAsync({ type: "blob" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "transcripciones_" + new Date().toISOString().slice(0, 10) + ".zip";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      log("ZIP descargado: " + a.download, "ok");
+    }
+  };
+}
+
+function destMode() { return document.querySelector("input[name=dest]:checked")?.value || "drive"; }
+function runMode() { return document.querySelector("input[name=mode]:checked").value; }
+
+(function restoreDest() {
+  let saved = lsGet("tr_dest") || "drive";
+  if (saved === "folder" && !canUseFolder) saved = "drive";
+  const r = document.querySelector("input[name=dest][value=" + saved + "]");
+  if (r) r.checked = true;
+})();
+
+document.querySelectorAll("input[name=dest]").forEach(r => r.onchange = () => { lsSet("tr_dest", destMode()); syncDestUI(); });
+
+function syncDestUI() {
+  const dest = destMode();
+  els.driveBox.hidden = dest !== "drive";
+  const zip = dest === "zip";
+  document.querySelectorAll("input[name=mode]").forEach(r => {
+    const off = zip && r.value !== "overwrite";
+    r.disabled = off || running;
+    r.closest(".opt").classList.toggle("disabled", off);
+  });
+  if (zip) document.querySelector("input[name=mode][value=overwrite]").checked = true;
+  renderQuota();
+}
+
+/* ============================================================
+   Ventana del slug: nombre de la subcarpeta de cada juego
+   ============================================================ */
+const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
+function savedSlugs() { try { return JSON.parse(lsGet("tr_slugs") || "{}"); } catch { return {}; } }
+
+function askSlugs(selected, whereText, opts = {}) {
+  const lead = opts.lead || "Se crea dentro de ";
+  const submit = opts.submit || "Extraer transcripciones";
+  return new Promise(resolve => {
+    const dlg = $("slugDialog"), rows = $("slugRows"), form = $("slugForm");
+    const saved = savedSlugs();
+    $("slugSubmit").textContent = submit;
+    $("slugWhere").innerHTML = "";
+    $("slugWhere").append(lead);
+    const w = document.createElement("b"); w.textContent = whereText; $("slugWhere").append(w, ". Sin espacios ni caracteres especiales; solo letras, números, guion y guion bajo.");
+    rows.innerHTML = "";
+    const inputs = selected.map(pl => {
+      const label = document.createElement("label");
+      const title = document.createElement("span"); title.textContent = pl.title;
+      const input = document.createElement("input");
+      input.type = "text"; input.autocomplete = "off"; input.spellcheck = false;
+      input.placeholder = "Ej. ACE_02"; input.value = saved[pl.id] || "";
+      const err = document.createElement("span"); err.className = "err";
+      label.append(title, input, err);
+      rows.appendChild(label);
+      input.oninput = () => { input.classList.remove("bad"); err.textContent = ""; };
+      return { pl, input, err };
+    });
+
+    const close = result => {
+      form.onsubmit = null; $("slugCancel").onclick = null; dlg.oncancel = null;
+      dlg.close(); resolve(result);
+    };
+
+    form.onsubmit = ev => {
+      ev.preventDefault();
+      let ok = true;
+      const seen = new Map();
+      for (const it of inputs) {
+        const v = it.input.value.trim();
+        it.input.value = v;
+        let msg = "";
+        if (!v) msg = "Escribe el nombre de la carpeta.";
+        else if (!SLUG_RE.test(v)) msg = "Solo letras, números, guion (-) y guion bajo (_), sin espacios.";
+        else if (seen.has(v.toLowerCase())) msg = "Ya lo usaste para " + seen.get(v.toLowerCase()) + ".";
+        if (!msg) seen.set(v.toLowerCase(), it.pl.title);
+        it.err.textContent = msg;
+        it.input.classList.toggle("bad", !!msg);
+        if (msg && ok) { ok = false; it.input.focus(); }
+      }
+      if (!ok) return;
+      const result = {}, store = savedSlugs();
+      for (const it of inputs) { result[it.pl.id] = it.input.value; store[it.pl.id] = it.input.value; }
+      lsSet("tr_slugs", JSON.stringify(store));
+      close(result);
+    };
+    $("slugCancel").onclick = () => close(null);
+    dlg.oncancel = ev => { ev.preventDefault(); close(null); };
+    dlg.showModal();
+    (inputs.find(i => !i.input.value) || inputs[0]).input.focus();
+  });
+}
+
+/* ============================================================
+   Ejecución principal
+   ============================================================ */
+function selectedPlaylists() {
+  const ids = [...els.plList.querySelectorAll("input:checked")].map(i => i.value);
+  return playlists.filter(p => ids.includes(p.id));
+}
+
+els.run.onclick = async () => {
+  const selected = selectedPlaylists();
+  if (!selected.length) { setStatus("Selecciona al menos una playlist."); return; }
+  if (!tokenOk(yt)) { setStatus("La sesión de YouTube venció. Vuelve a iniciar sesión."); return; }
+
+  const dest = destMode(), mode = runMode();
+  if (dest === "drive") {
+    if (!tokenOk(drive)) { setStatus("Conecta Google Drive antes de extraer (o vuelve a conectarlo si la sesión venció)."); return; }
+    if (!drive.folder) { setStatus("Elige la carpeta de Drive donde se van a guardar las transcripciones."); return; }
+  }
+
+  const whereText = dest === "drive" ? "Drive / " + drive.folder.name
+                  : dest === "folder" ? "la carpeta del computador que elijas"
+                  : "el ZIP";
+  const slugs = await askSlugs(selected, whereText);
+  if (!slugs) { setStatus("Extracción cancelada."); return; }
+
+  let sink;
+  try { sink = await makeSink(dest); }
+  catch { setStatus("No se eligió carpeta."); return; }
+
+  startRun();
+  log("Destino: " + sink.label);
+  let quotaStop = false, authStop = false;
+  const summary = [];
+
+  try {
+    for (const pl of selected) {
+      if (stopRequested || quotaStop || authStop) break;
+      const folderName = slugs[pl.id];
+
+      const target = await sink.game(folderName, mode);
+      if (!target) { log("OMITIDA carpeta existente: " + folderName + " (" + pl.title + ")", "warn"); continue; }
+      log("Carpeta: " + folderName + " (" + pl.title + ")");
+
+      setStatus("Leyendo videos de " + pl.title + "...");
+      const videos = await loadVideos(pl);
+      if (videos.length !== pl.count) {
+        log("ADVERTENCIA: " + pl.title + " declara " + pl.count + " videos y se encontraron " + videos.length + " disponibles.", "warn");
+      }
+      const strip = addStrip(pl.title, videos);
+
+      let ok = 0, skipped = 0;
+      const failed = [];
+      setStatus("Procesando: " + pl.title);
+
+      for (const v of videos) {
+        if (stopRequested) break;
+        if (!tokenOk(yt) || (sink.needsDrive && !tokenOk(drive))) { authStop = true; break; }
+        const cell = strip.cells[v.number - 1];
+
+        if (mode === "missing" && target.existing.has(v.number)) {
+          skipped++; cell.className = "cell skip";
+          log("OMITIDO existente: " + pad2(v.number) + " - " + v.title);
+          continue;
+        }
+
+        cell.className = "cell working";
+        try {
+          const { track, transcript } = await fetchTranscript(v);
+          const fileName = pad2(v.number) + " - " + safeName(v.title) + ".txt";
+          await target.write(fileName, buildFileText(v, track, transcript));
+          ok++; cell.className = "cell ok";
+          log("OK: " + fileName + (track.kind === "asr" ? "" : "  (pista subida a mano, " + track.lang + ")"), "ok");
+        } catch (e) {
+          cell.className = "cell error";
+          cell.title = e.message;
+          log("ERROR: " + pad2(v.number) + " - " + e.message, "err");
+          if (e instanceof QuotaError) { quotaStop = true; break; }
+          if (e instanceof AuthError) { authStop = true; break; }
+          failed.push(pad2(v.number) + ". " + v.title + ": " + e.message);
+        }
+      }
+
+      strip.setSummary(ok, skipped, failed.length);
+      const report = [
+        "JUEGO: " + pl.title,
+        "CARPETA (SLUG): " + folderName,
+        "PLAYLIST: https://www.youtube.com/playlist?list=" + pl.id,
+        "FECHA: " + new Date().toISOString().slice(0, 19),
+        "VIDEOS DETECTADOS: " + videos.length,
+        "CORRECTOS EN ESTA EJECUCIÓN: " + ok,
+        "OMITIDOS: " + skipped,
+        "FALLIDOS: " + failed.length,
+        ""
+      ];
+      if (failed.length) report.push("DETALLE DE FALLOS:", ...failed);
+      try { await target.write("_reporte.txt", report.join("\n") + "\n"); }
+      catch (e) { log("No se pudo escribir _reporte.txt: " + e.message, "err"); }
+      summary.push(pl.title + ": " + ok + " nuevos, " + skipped + " ya estaban, " + failed.length + " con error");
+    }
+    await sink.finish();
+  } catch (e) {
+    log("ERROR: " + e.message, "err");
+    if (e instanceof QuotaError) quotaStop = true;
+    if (e instanceof AuthError) authStop = true;
+  }
+
+  summary.forEach(s => log(s));
+  if (quotaStop) setStatus("Se acabó la cuota de hoy. Mañana corre de nuevo en modo \"Bajar solo las que faltan\" y sigue donde quedó.");
+  else if (authStop) setStatus("Una de las sesiones venció a mitad del proceso. Conéctala otra vez y corre en modo \"Bajar solo las que faltan\".");
+  else if (stopRequested) setStatus("Proceso cancelado.");
+  else setStatus("Proceso completado.");
+  endRun();
+};
+
+els.test.onclick = async () => {
+  const pl = selectedPlaylists()[0];
+  if (!pl) { setStatus("Selecciona una playlist para la prueba."); return; }
+  if (!tokenOk(yt)) { setStatus("La sesión de YouTube venció. Vuelve a iniciar sesión."); return; }
+  startRun();
+  els.preview.style.display = "none";
+  try {
+    setStatus("Probando con el primer video de " + pl.title + "...");
+    const videos = await loadVideos(pl);
+    if (!videos.length) throw new Error("La playlist no tiene videos disponibles.");
+    const v = videos[0];
+    const { track, transcript } = await fetchTranscript(v);
+    els.previewMeta.textContent = v.title + " · pista " + (track.kind === "asr" ? "automática" : "subida a mano") +
+      " · idioma " + track.lang + " · " + transcript.split(/\s+/).length.toLocaleString("es-CO") + " palabras";
+    els.previewText.textContent = transcript.slice(0, 4000) + (transcript.length > 4000 ? "\n\n[...]" : "");
+    els.preview.style.display = "block";
+    log("PRUEBA OK: " + v.title + " (" + track.lang + ", " + track.kind + ")", "ok");
+    setStatus("La prueba funcionó. No se guardó ningún archivo.");
+  } catch (e) {
+    log("PRUEBA FALLIDA: " + e.message, "err");
+    setStatus("La prueba falló: " + e.message);
+  }
+  endRun();
+};
+
+els.cancel.onclick = () => {
+  stopRequested = true;
+  setStatus("Cancelación solicitada; termina el video actual.");
+};
+
+/* ============================================================
+   Análisis con Claude: abre el analizador local con el protocolo analizador://
+   El protocolo lo registra registrar-protocolo.ps1 y lo atiende lanzar.ps1, que vuelve
+   a validar el slug y el modo antes de ejecutar nada.
+   ============================================================ */
+const ANALYZER_SLUG_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const ANALYZER_MODES = ["analizar", "programar"];
+
+function anMode() {
+  const v = document.querySelector("input[name=anmode]:checked")?.value;
+  return ANALYZER_MODES.includes(v) ? v : "analizar";
+}
+
+(function restoreAnMode() {
+  const saved = lsGet("tr_anmode");
+  const r = ANALYZER_MODES.includes(saved) && document.querySelector("input[name=anmode][value=" + saved + "]");
+  if (r) r.checked = true;
+})();
+document.querySelectorAll("input[name=anmode]").forEach(r => r.onchange = () => { lsSet("tr_anmode", anMode()); renderAnalyze(); });
+
+function analyzeWhere() { return drive.folder ? "Drive / " + drive.folder.name : "Transcripciones"; }
+
+function askAnalyzeSlug(pl, submit) {
+  return askSlugs([pl], analyzeWhere(), { lead: "Es la carpeta del juego que ya existe dentro de ", submit });
+}
+
+function renderAnalyze() {
+  const sel = selectedPlaylists();
+  const one = sel.length === 1;
+  const programar = anMode() === "programar";
+  els.analyze.textContent = programar ? "Programar análisis" : "Analizar con Claude";
+  els.analyze.disabled = !yt.token || running || !one;
+  els.analyzeSlug.hidden = true;
+  const hint = els.analyzeHint;
+  hint.textContent = "";
+  if (!sel.length) { hint.textContent = "Selecciona el juego que quieres analizar."; return; }
+  if (!one) { hint.textContent = "Selecciona un solo juego."; return; }
+  const slug = savedSlugs()[sel[0].id];
+  if (!slug) { hint.textContent = "Antes de abrir te pido el nombre de la carpeta del juego."; return; }
+  const b = document.createElement("b"); b.textContent = slug;
+  hint.append("Carpeta: ", b);
+  els.analyzeSlug.hidden = false;
+  els.analyzeSlug.disabled = running;
+}
+
+els.analyzeSlug.onclick = async () => {
+  const pl = selectedPlaylists()[0];
+  if (!pl) return;
+  const res = await askAnalyzeSlug(pl, "Guardar");
+  if (res) setStatus("Carpeta de " + pl.title + ": " + res[pl.id] + ".");
+  renderAnalyze();
+};
+
+els.analyze.onclick = async () => {
+  const sel = selectedPlaylists();
+  if (sel.length !== 1) { setStatus("Selecciona un solo juego para analizar."); return; }
+  const pl = sel[0];
+  const mode = anMode();
+  const action = mode === "programar" ? "Programar análisis" : "Analizar con Claude";
+
+  let slug = savedSlugs()[pl.id];
+  if (!slug) {
+    const res = await askAnalyzeSlug(pl, action);
+    if (!res) { setStatus("Análisis cancelado."); return; }
+    slug = res[pl.id];
+    renderAnalyze();
+  }
+  if (!ANALYZER_SLUG_RE.test(slug)) {
+    setStatus("El nombre de carpeta guardado no es válido. Usa \"Cambiar carpeta\".");
+    return;
+  }
+
+  const url = "analizador://" + slug + (mode === "programar" ? "?modo=programar" : "");
+  log((mode === "programar" ? "Programando análisis de " : "Abriendo el analizador para ") + slug + " (" + pl.title + ")");
+  setStatus("Se pidió abrir el analizador para " + slug + ". Si no aparece la ventana de PowerShell, corre registrar-protocolo.ps1 una vez en este PC.");
+  window.location.href = url;
+};
+
+/* ============================================================
+   Interfaz
+   ============================================================ */
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function renderPlaylists() {
+  if (!playlists.length) { els.plList.innerHTML = '<div class="empty">Esta cuenta no tiene playlists.</div>'; return; }
+  els.plList.innerHTML = playlists.map(p =>
+    '<label class="pl"><input type="checkbox" value="' + p.id + '">' +
+    '<span class="name">' + escapeHtml(p.title) + '</span>' +
+    '<span class="count">' + p.count + ' video' + (p.count === 1 ? "" : "s") + '</span></label>'
+  ).join("");
+  els.plList.querySelectorAll("input").forEach(i => i.onchange = () => { renderQuota(); updateButtons(); });
+  renderQuota();
+}
+
+function renderQuota() {
+  const sel = selectedPlaylists();
+  const videos = sel.reduce((n, p) => n + p.count, 0);
+  const est = videos * (COST.captionsList + COST.download) + sel.length * 2;
+  const used = quotaUsedToday();
+  els.quotaEst.textContent = "hasta " + est.toLocaleString("es-CO") + " unidades";
+  els.quotaBar.style.width = Math.min(100, ((used + est) / DAILY_QUOTA) * 100) + "%";
+  els.quotaBar.classList.toggle("over", used + est > DAILY_QUOTA);
+  let txt = "Usadas hoy desde esta página: " + used.toLocaleString("es-CO") + " de 10.000";
+  if (est && used + est > DAILY_QUOTA) txt += ". No alcanza para todo hoy; lo que falte se baja mañana en modo \"solo las que faltan\".";
+  els.quotaToday.textContent = txt;
+}
+
+function addStrip(title, videos) {
+  const wrap = document.createElement("div");
+  wrap.className = "strip";
+  const h = document.createElement("h3");
+  const b = document.createElement("b"); b.textContent = title;
+  const s = document.createElement("span"); s.textContent = videos.length + " videos";
+  h.append(b, s);
+  const cells = document.createElement("div");
+  cells.className = "cells";
+  const list = videos.map(v => {
+    const c = document.createElement("div");
+    c.className = "cell"; c.textContent = pad2(v.number); c.title = v.title;
+    cells.appendChild(c);
+    return c;
+  });
+  wrap.append(h, cells);
+  els.strips.appendChild(wrap);
+  return { cells: list, setSummary(ok, skip, err) { s.textContent = ok + " nuevos, " + skip + " ya estaban, " + err + " con error"; } };
+}
+
+function log(msg, cls = "") {
+  const d = document.createElement("div");
+  const t = document.createElement("span");
+  t.className = "t"; t.textContent = new Date().toLocaleTimeString("es-CO", { hour12: false });
+  const m = document.createElement("span");
+  if (cls) m.className = cls;
+  m.textContent = msg;
+  d.append(t, m);
+  els.log.appendChild(d);
+  els.log.scrollTop = els.log.scrollHeight;
+}
+
+function setStatus(msg) { els.status.textContent = msg; }
+
+function startRun() { running = true; stopRequested = false; els.strips.innerHTML = ""; updateButtons(); }
+function endRun() { running = false; updateButtons(); renderQuota(); }
+
+function updateButtons() {
+  const signed = !!yt.token;
+  const any = !!els.plList.querySelector("input:checked");
+  els.refresh.disabled = !signed || running;
+  els.selectAll.disabled = !signed || running || !playlists.length;
+  els.run.disabled = !signed || running || !any;
+  els.test.disabled = !signed || running || !any;
+  els.cancel.disabled = !running;
+  els.plList.querySelectorAll("input").forEach(i => i.disabled = running);
+  document.querySelectorAll("input[name=dest]").forEach(i => {
+    i.disabled = running || (i.value === "folder" && !canUseFolder);
+  });
+  document.querySelectorAll("input[name=anmode]").forEach(i => i.disabled = running);
+  renderDrive();
+  syncDestUI();
+  renderAnalyze();
+}
+
+els.refresh.onclick = loadPlaylists;
+els.selectAll.onclick = () => {
+  els.plList.querySelectorAll("input").forEach(i => i.checked = true);
+  renderQuota(); updateButtons();
+};
+
+syncDestUI();
+renderDrive();
+renderQuota();
+renderAnalyze();
+if (!cfg.clientId()) { els.config.open = true; setStatus("Falta el ID de cliente. Pégalo en \"Configuración de Google\", al final de la página."); }
+</script>
+</body>
+</html>
