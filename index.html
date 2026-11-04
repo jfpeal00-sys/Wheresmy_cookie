@@ -89,7 +89,7 @@
 
   /* ===== Fondo de escenario: la imagen del juego destacado ocupa la parte alta de la página.
      En la portada se ve nítida; debajo sigue visible pero difuminada y apagada detrás de las filas. ===== */
-  .stage { position: absolute; top: 0; left: 0; right: 0; z-index: 0; height: calc(var(--hero-h) + var(--dk2) + 40px); overflow: hidden; pointer-events: none; --dk1: 410px; --dk2: 540px; }
+  .stage { position: absolute; top: 0; left: 0; right: 0; z-index: 0; height: calc(var(--hero-h) + var(--dk2) + 40px); overflow: hidden; pointer-events: none; --dk1: 520px; --dk2: 650px; }
   /* Sin difuminado: desde el final de la portada la imagen se oscurece poco a poco hasta el final de los
      pósters (--dk1) y luego más rápido hasta fundirse con el fondo (--dk2). */
   .stage-veil { position: absolute; left: 0; right: 0; bottom: 0; top: var(--hero-h);
@@ -166,7 +166,7 @@
   .scroller { display: flex; gap: 14px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; padding: 4px 48px 6px 0; }
   .scroller::-webkit-scrollbar { display: none; }
 
-  .card { all: unset; cursor: pointer; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; width: 220px; }
+  .card { all: unset; cursor: pointer; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; width: 293px; }
   .card-art { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
   .card-art .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .card-art::after { content: ""; position: absolute; inset: 0; background: rgba(11,9,16,0.4); transition: background 0.2s; }
@@ -176,7 +176,7 @@
   .card:hover .card-art::after { background: rgba(11,9,16,0.2); }
   .card.current .card-art { box-shadow: 0 0 0 2px var(--fg); }
   /* Pósters verticales (Recién actualizados): imagen a sangre que se difumina hacia el logo */
-  .poster { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 220px; aspect-ratio: 2 / 3; border-radius: 12px; overflow: hidden;
+  .poster { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 293px; aspect-ratio: 2 / 3; border-radius: 12px; overflow: hidden;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 10px 26px rgba(0,0,0,0.45); transition: transform 0.2s, box-shadow 0.2s; }
   .poster .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
   .poster::after { content: ""; position: absolute; inset: 0; z-index: 1;
@@ -193,7 +193,7 @@
   .card-cap b { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card-cap span { font-size: 12px; color: var(--muted); }
 
-  .saga { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 260px; height: 122px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
+  .saga { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 347px; height: 163px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
   .saga .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .saga::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,9,16,0.35), rgba(11,9,16,0.88)); }
   .saga .logo { position: relative; z-index: 1; max-width: 60%; max-height: 44%; object-fit: contain; }
@@ -201,7 +201,7 @@
   .saga .n { position: absolute; z-index: 1; right: 12px; bottom: 9px; font-family: var(--mono); font-size: 11px; color: var(--soft); }
   .saga:hover, .genre:hover, .moment:hover { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 14px 30px rgba(0,0,0,0.5); }
 
-  .genre { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 210px; height: 100px; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
+  .genre { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 280px; height: 133px; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
   .genre .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease; }
   .genre .bg.show { opacity: 1; }
   .genre::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,9,16,0.92) 0%, rgba(11,9,16,0.3) 100%); }
@@ -209,7 +209,7 @@
   .genre b { font-size: 19px; font-weight: 900; }
   .genre span { font-family: var(--mono); font-size: 11px; color: var(--accent-2); }
 
-  .moment { position: relative; flex-shrink: 0; width: 150px; height: 266px; border-radius: 12px; overflow: hidden; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
+  .moment { position: relative; flex-shrink: 0; width: 200px; height: 355px; border-radius: 12px; overflow: hidden; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
   .moment .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .moment::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,9,16,0.05) 30%, rgba(11,9,16,0.92) 100%); }
   .moment .play { position: absolute; z-index: 1; left: 10px; top: 10px; width: 30px; height: 30px; border-radius: 50%; background: rgba(14,11,18,0.6); display: flex; align-items: center; justify-content: center; }
@@ -239,7 +239,7 @@
   .chip.on { background: var(--accent); color: #100d14; }
   .chip.saga-on { background: var(--fg); color: #100d14; }
   .select { font-family: inherit; font-size: 13px; font-weight: 600; color: var(--soft); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; margin-left: auto; }
-  .grid { flex: 1; overflow-y: auto; padding: 4px 26px 26px; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px 16px; align-content: start; }
+  .grid { flex: 1; overflow-y: auto; padding: 4px 26px 26px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px 16px; align-content: start; }
   .grid .card { width: auto; }
   .empty { color: var(--muted); padding: 30px 0; }
 
@@ -251,7 +251,7 @@
   .view-head h1 { font-size: 34px; font-weight: 900; line-height: 1.1; }
   .view-head .lbl { display: block; margin-bottom: 6px; }
   .view .filters { padding: 0 48px 22px 28px; }
-  .view .grid { overflow: visible; padding: 4px 48px 60px 28px; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 22px 18px; }
+  .view .grid { overflow: visible; padding: 4px 48px 60px 28px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px 18px; }
   .grid .poster { width: auto; }
 
   /* ===== Estadísticas ===== */
@@ -269,15 +269,15 @@
   .kpi b small { font-size: 14px; font-weight: 700; color: var(--muted); }
   .kpi span { font-size: 13px; color: var(--muted); }
   .time-list { display: flex; flex-direction: column; gap: 10px; max-width: 900px; }
-  .time-row { all: unset; cursor: pointer; display: grid; grid-template-columns: 40px 200px 1fr 70px; align-items: center; gap: 14px; padding: 6px 10px 6px 6px; border-radius: 10px; }
+  .time-row { all: unset; cursor: pointer; display: grid; grid-template-columns: 53px 200px 1fr 70px; align-items: center; gap: 14px; padding: 6px 10px 6px 6px; border-radius: 10px; }
   .time-row:hover { background: rgba(255,255,255,0.05); }
-  .time-row img { width: 40px; height: 60px; border-radius: 6px; object-fit: cover; }
+  .time-row img { width: 53px; height: 80px; border-radius: 6px; object-fit: cover; }
   .time-row .t { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .time-row .v { font-size: 13px; font-weight: 700; text-align: right; color: var(--soft); }
   .s-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.08); overflow: hidden; }
   .s-bar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); }
-  .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-  .art-card { all: unset; cursor: pointer; position: relative; height: 150px; border-radius: 14px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
+  .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(373px, 1fr)); gap: 16px; }
+  .art-card { all: unset; cursor: pointer; position: relative; height: 200px; border-radius: 14px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
   .art-card:hover { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 14px 30px rgba(0,0,0,0.5); }
   .art-card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .art-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,9,16,0.94) 0%, rgba(11,9,16,0.55) 60%, rgba(11,9,16,0.2) 100%); }
@@ -290,12 +290,12 @@
   .year-row > b { font-size: 26px; font-weight: 900; }
   .year-row > b small { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 2px; }
   .mini-posters { display: flex; gap: 10px; flex-wrap: wrap; }
-  .mini-posters button { all: unset; cursor: pointer; width: 74px; aspect-ratio: 2 / 3; border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
+  .mini-posters button { all: unset; cursor: pointer; width: 99px; aspect-ratio: 2 / 3; border-radius: 8px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
   .mini-posters button:hover { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent); }
   .mini-posters img { width: 100%; height: 100%; object-fit: cover; }
   .cmp { display: grid; grid-template-columns: 1fr minmax(120px, 180px) 1fr; gap: 0 18px; max-width: 820px; align-items: center; }
   .cmp-pick { display: flex; flex-direction: column; gap: 12px; align-items: center; }
-  .cmp-pick .poster { width: 200px; cursor: default; }
+  .cmp-pick .poster { width: 267px; cursor: default; }
   .cmp-pick .select { margin: 0; width: 100%; max-width: 260px; }
   .cmp-vs { text-align: center; font-size: 22px; font-weight: 900; color: var(--muted); }
   .cmp-row { display: contents; }
@@ -385,7 +385,7 @@
     .rail-btn:not(.active) { color: var(--muted); }
     .main { padding-bottom: 110px; }
     .main { --hero-h: 540px; }
-    .stage { --dk1: 300px; --dk2: 470px; }
+    .stage { --dk1: 375px; --dk2: 545px; }
     .hero-arrow { top: 150px; width: 38px; height: 38px; }
     .hero-arrow.prev { left: 8px; }
     .hero-arrow.next { right: 8px; }
@@ -417,15 +417,15 @@
     .show-m { display: inline !important; }
     .row-head h2 { font-size: 17px; }
     .scroller { gap: 10px; padding-right: 16px; }
-    .card { width: 168px; }
-    .poster { width: 150px; border-radius: 10px; }
+    .card { width: 224px; }
+    .poster { width: 200px; border-radius: 10px; }
     .poster .info { gap: 7px; bottom: 12px; left: 8px; right: 8px; }
     .poster .meta { font-size: 10px; }
-    .saga { width: 210px; height: 104px; }
+    .saga { width: 280px; height: 139px; }
     #genreScroller { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); overflow: visible; }
-    .genre { width: auto; height: 74px; }
+    .genre { width: auto; height: 99px; }
     .genre b { font-size: 15px; }
-    .moment { width: 128px; height: 226px; }
+    .moment { width: 171px; height: 301px; }
     .foot { padding: 30px 16px 0; }
     .collection { inset: 0; border-radius: 0; }
     .overlay.view { left: 0; bottom: 0; padding-bottom: 90px; }
@@ -438,14 +438,14 @@
     .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
     .kpi { padding: 14px; }
     .kpi b { font-size: 24px; }
-    .time-row { grid-template-columns: 32px 1fr 56px; gap: 10px; }
-    .time-row img { width: 32px; height: 48px; }
+    .time-row { grid-template-columns: 43px 1fr 56px; gap: 10px; }
+    .time-row img { width: 43px; height: 64px; }
     .time-row .s-bar { grid-column: 2 / 4; grid-row: 2; }
     .art-grid { grid-template-columns: 1fr; }
-    .art-card { height: 120px; }
+    .art-card { height: 160px; }
     .year-row { grid-template-columns: 64px 1fr; }
     .year-row > b { font-size: 20px; }
-    .mini-posters button { width: 58px; }
+    .mini-posters button { width: 77px; }
     .cmp { grid-template-columns: 1fr 90px 1fr; gap: 0 8px; }
     .cmp-pick .poster { width: 100%; }
     .cmp-row > * { font-size: 13px; }
@@ -648,7 +648,7 @@ const HERO_POS = {
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
 const APP_VERSION = "2.3";
-const APP_BUILD = "20261104.151347";
+const APP_BUILD = "20261104.151612";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
