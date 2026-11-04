@@ -174,6 +174,20 @@
   .card:hover .card-art, .card:focus-visible .card-art { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 14px 30px rgba(0,0,0,0.5); }
   .card:hover .card-art::after { background: rgba(11,9,16,0.2); }
   .card.current .card-art { box-shadow: 0 0 0 2px var(--fg); }
+  /* Pósters verticales (Recién actualizados): imagen a sangre que se difumina hacia el logo */
+  .poster { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 220px; aspect-ratio: 2 / 3; border-radius: 12px; overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 10px 26px rgba(0,0,0,0.45); transition: transform 0.2s, box-shadow 0.2s; }
+  .poster .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+  .poster::after { content: ""; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(11,9,16,0) 38%, rgba(11,9,16,0.7) 64%, rgba(11,9,16,0.96) 100%); }
+  .poster .info { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+  .poster .logo { max-width: 84%; max-height: 80px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0,0,0,0.7)); }
+  .poster .meta { font-size: 11px; font-weight: 600; color: #d9d2e6; line-height: 1.35; }
+  .poster .meta i { font-style: normal; color: #7d7391; padding: 0 4px; }
+  .poster .badge { position: absolute; left: 10px; top: 10px; z-index: 2; font-size: 9px; }
+  .poster:hover, .poster:focus-visible { transform: translateY(-4px); box-shadow: 0 0 0 2px var(--accent), 0 18px 34px rgba(0,0,0,0.55); }
+  .poster:hover .bg { transform: scale(1.04); }
+  .poster.current { box-shadow: 0 0 0 2px var(--fg), 0 10px 26px rgba(0,0,0,0.45); }
   .card-cap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .card-cap b { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .card-cap span { font-size: 12px; color: var(--muted); }
@@ -341,6 +355,10 @@
     .row-head h2 { font-size: 17px; }
     .scroller { gap: 10px; padding-right: 16px; }
     .card { width: 168px; }
+    .poster { width: 150px; border-radius: 10px; }
+    .poster .logo { max-height: 54px; }
+    .poster .info { gap: 7px; bottom: 12px; left: 8px; right: 8px; }
+    .poster .meta { font-size: 10px; }
     .saga { width: 210px; height: 104px; }
     #genreScroller { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); overflow: visible; }
     .genre { width: auto; height: 74px; }
@@ -488,21 +506,21 @@
 // ===== Catálogo de playlists =====
 // Campo "saga": agrupa juegos de la misma franquicia en la fila "Sagas" (nuevo en el rediseño).
 const playlists = [
-  { title: "Ace Combat 2", saga: "Ace Combat", desc: "7 videos", url: "https://www.youtube.com/playlist?list=PLS1JI7LQbVss", thumb: "./assets/images/ACE_02/ACE_02_LOGO.png", genre: "Simulation", updated: "2026-09-23", releaseDate: "1997-08-15", duration: "0h 0m", bg: "./assets/images/ACE_02/ACE_02_BKG.jpg", icon: "./assets/images/ACE_02/ACE_02_ICON.png" , images: { card: "./assets/images/ACE_02/ACE_02_CARD.jpg", saga: "./assets/images/ACE_02/ACE_02_SAGA.jpg", genre: "./assets/images/ACE_02/ACE_02_GENRE.jpg" } },
-  { title: "Pokemon Let's Go Eevee", saga: "Pokémon", desc: "0 videos", url: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c", thumb: "./assets/images/POKELGE/POKELGE_LOGO.png", genre: "RPG", updated: "2023-07-14", releaseDate: "2018-11-16", duration: "0h 0m", bg: "./assets/images/POKELGE/POKELGE_BKG.jpg", icon: "./assets/images/POKELGE/POKELGE_ICON.png", images: { card: "./assets/images/POKELGE/POKELGE_CARD.jpg", saga: "./assets/images/POKELGE/POKELGE_SAGA.jpg", genre: "./assets/images/POKELGE/POKELGE_GENRE.jpg" } },
-  { title: "Resident Evil Remake", saga: "Resident Evil", desc: "16 videos", url: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", thumb: "./assets/images/REREM/REREM_LOGO.png", genre: "Horror", updated: "2023-05-23", releaseDate: "2002-04-30", duration: "18h 50m", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", images: { card: "./assets/images/REREM/REREM_CARD.jpg", saga: "./assets/images/REREM/REREM_SAGA.jpg", genre: "./assets/images/REREM/REREM_GENRE.jpg" } },
-  { title: "Resident Evil Director's Cut", saga: "Resident Evil", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PLW92QaHn0kvw", thumb: "./assets/images/REDC/REDC_LOGO.png", genre: "Horror", updated: "2023-05-09", releaseDate: "1997-09-30", duration: "11h 26m", bg: "./assets/images/REDC/REDC_BKG.jpg", icon: "./assets/images/REDC/REDC_ICON.png", images: { card: "./assets/images/REDC/REDC_CARD.jpg", saga: "./assets/images/REDC/REDC_SAGA.jpg", genre: "./assets/images/REDC/REDC_GENRE.jpg" } },
-  { title: "F1 2000 (PSX)", saga: "F1", desc: "6 videos", url: "https://www.youtube.com/playlist?list=PLJXk52AjnOAM", thumb: "./assets/images/F1-2000-psx/F1_2000_PSX_LOGO.png", genre: "Racing", updated: "2024-06-21", releaseDate: "2000-03-27", duration: "7h 3m", bg: "./assets/images/F1-2000-psx/F1_2000_PSX_BKG.jpg", icon: "./assets/images/F1-2000-psx/F1_2000_PSX_ICON.png", images: { card: "./assets/images/F1-2000-psx/F1_2000_PSX_CARD.jpg", saga: "./assets/images/F1-2000-psx/F1_2000_PSX_SAGA.jpg", genre: "./assets/images/F1-2000-psx/F1_2000_PSX_GENRE.jpg" } },
-  { title: "Minecraft", saga: "Minecraft", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PLC7qZUo5o1dU", thumb: "./assets/images/MNCRFT/MNCRFT_LOGO.png", genre: "Sandbox", updated: "2021-09-05", releaseDate: "2011-11-18", duration: "0h 9m", bg: "./assets/images/MNCRFT/MNCRFT_BKG.jpg", icon: "./assets/images/MNCRFT/MNCRFT_ICON.png", images: { card: "./assets/images/MNCRFT/MNCRFT_CARD.jpg", saga: "./assets/images/MNCRFT/MNCRFT_SAGA.jpg", genre: "./assets/images/MNCRFT/MNCRFT_GENRE.jpg" } },
-  { title: "Final Fantasy IX", saga: "Final Fantasy", desc: "22 videos", url: "https://www.youtube.com/playlist?list=PLeGuSdYfxKFw", thumb: "./assets/images/FFIX/FFIX_LOGO.png", genre: "RPG", updated: "2026-04-19", releaseDate: "2000-11-14", duration: "44h 18m", bg: "./assets/images/FFIX/FFIX_BKG.jpg", icon: "./assets/images/FFIX/FFIX_ICON.png", images: { card: "./assets/images/FFIX/FFIX_CARD.jpg", saga: "./assets/images/FFIX/FFIX_SAGA.jpg", genre: "./assets/images/FFIX/FFIX_GENRE.jpg" } },
-  { title: "Final Fantasy 7 Remake | Intergrade", saga: "Final Fantasy", desc: "21 videos", url: "https://www.youtube.com/playlist?list=PLV8T9JsLJRxs", thumb: "./assets/images/FF7REM/FF7REM_LOGO.png", genre: "RPG", updated: "2026-07-06", releaseDate: "2021-06-10", duration: "36h 20m", bg: "./assets/images/FF7REM/FF7REM_BKG.jpg", icon: "./assets/images/FF7REM/FF7REM_ICON.png", images: { card: "./assets/images/FF7REM/FF7REM_CARD.jpg", saga: "./assets/images/FF7REM/FF7REM_SAGA.jpg", genre: "./assets/images/FF7REM/FF7REM_GENRE.jpg" } },
-  { title: "Grand Theft Auto Online", saga: "Grand Theft Auto", desc: "3 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQ_UzOly3QDKYhkCrF711Mx", thumb: "./assets/images/GTAO/GTAO_LOGO.png", genre: "Sandbox", updated: "2020-10-17", releaseDate: "2013-10-01", duration: "0h 6m", bg: "./assets/images/GTAO/GTAO_BKG.jpg", icon: "./assets/images/GTAO/GTAO_ICON.png", images: { card: "./assets/images/GTAO/GTAO_CARD.jpg", saga: "./assets/images/GTAO/GTAO_SAGA.jpg", genre: "./assets/images/GTAO/GTAO_GENRE.jpg" } },
-  { title: "Sheep Raider", saga: "Sheep Raider", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQe4wyV0VCpb6SnP5whF1t2", thumb: "./assets/images/SHEEP/SHEEP_LOGO.png", genre: "Platform", updated: "2020-06-27", releaseDate: "2001-09-27", duration: "7h 8m", bg: "./assets/images/SHEEP/SHEEP_BKG.jpg", icon: "./assets/images/SHEEP/SHEEP_ICON.png", images: { card: "./assets/images/SHEEP/SHEEP_CARD.jpg", saga: "./assets/images/SHEEP/SHEEP_SAGA.jpg", genre: "./assets/images/SHEEP/SHEEP_GENRE.jpg" } },
-  { title: "Crash Nitro Fuelled", saga: "Crash Bandicoot", desc: "15 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2", thumb: "./assets/images/CTRNF/CTRNF_LOGO.png", genre: "Racing", updated: "2020-06-07", releaseDate: "2019-06-21", duration: "11h 0m", bg: "./assets/images/CTRNF/CTRNF_BKG.jpg", icon: "./assets/images/CTRNF/CTRNF_ICON.png", images: { card: "./assets/images/CTRNF/CTRNF_CARD.jpg", saga: "./assets/images/CTRNF/CTRNF_SAGA.jpg", genre: "./assets/images/CTRNF/CTRNF_GENRE.jpg" } },
-  { title: "Spyro Reignited Trilogy - Spyro 3 Year of the Dragon", saga: "Spyro", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSyqFFRSLydJgFQeVXhsEGC", thumb: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_LOGO.png", genre: "Platform", updated: "2019-01-07", releaseDate: "2018-11-13", duration: "4h 44m", bg: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_BKG.jpg", icon: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_ICON.png", images: { card: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_CARD.jpg", saga: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_SAGA.jpg", genre: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_GENRE.jpg" } },
-  { title: "Spyro Reignited Trilogy - Spyro 2 Ripto's Rage", saga: "Spyro", desc: "17 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSEbhi3Wg97QiuJ0dD9r9US", thumb: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_LOGO.png", genre: "Platform", updated: "2019-01-04", releaseDate: "2018-11-13", duration: "11h 15m", bg: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_BKG.jpg", icon: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_ICON.png", images: { card: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_CARD.jpg", saga: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_SAGA.jpg", genre: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_GENRE.jpg" } },
-  { title: "Klonoa: Door to Phantomile", saga: "Klonoa", desc: "5 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBRTK1HVJkNGD3eFzN6kWiq8", thumb: "./assets/images/KLO_DTPM/KLO_DTPM_LOGO.png", genre: "Platform", updated: "2019-01-04", releaseDate: "1998-03-10", duration: "3h 0m", bg: "./assets/images/KLO_DTPM/KLO_DTPM_BKG.jpg", icon: "./assets/images/KLO_DTPM/KLO_DTPM_ICON.png", images: { card: "./assets/images/KLO_DTPM/KLO_DTPM_CARD.jpg", saga: "./assets/images/KLO_DTPM/KLO_DTPM_SAGA.jpg", genre: "./assets/images/KLO_DTPM/KLO_DTPM_GENRE.jpg" } },
-  { title: "Crash Bandicoot 2: Cortex Strikes Back", saga: "Crash Bandicoot", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe", thumb: "./assets/images/CRASH2/CRASH2_LOGO.png", genre: "Platform", updated: "2018-12-30", releaseDate: "1997-11-06", duration: "3h 59m", bg: "./assets/images/CRASH2/CRASH2_BKG.jpg", icon: "./assets/images/CRASH2/CRASH2_ICON.png", images: { card: "./assets/images/CRASH2/CRASH2_CARD.jpg", saga: "./assets/images/CRASH2/CRASH2_SAGA.jpg", genre: "./assets/images/CRASH2/CRASH2_GENRE.jpg" } }
+  { title: "Ace Combat 2", saga: "Ace Combat", desc: "7 videos", url: "https://www.youtube.com/playlist?list=PLS1JI7LQbVss", thumb: "./assets/images/ACE_02/ACE_02_LOGO.png", genre: "Simulation", updated: "2026-09-23", releaseDate: "1997-08-15", duration: "0h 0m", bg: "./assets/images/ACE_02/ACE_02_BKG.jpg", icon: "./assets/images/ACE_02/ACE_02_ICON.png" , images: { card: "./assets/images/ACE_02/ACE_02_CARD.jpg", saga: "./assets/images/ACE_02/ACE_02_SAGA.jpg", genre: "./assets/images/ACE_02/ACE_02_GENRE.jpg", poster: "./assets/images/ACE_02/ACE_02_POSTER.jpg" } },
+  { title: "Pokemon Let's Go Eevee", saga: "Pokémon", desc: "0 videos", url: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c", thumb: "./assets/images/POKELGE/POKELGE_LOGO.png", genre: "RPG", updated: "2023-07-14", releaseDate: "2018-11-16", duration: "0h 0m", bg: "./assets/images/POKELGE/POKELGE_BKG.jpg", icon: "./assets/images/POKELGE/POKELGE_ICON.png", images: { card: "./assets/images/POKELGE/POKELGE_CARD.jpg", saga: "./assets/images/POKELGE/POKELGE_SAGA.jpg", genre: "./assets/images/POKELGE/POKELGE_GENRE.jpg", poster: "./assets/images/POKELGE/POKELGE_POSTER.jpg" } },
+  { title: "Resident Evil Remake", saga: "Resident Evil", desc: "16 videos", url: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", thumb: "./assets/images/REREM/REREM_LOGO.png", genre: "Horror", updated: "2023-05-23", releaseDate: "2002-04-30", duration: "18h 50m", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", images: { card: "./assets/images/REREM/REREM_CARD.jpg", saga: "./assets/images/REREM/REREM_SAGA.jpg", genre: "./assets/images/REREM/REREM_GENRE.jpg", poster: "./assets/images/REREM/REREM_POSTER.jpg" } },
+  { title: "Resident Evil Director's Cut", saga: "Resident Evil", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PLW92QaHn0kvw", thumb: "./assets/images/REDC/REDC_LOGO.png", genre: "Horror", updated: "2023-05-09", releaseDate: "1997-09-30", duration: "11h 26m", bg: "./assets/images/REDC/REDC_BKG.jpg", icon: "./assets/images/REDC/REDC_ICON.png", images: { card: "./assets/images/REDC/REDC_CARD.jpg", saga: "./assets/images/REDC/REDC_SAGA.jpg", genre: "./assets/images/REDC/REDC_GENRE.jpg", poster: "./assets/images/REDC/REDC_POSTER.jpg" } },
+  { title: "F1 2000 (PSX)", saga: "F1", desc: "6 videos", url: "https://www.youtube.com/playlist?list=PLJXk52AjnOAM", thumb: "./assets/images/F1-2000-psx/F1_2000_PSX_LOGO.png", genre: "Racing", updated: "2024-06-21", releaseDate: "2000-03-27", duration: "7h 3m", bg: "./assets/images/F1-2000-psx/F1_2000_PSX_BKG.jpg", icon: "./assets/images/F1-2000-psx/F1_2000_PSX_ICON.png", images: { card: "./assets/images/F1-2000-psx/F1_2000_PSX_CARD.jpg", saga: "./assets/images/F1-2000-psx/F1_2000_PSX_SAGA.jpg", genre: "./assets/images/F1-2000-psx/F1_2000_PSX_GENRE.jpg", poster: "./assets/images/F1-2000-psx/F1_2000_PSX_POSTER.jpg" } },
+  { title: "Minecraft", saga: "Minecraft", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PLC7qZUo5o1dU", thumb: "./assets/images/MNCRFT/MNCRFT_LOGO.png", genre: "Sandbox", updated: "2021-09-05", releaseDate: "2011-11-18", duration: "0h 9m", bg: "./assets/images/MNCRFT/MNCRFT_BKG.jpg", icon: "./assets/images/MNCRFT/MNCRFT_ICON.png", images: { card: "./assets/images/MNCRFT/MNCRFT_CARD.jpg", saga: "./assets/images/MNCRFT/MNCRFT_SAGA.jpg", genre: "./assets/images/MNCRFT/MNCRFT_GENRE.jpg", poster: "./assets/images/MNCRFT/MNCRFT_POSTER.jpg" } },
+  { title: "Final Fantasy IX", saga: "Final Fantasy", desc: "22 videos", url: "https://www.youtube.com/playlist?list=PLeGuSdYfxKFw", thumb: "./assets/images/FFIX/FFIX_LOGO.png", genre: "RPG", updated: "2026-04-19", releaseDate: "2000-11-14", duration: "44h 18m", bg: "./assets/images/FFIX/FFIX_BKG.jpg", icon: "./assets/images/FFIX/FFIX_ICON.png", images: { card: "./assets/images/FFIX/FFIX_CARD.jpg", saga: "./assets/images/FFIX/FFIX_SAGA.jpg", genre: "./assets/images/FFIX/FFIX_GENRE.jpg", poster: "./assets/images/FFIX/FFIX_POSTER.jpg" } },
+  { title: "Final Fantasy 7 Remake | Intergrade", saga: "Final Fantasy", desc: "21 videos", url: "https://www.youtube.com/playlist?list=PLV8T9JsLJRxs", thumb: "./assets/images/FF7REM/FF7REM_LOGO.png", genre: "RPG", updated: "2026-07-06", releaseDate: "2021-06-10", duration: "36h 20m", bg: "./assets/images/FF7REM/FF7REM_BKG.jpg", icon: "./assets/images/FF7REM/FF7REM_ICON.png", images: { card: "./assets/images/FF7REM/FF7REM_CARD.jpg", saga: "./assets/images/FF7REM/FF7REM_SAGA.jpg", genre: "./assets/images/FF7REM/FF7REM_GENRE.jpg", poster: "./assets/images/FF7REM/FF7REM_POSTER.jpg" } },
+  { title: "Grand Theft Auto Online", saga: "Grand Theft Auto", desc: "3 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQ_UzOly3QDKYhkCrF711Mx", thumb: "./assets/images/GTAO/GTAO_LOGO.png", genre: "Sandbox", updated: "2020-10-17", releaseDate: "2013-10-01", duration: "0h 6m", bg: "./assets/images/GTAO/GTAO_BKG.jpg", icon: "./assets/images/GTAO/GTAO_ICON.png", images: { card: "./assets/images/GTAO/GTAO_CARD.jpg", saga: "./assets/images/GTAO/GTAO_SAGA.jpg", genre: "./assets/images/GTAO/GTAO_GENRE.jpg", poster: "./assets/images/GTAO/GTAO_POSTER.jpg" } },
+  { title: "Sheep Raider", saga: "Sheep Raider", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQe4wyV0VCpb6SnP5whF1t2", thumb: "./assets/images/SHEEP/SHEEP_LOGO.png", genre: "Platform", updated: "2020-06-27", releaseDate: "2001-09-27", duration: "7h 8m", bg: "./assets/images/SHEEP/SHEEP_BKG.jpg", icon: "./assets/images/SHEEP/SHEEP_ICON.png", images: { card: "./assets/images/SHEEP/SHEEP_CARD.jpg", saga: "./assets/images/SHEEP/SHEEP_SAGA.jpg", genre: "./assets/images/SHEEP/SHEEP_GENRE.jpg", poster: "./assets/images/SHEEP/SHEEP_POSTER.jpg" } },
+  { title: "Crash Nitro Fuelled", saga: "Crash Bandicoot", desc: "15 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2", thumb: "./assets/images/CTRNF/CTRNF_LOGO.png", genre: "Racing", updated: "2020-06-07", releaseDate: "2019-06-21", duration: "11h 0m", bg: "./assets/images/CTRNF/CTRNF_BKG.jpg", icon: "./assets/images/CTRNF/CTRNF_ICON.png", images: { card: "./assets/images/CTRNF/CTRNF_CARD.jpg", saga: "./assets/images/CTRNF/CTRNF_SAGA.jpg", genre: "./assets/images/CTRNF/CTRNF_GENRE.jpg", poster: "./assets/images/CTRNF/CTRNF_POSTER.jpg" } },
+  { title: "Spyro Reignited Trilogy - Spyro 3 Year of the Dragon", saga: "Spyro", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSyqFFRSLydJgFQeVXhsEGC", thumb: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_LOGO.png", genre: "Platform", updated: "2019-01-07", releaseDate: "2018-11-13", duration: "4h 44m", bg: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_BKG.jpg", icon: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_ICON.png", images: { card: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_CARD.jpg", saga: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_SAGA.jpg", genre: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_GENRE.jpg", poster: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_POSTER.jpg" } },
+  { title: "Spyro Reignited Trilogy - Spyro 2 Ripto's Rage", saga: "Spyro", desc: "17 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSEbhi3Wg97QiuJ0dD9r9US", thumb: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_LOGO.png", genre: "Platform", updated: "2019-01-04", releaseDate: "2018-11-13", duration: "11h 15m", bg: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_BKG.jpg", icon: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_ICON.png", images: { card: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_CARD.jpg", saga: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_SAGA.jpg", genre: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_GENRE.jpg", poster: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_POSTER.jpg" } },
+  { title: "Klonoa: Door to Phantomile", saga: "Klonoa", desc: "5 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBRTK1HVJkNGD3eFzN6kWiq8", thumb: "./assets/images/KLO_DTPM/KLO_DTPM_LOGO.png", genre: "Platform", updated: "2019-01-04", releaseDate: "1998-03-10", duration: "3h 0m", bg: "./assets/images/KLO_DTPM/KLO_DTPM_BKG.jpg", icon: "./assets/images/KLO_DTPM/KLO_DTPM_ICON.png", images: { card: "./assets/images/KLO_DTPM/KLO_DTPM_CARD.jpg", saga: "./assets/images/KLO_DTPM/KLO_DTPM_SAGA.jpg", genre: "./assets/images/KLO_DTPM/KLO_DTPM_GENRE.jpg", poster: "./assets/images/KLO_DTPM/KLO_DTPM_POSTER.jpg" } },
+  { title: "Crash Bandicoot 2: Cortex Strikes Back", saga: "Crash Bandicoot", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe", thumb: "./assets/images/CRASH2/CRASH2_LOGO.png", genre: "Platform", updated: "2018-12-30", releaseDate: "1997-11-06", duration: "3h 59m", bg: "./assets/images/CRASH2/CRASH2_BKG.jpg", icon: "./assets/images/CRASH2/CRASH2_ICON.png", images: { card: "./assets/images/CRASH2/CRASH2_CARD.jpg", saga: "./assets/images/CRASH2/CRASH2_SAGA.jpg", genre: "./assets/images/CRASH2/CRASH2_GENRE.jpg", poster: "./assets/images/CRASH2/CRASH2_POSTER.jpg" } }
 ];
 
 // Mapeo de juegos con bitácora de análisis disponible -> carpeta correspondiente
@@ -635,7 +653,7 @@ function renderHero(game) {
   $('heroPlay').addEventListener('click', () => showConfirmModal(game));
   renderRotator();
   updateContextCallout();
-  document.querySelectorAll('#recentScroller .card').forEach(c => c.classList.toggle('current', c.dataset.title === game.title));
+  document.querySelectorAll('#recentScroller .poster').forEach(c => c.classList.toggle('current', c.dataset.title === game.title));
 }
 
 function renderRotator() {
@@ -690,8 +708,20 @@ function cardHTML(g) {
     <span class="card-cap"><b>${esc(g.title)}</b><span>${esc(g.genre || 'Sin categoría')} · ${videoCountOf(g)} videos</span></span>
   </button>`;
 }
+function posterHTML(g) {
+  const year = g.releaseDate ? new Date(g.releaseDate + 'T00:00:00').getFullYear() : '';
+  const meta = [year, g.genre || 'Sin categoría', videoCountOf(g) + ' videos'].filter(Boolean).map(esc).join('<i>·</i>');
+  return `<button class="poster" type="button" data-title="${esc(g.title)}" aria-label="${esc(g.title)}">
+    <img class="bg" src="${esc(imgOf(g, 'poster'))}" alt="" loading="lazy">
+    ${hasBitacora(g) ? '<span class="badge">BITÁCORA</span>' : ''}
+    <span class="info">
+      ${g.thumb ? `<img class="logo" src="${esc(g.thumb)}" alt="">` : `<b>${esc(g.title)}</b>`}
+      <span class="meta">${meta}</span>
+    </span>
+  </button>`;
+}
 function bindCards(container) {
-  container.querySelectorAll('.card').forEach(c => c.addEventListener('click', () => {
+  container.querySelectorAll('.card, .poster').forEach(c => c.addEventListener('click', () => {
     const g = playlists.find(p => p.title === c.dataset.title);
     if (!g) return;
     if (hasBitacora(g)) { location.href = bitacoraUrl(g.title); return; }
@@ -701,7 +731,7 @@ function bindCards(container) {
 
 function renderRows() {
   const sorted = playlists.slice().sort(byUpdatedDesc);
-  $('recentScroller').innerHTML = sorted.map(cardHTML).join('');
+  $('recentScroller').innerHTML = sorted.map(posterHTML).join('');
   $('countRecent').textContent = playlists.length + ' juegos';
   bindCards($('recentScroller'));
 
@@ -746,7 +776,7 @@ function renderRows() {
   const totalVideos = playlists.reduce((s, p) => s + videoCountOf(p), 0);
   const totalMinutes = playlists.reduce((s, p) => s + parseDurationToMinutes(p.duration), 0);
   $('footTotals').textContent = `${playlists.length} juegos · ${totalVideos} videos · ${formatMinutes(totalMinutes)} grabadas`;
-  if (heroGame) document.querySelectorAll('#recentScroller .card').forEach(c => c.classList.toggle('current', c.dataset.title === heroGame.title));
+  if (heroGame) document.querySelectorAll('#recentScroller .poster').forEach(c => c.classList.toggle('current', c.dataset.title === heroGame.title));
 }
 
 document.querySelectorAll('[data-scroll]').forEach(b => b.addEventListener('click', () => {
