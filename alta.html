@@ -648,7 +648,7 @@ const IMAGES = [
   { t: "LOGO", name: "Logo", where: "sobre la portada y en todas las tarjetas", ratio: "16 / 9", min: 300, png: true, contain: true },
   { t: "ICON", name: "Ícono pixel art", where: "junto al género en la portada", ratio: "1 / 1", min: 64, png: true, contain: true }
 ];
-const STEPS = [
+const ALL_STEPS = [
   { id: "inicio", label: "Altas en curso" },
   { id: "nombre", label: "Nombre de la serie" },
   { id: "slug", label: "Slug" },
@@ -659,6 +659,11 @@ const STEPS = [
   ...IMAGES.map(im => ({ id: "img_" + im.t, label: im.name, img: im })),
   { id: "fin", label: "Enviar a Tifa" }
 ];
+// Serie existente: solo playlist (confirmación), transcripciones, análisis y envío
+const EXISTING_IDS = ["inicio", "playlist", "trans", "analisis", "fin"];
+const stepsFor = x => x && x.kind === "existente" ? ALL_STEPS.filter(st => EXISTING_IDS.includes(st.id)) : ALL_STEPS;
+let STEPS = ALL_STEPS;
+function useSerie(x) { cur = x; STEPS = stepsFor(x); }
 let store = JSON.parse(lsGet("alta_series") || "{}");   // { id: serie }
 let cur = null;                                           // serie en edición
 let stepIdx = 0;
@@ -719,20 +724,37 @@ function render() {
   (screens[s.id] || screens.img)(s);
 }
 const body = html => { $("stepBody").innerHTML = html; };
-const head = (n, q, help) => `<span class="lbl">Paso ${n} de ${STEPS.length - 1}</span><h2 class="q">${q}</h2>${help ? `<p class="help">${help}</p>` : ""}`;
+const head = (n, q, help) => `<span class="lbl">${cur && cur.kind === "existente" ? "Serie existente · " : ""}Paso ${stepIdx} de ${STEPS.length - 1}</span><h2 class="q">${q}</h2>${help ? `<p class="help">${help}</p>` : ""}`;
 
 const screens = {
   inicio() {
     const list = Object.values(store).sort((a, b) => b.updated - a.updated);
     body(`<span class="lbl">Alta de series</span><h2 class="q">Dar de alta una serie nueva</h2>
       <p class="help">Paso a paso: nombre, slug, playlist, transcripciones, análisis con Claude e imágenes. Al final se crea en Drive el archivo de alta y le avisas a Tifa para el onboarding. Puedes cerrar y retomar en cualquier momento.</p>
-      <div class="btns" style="margin-bottom:28px"><button class="accent" id="newBtn">+ Nueva serie</button></div>
+      <div class="series-list" style="margin-bottom:28px">
+        <button class="serie-card" id="newBtn"><b>+ Serie nueva</b><small>Todo el flujo: nombre, slug, playlist, datos, transcripciones, análisis e imágenes.</small></button>
+        <button class="serie-card" id="existBtn"><b>↻ Serie existente</b><small>Solo agregar o actualizar transcripciones y análisis de una serie que ya está en la app.</small></button>
+      </div>
+      <div id="existPick" class="hidden" style="margin-bottom:28px"><h3 style="font-size:16px;margin-bottom:12px">¿Cuál serie?</h3><div class="series-list" id="existList"><p class="help">Cargando series…</p></div></div>
       ${list.length ? `<h3 style="font-size:16px;margin-bottom:12px">Altas guardadas en este navegador</h3><div class="series-list">${list.map(x => {
-        const done = STEPS.filter(st => st.id !== "inicio" && stepDone(x, st.id)).length, total = STEPS.length - 1;
-        return `<button class="serie-card" data-id="${x.id}"><b>${esc(x.name || "Serie sin nombre")}</b><small>${esc(x.slug || "sin slug")} · ${x.sent ? "enviada a Tifa" : "paso " + x.step + " de " + total}</small>
+        const ST = stepsFor(x), done = ST.filter(st => st.id !== "inicio" && stepDone(x, st.id)).length, total = ST.length - 1;
+        return `<button class="serie-card" data-id="${x.id}"><b>${esc(x.name || "Serie sin nombre")}</b><small>${x.kind === "existente" ? "Actualización · " : ""}${esc(x.slug || "sin slug")} · ${x.sent ? "enviada a Tifa" : "paso " + x.step + " de " + total}</small>
           <span class="bar"><i style="width:${done / total * 100}%"></i></span></button>`; }).join("")}</div>` : ""}`);
-    $("newBtn").onclick = () => { cur = newSerie(); save(); go(1); };
-    document.querySelectorAll(".serie-card").forEach(b => b.onclick = () => { cur = store[b.dataset.id]; go(Math.min(cur.step, STEPS.length - 1)); });
+    $("newBtn").onclick = () => { useSerie(newSerie()); save(); go(1); };
+    $("existBtn").onclick = async () => {
+      $("existPick").classList.remove("hidden");
+      try {
+        const list = await loadExisting();
+        $("existList").innerHTML = list.map((g, i) => `<button class="serie-card" data-e="${i}"><b>${esc(g.title)}</b><small>${esc(g.slug)} · ${g.bitacora ? "con bitácora" : "sin bitácora"}</small></button>`).join("");
+        $("existList").querySelectorAll("[data-e]").forEach(b => b.onclick = () => {
+          const g = list[+b.dataset.e], x = newSerie();
+          Object.assign(x, { kind: "existente", name: g.title, slug: g.slug, playlistId: g.playlistId, playlistUrl: g.url,
+            playlist: g.playlistId ? { id: g.playlistId, title: g.title, count: g.count, thumb: g.thumb } : null });
+          useSerie(x); save(); go(1);
+        });
+      } catch (e) { $("existList").innerHTML = `<p class="msg err">No se pudo leer la lista de series: ${esc(e.message)}</p>`; }
+    };
+    document.querySelectorAll(".serie-card[data-id]").forEach(b => b.onclick = () => { useSerie(store[b.dataset.id]); go(Math.min(cur.step, STEPS.length - 1)); });
   },
 
   nombre() {
@@ -760,7 +782,7 @@ const screens = {
   },
 
   playlist() {
-    body(head(3, "¿Cuál es la playlist?", "Pega la URL de la playlist de YouTube. Tiene que ser del canal con el que iniciaste sesión en YouTube.") +
+    body(head(3, cur.kind === "existente" ? "Confirma la playlist" : "¿Cuál es la playlist?", cur.kind === "existente" ? `Es la playlist de <b>${esc(cur.name)}</b> registrada en la app (slug <b>${esc(cur.slug)}</b>). Si agregaste videos, las transcripciones nuevas se bajan en el siguiente paso.` : "Pega la URL de la playlist de YouTube. Tiene que ser del canal con el que iniciaste sesión en YouTube.") +
       `<div class="field"><input type="url" id="fUrl" value="${esc(cur.playlistUrl)}" placeholder="https://www.youtube.com/playlist?list=…"></div><div class="msg" id="plMsg"></div><div id="plInfo"></div>`);
     const show = () => { if (!cur.playlist) { $("plInfo").innerHTML = ""; return; } const p = cur.playlist;
       $("plInfo").innerHTML = `<div class="card pl-card">${p.thumb ? `<img src="${esc(p.thumb)}" alt="">` : ""}<div><b>${esc(p.title)}</b><div class="facts" style="margin-top:6px"><span>${p.count} videos</span><span class="k">${esc(p.channel || "")}</span></div></div></div>`; };
@@ -852,7 +874,7 @@ const screens = {
 
   fin() {
     const missing = STEPS.filter(s => !["inicio", "fin", "datos"].includes(s.id) && !stepDone(cur, s.id)).map(s => s.label);
-    body(head(STEPS.length - 1, "Enviar a Tifa", "Se crea el archivo de alta en Drive con todo lo que Tifa necesita para el onboarding.") +
+    body(head(STEPS.length - 1, "Enviar a Tifa", (cur.kind === "existente" ? "Se crea en Drive el resumen de la actualización para que Tifa la publique." : "Se crea el archivo de alta en Drive con todo lo que Tifa necesita para el onboarding.")) +
       `<div class="card"><h3>Resumen</h3><div class="checks">
         ${STEPS.filter(s => !["inicio", "fin"].includes(s.id)).map(s => `<div class="check ${stepDone(cur, s.id) ? "ok" : s.id === "datos" ? "wait" : "warn"}"><i>${stepDone(cur, s.id) ? "✓" : s.id === "datos" ? "·" : "!"}</i><span>${esc(s.label)}${s.id === "datos" ? " (opcional)" : ""}</span></div>`).join("")}
       </div>${missing.length ? `<p class="msg warn">Hay pasos pendientes (${esc(missing.join(", "))}). Puedes enviar igual: queda anotado en el archivo de alta.</p>` : ""}</div>
@@ -863,6 +885,18 @@ const screens = {
     if (cur.sent) showDone();
   }
 };
+
+/* ---------- Series que ya están en la app (se leen de index.html publicado) ---------- */
+async function loadExisting() {
+  const html = await (await fetch("index.html", { cache: "no-store" })).text();
+  const grab = marker => { const a = html.indexOf(marker); if (a < 0) return null; const st = html.indexOf(marker.endsWith("[") ? "[" : "{", a);
+    let d = 0; for (let k = st; k < html.length; k++) { const c = html[k]; if (c === "[" || c === "{") d++; else if (c === "]" || c === "}") { d--; if (!d) return html.slice(st, k + 1); } } return null; };
+  const pls = new Function("return " + grab("const playlists = ["))();
+  const bit = new Function("return " + (grab("const BITACORA_GAMES = {") || "{}"))();
+  return pls.map(p => ({ title: p.title, url: p.url, playlistId: (p.url.match(/[?&]list=([A-Za-z0-9_-]+)/) || [])[1] || "",
+    slug: ((p.bg || p.thumb || "").match(/assets\/images\/([^/]+)\//) || [])[1] || bit[p.title] || "", count: parseInt(p.desc) || 0,
+    thumb: (p.images && p.images.card) || p.bg || "", bitacora: p.title in bit })).filter(g => g.slug).sort((a, b) => a.title.localeCompare(b.title));
+}
 
 /* ---------- Slug sugerido: primera palabra + iniciales del resto (Klonoa: Door to Phantomile → KLO_DTP) ---------- */
 function suggestSlug(name) {
@@ -1077,19 +1111,19 @@ function altaMarkdown() {
     saga: cur.saga || null, genero: cur.genre || null, lanzamiento: cur.releaseDate || null, notas: cur.notes || null,
     transcripciones: t ? { listas: t.ok, total: t.total } : null, analisis: a ? { validado: a.valid, capitulos: a.chapters || 0, archivos: a.files || [] } : null,
     imagenes: Object.fromEntries(Object.entries(cur.images).map(([k, v]) => [k, { archivo: v.name, ancho: v.w, alto: v.h, aviso: v.warn || null }])),
-    pendientes: pend, creado: new Date().toISOString() };
-  return `# Alta de serie: ${cur.name}
+    tipo: cur.kind === "existente" ? "actualizacion" : "nueva", pendientes: pend, creado: new Date().toISOString() };
+  return `# ${cur.kind === "existente" ? "Actualización de serie (transcripciones y análisis)" : "Alta de serie"}: ${cur.name}
 
 - **Nombre:** ${cur.name}
 - **Slug:** ${cur.slug}
 - **Playlist:** https://www.youtube.com/playlist?list=${cur.playlistId} (${cur.playlist?.count ?? "?"} videos)
-- **Saga:** ${cur.saga || "(investigar)"}
+${cur.kind === "existente" ? "" : `- **Saga:** ${cur.saga || "(investigar)"}
 - **Género:** ${cur.genre || "(investigar)"}
 - **Lanzamiento:** ${cur.releaseDate || "(investigar)"}
-- **Transcripciones:** Transcriptions/${cur.slug}/ — ${t ? t.ok + " de " + t.total : "no extraídas"}
+`}- **Transcripciones:** Transcriptions/${cur.slug}/ — ${t ? t.ok + " de " + t.total : "no extraídas"}
 - **Análisis:** ${a ? (a.valid ? "validado" : "sin validar") + ", " + (a.chapters || 0) + " capítulos" : "no ejecutado"}
-- **Imágenes:** Images/${cur.slug}/ — ${Object.values(cur.images).map(v => v.name).join(", ") || "ninguna"}
-- **Pendientes:** ${pend.length ? pend.join(", ") : "ninguno"}
+${cur.kind === "existente" ? "" : `- **Imágenes:** Images/${cur.slug}/ — ${Object.values(cur.images).map(v => v.name).join(", ") || "ninguna"}
+`}- **Pendientes:** ${pend.length ? pend.join(", ") : "ninguno"}
 ${cur.notes ? "\n## Notas de Jf\n\n" + cur.notes + "\n" : ""}
 ## Datos (JSON)
 
@@ -1102,7 +1136,7 @@ async function sendAlta() {
   const err = needs("drive"); if (err) return alertMsg(err);
   const m = $("sendMsg"); m.className = "msg"; m.textContent = "Creando el archivo…";
   try {
-    const name = cur.slug + ".md";
+    const name = cur.slug + (cur.kind === "existente" ? "_actualizacion.md" : ".md");
     const same = (await driveChildren(assets.altas.id)).find(f => f.name === name);
     await driveUploadText(assets.altas.id, name, altaMarkdown(), same && same.id);
     cur.sent = Date.now(); save(); renderSteps();
@@ -1111,7 +1145,9 @@ async function sendAlta() {
 }
 function showDone() {
   $("doneCard").classList.remove("hidden");
-  const txt = `Tifa, se cargó una nueva serie a Drive: ${cur.name} (slug ${cur.slug}). El archivo de alta está en Gameplays/Assets/Altas/${cur.slug}.md. Inicia el onboarding.`;
+  const txt = cur.kind === "existente"
+    ? `Tifa, actualicé transcripciones y análisis de ${cur.name} (slug ${cur.slug}). El resumen está en Gameplays/Assets/Altas/${cur.slug}_actualizacion.md. Actualiza la serie en la app.`
+    : `Tifa, se cargó una nueva serie a Drive: ${cur.name} (slug ${cur.slug}). El archivo de alta está en Gameplays/Assets/Altas/${cur.slug}.md. Inicia el onboarding.`;
   $("tifaMsg").textContent = txt;
   $("copyBtn").onclick = () => navigator.clipboard.writeText(txt).then(() => $("copyBtn").textContent = "Copiado ✓");
 }
