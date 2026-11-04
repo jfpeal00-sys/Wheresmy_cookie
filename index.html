@@ -817,8 +817,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.13";
-const APP_BUILD = "20261104.163608";
+const APP_VERSION = "2.14";
+const APP_BUILD = "20261104.165901";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -1415,9 +1415,13 @@ function applyFrame(img) {
   const cw = card.clientWidth, ch = card.classList.contains('stage') && isMobileLayout() ? $('hero').offsetHeight + 220 : card.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
   if (!cw || !ch || !nw || !nh) return; // se reintenta al cargar la imagen o al hacerse visible la tarjeta
   const s0 = Math.max(cw / nw, ch / nh), w = nw * s0, h = nh * s0;
+  // Encuadre por ancla: (u, v) es el punto de la imagen (0–1) que queda en el centro de la tarjeta y z el zoom
+  // sobre "cubrir". Así el sujeto sigue centrado aunque cambie la proporción de la tarjeta (otro celular,
+  // otro monitor). Los valores antiguos (x, y = desplazamiento) se siguen leyendo.
+  const tx = f.u !== undefined ? (0.5 - f.u) * w * f.z : f.x * cw, ty = f.u !== undefined ? (0.5 - f.v) * h * f.z : f.y * ch;
   img.dataset.framed = '1';
   img.style.cssText = `inset:auto;left:${((cw - w) / 2).toFixed(1)}px;top:${((ch - h) / 2).toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;` +
-    `object-fit:fill;max-width:none;transform-origin:center;transform:translate(${(f.x * cw).toFixed(1)}px,${(f.y * ch).toFixed(1)}px) scale(${f.z})` +
+    `object-fit:fill;max-width:none;transform-origin:center;transform:translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${f.z})` +
     // si la imagen queda más pequeña que la tarjeta, sus bordes se funden con el relleno
     (w * f.z < cw || h * f.z < ch ? ';-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 93%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 93%,transparent);mask-composite:intersect' : '');
   // relleno desenfocado (propiedad de la tarjeta) por si el encuadre deja bordes vacíos
@@ -1461,31 +1465,34 @@ function startFraming(card) {
   const img = card.querySelector('img.hero-bg.show') || card.querySelector('img.bg.show') || card.querySelector('img.bg') || card.querySelector(':scope > img:not(.bg-fill)');
   const key = frameKey(img); if (!key) return;
   const before = frames[key] ? { ...frames[key] } : null;
-  const f = frames[key] = { ...(frames[key] || { x: 0, y: 0, z: 1 }) };
+  const slot = () => { const cw = card.clientWidth, ch = host !== card && isMobileLayout() ? $('hero').offsetHeight + 220 : card.clientHeight, s0 = Math.max(cw / img.naturalWidth, ch / img.naturalHeight); return { cw, ch, w: img.naturalWidth * s0, h: img.naturalHeight * s0 }; };
+  let f = { ...(frames[key] || { u: 0.5, v: 0.5, z: 1 }) };
+  if (f.u === undefined) { const S = slot(); f = { u: 0.5 - f.x * S.cw / (S.w * f.z), v: 0.5 - f.y * S.ch / (S.h * f.z), z: f.z }; } // pasar a ancla
+  frames[key] = f;
   card.classList.add('is-framing');
   const ov = document.createElement('div');
   if (host !== card) ov.classList.add('framing-hero');
   ov.className = 'framing';
   ov.innerHTML = '<div class="hint">Arrastra para mover · rueda o − / + para zoom</div><div class="bar"><span data-a="out" title="Alejar">−</span><span data-a="in" title="Acercar">+</span><span data-a="reset" title="Restablecer">↺</span><span data-a="cancel" title="Cancelar">✕</span><span data-a="ok" class="ok" title="Listo">✓</span></div>';
   host.appendChild(ov);
-  const redraw = () => { f.x = +f.x.toFixed(4); f.y = +f.y.toFixed(4); f.z = +Math.min(4, Math.max(0.4, f.z)).toFixed(3); frames[key] = f; applyFrame(img); };
+  const redraw = () => { f.u = +f.u.toFixed(4); f.v = +f.v.toFixed(4); f.z = +Math.min(4, Math.max(0.4, f.z)).toFixed(3); frames[key] = f; applyFrame(img); };
   redraw();
   const stop = e => { e.preventDefault(); e.stopPropagation(); };
   ov.addEventListener('click', stop);
   let drag = null;
-  ov.addEventListener('pointerdown', e => { if (e.target.closest('.bar')) return; stop(e); drag = { x: e.clientX, y: e.clientY, fx: f.x, fy: f.y }; ov.setPointerCapture(e.pointerId); });
-  ov.addEventListener('pointermove', e => { if (!drag) return; const r = card.getBoundingClientRect(); const rh = host !== card && isMobileLayout() ? $('hero').offsetHeight + 220 : r.height; f.x = drag.fx + (e.clientX - drag.x) / r.width; f.y = drag.fy + (e.clientY - drag.y) / rh; redraw(); });
+  ov.addEventListener('pointerdown', e => { if (e.target.closest('.bar')) return; stop(e); drag = { x: e.clientX, y: e.clientY, fu: f.u, fv: f.v, S: slot() }; ov.setPointerCapture(e.pointerId); });
+  ov.addEventListener('pointermove', e => { if (!drag) return; f.u = drag.fu - (e.clientX - drag.x) / (drag.S.w * f.z); f.v = drag.fv - (e.clientY - drag.y) / (drag.S.h * f.z); redraw(); });
   ov.addEventListener('pointerup', () => { drag = null; });
   ov.addEventListener('wheel', e => { stop(e); f.z *= e.deltaY < 0 ? 1.06 : 1 / 1.06; redraw(); }, { passive: false });
   ov.querySelector('.bar').addEventListener('click', e => {
     stop(e); const a = e.target.dataset.a; if (!a) return;
     if (a === 'in') { f.z *= 1.1; redraw(); }
     else if (a === 'out') { f.z /= 1.1; redraw(); }
-    else if (a === 'reset') { f.x = 0; f.y = 0; f.z = 1; redraw(); }
+    else if (a === 'reset') { f.u = 0.5; f.v = 0.5; f.z = 1; redraw(); }
     else {
       if (a === 'cancel') { if (before) frames[key] = before; else delete frames[key]; }
       else {
-        if (f.x === 0 && f.y === 0 && f.z === 1) delete frames[key];
+        if (f.u === 0.5 && f.v === 0.5 && f.z === 1) delete frames[key];
         framesDirty[key] = true;
         store2.set('wmc_frames_pending', JSON.stringify(frames));
       }
