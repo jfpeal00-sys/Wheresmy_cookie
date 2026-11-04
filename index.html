@@ -237,7 +237,7 @@
   .search { display: flex; align-items: center; gap: 8px; width: 280px; max-width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 9px 14px; }
   .search svg { width: 15px; height: 15px; flex-shrink: 0; }
   .search input { all: unset; flex: 1; min-width: 0; font-size: 14px; color: var(--fg); }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; justify-content: center; }
   .chip { all: unset; cursor: pointer; font-size: 12px; font-weight: 600; padding: 7px 13px; border-radius: 999px; background: rgba(155,138,196,0.12); color: var(--accent-2); white-space: nowrap; }
   .chip:hover { background: rgba(155,138,196,0.22); }
   .chip.on { background: var(--accent); color: #100d14; }
@@ -295,7 +295,7 @@
   .s-sec > h3 { font-size: 18px; font-weight: 800; margin-bottom: 14px; }
   .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
   .kpi { padding: 18px 20px; border-radius: 14px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); display: flex; flex-direction: column; gap: 6px; }
-  .kpi b { font-size: 32px; font-weight: 900; line-height: 1; }
+  .kpi b { font-size: 34px; font-weight: 900; line-height: 1; white-space: nowrap; }
   .kpi b small { font-size: 14px; font-weight: 700; color: var(--muted); }
   .kpi span { font-size: 13px; color: var(--muted); }
   .time-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 6px 40px; }
@@ -342,9 +342,7 @@
   .s-card { padding: 22px 24px; border-radius: 16px; background: rgba(21,17,27,0.72); box-shadow: inset 0 0 0 1px var(--line); }
   .s-card > h3 { font-size: 17px; font-weight: 800; }
   .s-card > p.sub { font-size: 13px; color: var(--muted); margin: 4px 0 18px; }
-  .figs { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 14px; }
-  .figs .kpi.hero b { font-size: 56px; letter-spacing: -0.01em; }
-  .figs .kpi.hero { justify-content: flex-end; }
+  .figs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
   .seg { display: flex; gap: 2px; height: 28px; border-radius: 6px; overflow: hidden; }
   .seg > i { display: flex; align-items: center; padding: 0 8px; font-style: normal; font-size: 12px; font-weight: 800; color: #fff; min-width: 0; white-space: nowrap; overflow: hidden; border-radius: 4px; cursor: default; }
   .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px; font-size: 13px; color: var(--soft); }
@@ -355,6 +353,26 @@
   .s-bar { height: 12px; border-radius: 0 4px 4px 0; background: rgba(255,255,255,0.05); overflow: visible; position: relative; }
   .s-bar i { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--accent); }
   .time-row:hover .s-bar i { background: var(--accent-2); }
+  .db { position: relative; }
+  .db-row { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 240px 1fr 84px; align-items: center; height: 32px; width: 100%; border-radius: 8px; cursor: pointer; }
+  .db-row:not(.db-axis):hover { background: rgba(255,255,255,0.04); }
+  .db-lab { font-size: 13px; font-weight: 500; color: var(--soft); text-align: right; padding-right: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .db-track { position: relative; height: 100%; }
+  .db-val { font-size: 12px; font-weight: 600; color: var(--muted); padding-left: 14px; font-variant-numeric: tabular-nums; }
+  .db-axis { cursor: default; height: 24px; }
+  .db-axis .db-track span { position: absolute; top: 4px; transform: translateX(-50%); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .db-grid { position: absolute; top: 24px; bottom: 0; left: 240px; right: 84px; pointer-events: none; }
+  .db-grid i { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.06); }
+  .db-line { position: absolute; top: 50%; height: 2px; margin-top: -1px; border-radius: 1px; background: rgba(155,138,196,0.45); }
+  .db-dot { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; box-shadow: 0 0 0 2px #15111b; }
+  .db-dot.r { background: #6f6584; }
+  .db-dot.u { background: var(--accent); }
+  .cols { display: flex; align-items: flex-end; height: 190px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-top: 26px; }
+  .col { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; cursor: default; }
+  .col:hover { background: rgba(255,255,255,0.03); }
+  .col b { font-size: 12px; font-weight: 700; margin-bottom: 6px; }
+  .col i { width: min(24px, 60%); border-radius: 4px 4px 0 0; background: var(--accent); }
+  .col span { position: absolute; bottom: -22px; font-size: 11px; color: var(--muted); }
   .viz { width: 100%; height: auto; display: block; overflow: visible; }
   .viz text { font-family: var(--font); fill: var(--muted); font-size: 12px; }
   .viz .grid { stroke: rgba(255,255,255,0.07); stroke-width: 1; }
@@ -446,7 +464,10 @@
 
   /* ===== Móvil ===== */
   @media (max-width: 899px) {
-    .hero-bg { object-position: var(--pos-m, center 30%); }
+    /* en móvil la imagen cubre solo la portada (+ un tramo que se funde): si cubriera todo el escenario alto,
+       se ampliaba muchísimo y en la portada solo se veía una esquina */
+    .hero-bg { inset: 0 0 auto 0; height: calc(var(--hero-h) + 220px); object-position: var(--pos-m, center center);
+      -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent); mask-image: linear-gradient(180deg, #000 72%, transparent); }
     :root { --rail: 0px; }
     .rail { top: auto; bottom: 0; right: 0; width: auto; height: auto; flex-direction: row; justify-content: space-around; gap: 0; padding: 8px 6px calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(14,11,18,0.94); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); }
     .rail-avatar { display: none; }
@@ -509,11 +530,13 @@
     .view .tab-body { padding: 0 16px 30px; }
     .kpis, .figs { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
     .figs .kpi.hero { grid-column: 1 / -1; }
-    .figs .kpi.hero b { font-size: 40px; }
     .s-grid2, .time-list { grid-template-columns: 1fr; }
     .s-card { padding: 16px; }
-    .viz-scroll { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
-    .viz-scroll .viz { min-width: 760px; }
+    .db-row { grid-template-columns: 112px 1fr 58px; height: 30px; }
+    .db-grid { left: 112px; right: 58px; }
+    .db-axis .db-track span:nth-child(even) { display: none; }
+    .db-lab { font-size: 12px; padding-right: 10px; }
+    .db-val { padding-left: 8px; font-size: 11px; }
     .kpi { padding: 14px; }
     .kpi b { font-size: 24px; }
     .time-row { grid-template-columns: 43px 1fr 56px; gap: 10px; }
@@ -531,7 +554,7 @@
     .filters { padding: 0 16px 12px; }
     .search { width: 100%; }
     .select { margin-left: 0; }
-    .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; }
+    .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; width: 100%; flex: none; justify-content: safe center; }
     .grid { padding: 4px 16px 110px; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px 10px; }
     .drawer { top: 70px; width: 100%; border-radius: 22px 22px 0 0; animation: slideUp 0.25s ease; }
     @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -768,8 +791,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.10";
-const APP_BUILD = "20261104.161046";
+const APP_VERSION = "2.11";
+const APP_BUILD = "20261104.162358";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -830,7 +853,7 @@ function renderHero(game) {
     const next = layers.find(l => l !== shown);
     const pos = HERO_POS[game.title] || {};
     next.style.setProperty('--pos-d', pos.d || 'center 30%');
-    next.style.setProperty('--pos-m', pos.m || 'center 30%');
+    next.style.setProperty('--pos-m', pos.m || 'center center');
     const swap = () => { next.classList.add('show'); if (shown) shown.classList.remove('show'); heroShown(); };
     if (next.getAttribute('src') === src && next.complete) swap();
     else { next.onload = swap; next.onerror = heroShown; next.src = src; }
@@ -1036,7 +1059,7 @@ $('sortBy').addEventListener('change', e => { collectionState.sort = e.target.va
 let lastFocus = null;
 // Colección y Estadísticas son secciones de página completa (index.html#coleccion, #estadisticas):
 // el riel lleva directo a ellas y el botón Atrás del navegador vuelve al inicio.
-const VIEWS = { coleccion: 'collectionOverlay', estadisticas: 'statsOverlay' };
+const VIEWS = { coleccion: 'collectionOverlay', buscar: 'collectionOverlay', estadisticas: 'statsOverlay' };
 function route() {
   const id = VIEWS[location.hash.slice(1)] || null;
   document.querySelectorAll('.overlay.view').forEach(o => o.classList.toggle('show', o.id === id));
@@ -1045,9 +1068,10 @@ function route() {
   if (id === 'statsOverlay') renderStats();
   if (id === 'collectionOverlay') renderCollection();
   if (id) $(id).scrollTop = 0;
+  if (location.hash === '#buscar') setTimeout(() => $('search').focus(), 60);
 }
 function openOverlay(id) {
-  const hash = '#' + Object.keys(VIEWS).find(k => VIEWS[k] === id);
+  const hash = '#' + (id === 'collectionOverlay' ? 'coleccion' : 'estadisticas');
   if (location.hash === hash) route(); else location.hash = hash;
 }
 function closeOverlay(id) {
@@ -1177,37 +1201,26 @@ function renderStats() {
   // ===== CRONOLOGÍA: lanzamiento → grabación (gráfico de pesas) + playlists por año (columnas) =====
   const yrs = withRelease.filter(p => p.updated).map(p => ({ g: p, r: year(p.releaseDate), u: +p.updated.slice(0, 4) })).sort((a, b) => a.r - b.r);
   const y0 = Math.floor(Math.min(...yrs.map(d => d.r)) / 5) * 5, y1 = Math.ceil((Math.max(...yrs.map(d => d.u)) + 1) / 5) * 5;
-  const DW = 1000, LW = 250, RW = 70, rowH = 30, top = 26, DH = top + yrs.length * rowH + 8;
-  const X = y => LW + (y - y0) / (y1 - y0) * (DW - LW - RW);
+  const X = y => ((y - y0) / (y1 - y0) * 100).toFixed(2);
   const ticks = []; for (let t = y0; t <= y1; t += 5) ticks.push(t);
-  const dumbbell = `<svg class="viz" viewBox="0 0 ${DW} ${DH}" role="img" aria-label="Año de lanzamiento y año de grabación de cada juego">
-    ${ticks.map(t => `<line class="grid" x1="${X(t)}" x2="${X(t)}" y1="${top - 8}" y2="${DH}"/><text x="${X(t)}" y="12" text-anchor="middle">${t}</text>`).join('')}
-    ${yrs.map((d, i) => { const cy = top + i * rowH + rowH / 2, gap = d.u - d.r;
-      return `<g class="row" data-title="${esc(d.g.title)}" ${tip(d.g.title, ['Lanzamiento: ' + d.r, 'Grabado: ' + d.u, gap ? gap + (gap === 1 ? ' año después' : ' años después') : 'El mismo año'])}>
-        <rect class="hit" x="0" y="${cy - rowH / 2}" width="${DW}" height="${rowH}" rx="6"/>
-        <text class="lab" x="${LW - 16}" y="${cy + 4}" text-anchor="end">${esc(d.g.title.length > 30 ? d.g.title.slice(0, 29) + '…' : d.g.title)}</text>
-        <line x1="${X(d.r)}" x2="${X(d.u)}" y1="${cy}" y2="${cy}" stroke="rgba(155,138,196,0.45)" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="${X(d.r)}" cy="${cy}" r="5" fill="#6f6584" stroke="#15111b" stroke-width="2"/>
-        <circle cx="${X(d.u)}" cy="${cy}" r="5" fill="var(--accent)" stroke="#15111b" stroke-width="2"/>
-        <text class="val" x="${DW - RW + 14}" y="${cy + 4}">${gap ? '+' + gap + (gap === 1 ? ' año' : ' años') : '—'}</text></g>`; }).join('')}
-  </svg>`;
+  const dumbbell = `<div class="db" role="img" aria-label="Año de lanzamiento y año de grabación de cada juego">
+    <div class="db-grid">${ticks.map(t => `<i style="left:${X(t)}%"></i>`).join('')}</div>
+    <div class="db-row db-axis"><span></span><div class="db-track">${ticks.map(t => `<span style="left:${X(t)}%">${t}</span>`).join('')}</div><span></span></div>
+    ${yrs.map(d => { const gap = d.u - d.r;
+      return `<button class="db-row" type="button" data-title="${esc(d.g.title)}" ${tip(d.g.title, ['Lanzamiento: ' + d.r, 'Grabado: ' + d.u, gap ? gap + (gap === 1 ? ' año después' : ' años después') : 'El mismo año'])}>
+        <span class="db-lab">${esc(d.g.title)}</span>
+        <span class="db-track"><i class="db-line" style="left:${X(d.r)}%;width:${(X(d.u) - X(d.r)).toFixed(2)}%"></i><i class="db-dot r" style="left:${X(d.r)}%"></i><i class="db-dot u" style="left:${X(d.u)}%"></i></span>
+        <span class="db-val">${gap ? '+' + gap + (gap === 1 ? ' año' : ' años') : '—'}</span></button>`; }).join('')}
+  </div>`;
   const perYear = groupBy(withUpdated, p => p.updated.slice(0, 4));
   const yKeys = []; { const ys = Object.keys(perYear).map(Number); for (let y = Math.min(...ys); y <= Math.max(...ys); y++) yKeys.push(y); }
   const maxY = Math.max(...yKeys.map(y => (perYear[y] || []).length));
-  const CW = 520, CH = 220, cb = 190, colW = Math.min(24, (CW - 20) / yKeys.length - 10), step = (CW - 20) / yKeys.length;
-  const columns = `<svg class="viz" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="Playlists actualizadas por año">
-    <line class="grid" x1="0" x2="${CW}" y1="${cb}" y2="${cb}"/>
-    ${yKeys.map((y, i) => { const n = (perYear[y] || []).length, h = n / maxY * (cb - 30), cx = 10 + step * i + step / 2;
-      return `<g ${tip(String(y), [n + ' playlist' + (n !== 1 ? 's' : ''), ...(perYear[y] || []).map(p => p.title)])}>
-        <rect class="hit" x="${cx - step / 2}" y="0" width="${step}" height="${CH}"/>
-        ${n ? `<path d="M${cx - colW / 2},${cb} V${cb - h + 4} Q${cx - colW / 2},${cb - h} ${cx - colW / 2 + 4},${cb - h} H${cx + colW / 2 - 4} Q${cx + colW / 2},${cb - h} ${cx + colW / 2},${cb - h + 4} V${cb} Z" fill="var(--accent)"/>
-        <text class="val" x="${cx}" y="${cb - h - 8}" text-anchor="middle">${n}</text>` : ''}
-        <text x="${cx}" y="${cb + 20}" text-anchor="middle">'${String(y).slice(2)}</text></g>`; }).join('')}
-  </svg>`;
+  const columns = `<div class="cols" role="img" aria-label="Playlists actualizadas por año">${yKeys.map(y => { const n = (perYear[y] || []).length;
+    return `<div class="col" ${tip(String(y), [n + ' playlist' + (n !== 1 ? 's' : ''), ...(perYear[y] || []).map(p => p.title)])}>${n ? `<b>${n}</b><i style="height:${(n / maxY * 78).toFixed(1)}%"></i>` : ''}<span>'${String(y).slice(2)}</span></div>`; }).join('')}</div>`;
   const byDecade = groupBy(withRelease.slice().sort((a, b) => new Date(a.releaseDate) - new Date(b.releaseDate)), p => Math.floor(year(p.releaseDate) / 10) * 10);
   $('statTabCronologia').innerHTML = `
     <section class="s-sec s-card"><h3>Del lanzamiento a tu partida</h3>
-      <p class="sub">Cada juego: <span style="color:#a99fbe">●</span> año de lanzamiento → <span style="color:var(--accent)">●</span> año en que lo grabaste</p><div class="viz-scroll">${dumbbell}</div></section>
+      <p class="sub">Cada juego: <span style="color:#a99fbe">●</span> año de lanzamiento → <span style="color:var(--accent)">●</span> año en que lo grabaste</p>${dumbbell}</section>
     <section class="s-sec s-grid2">
       <div class="s-card"><h3>Playlists actualizadas por año</h3><p class="sub">Cuántas playlists tocaste cada año</p>${columns}</div>
       <div class="s-card"><h3>Juegos por década de lanzamiento</h3><p class="sub">De qué época son los juegos que grabas</p>
