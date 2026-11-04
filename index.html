@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<script>try { if (localStorage.getItem('wmc_gh_token')) document.documentElement.classList.add('has-token'); } catch (e) {}</script>
 <style>
   @font-face {
     font-family: 'Raleway';
@@ -89,6 +90,8 @@
   }
   .rail-btn:hover { background: rgba(255,255,255,0.08); }
   .rail-btn:hover span, .rail-btn:focus-visible span { opacity: 1; }
+  .rail-btn.only-edit { display: none; }
+  .has-token .rail-btn.only-edit { display: flex; }
   .rail-btn.active { background: rgba(155,138,196,0.3); color: #fff; }
 
   .main { position: relative; z-index: 1; padding-bottom: 60px; --hero-h: max(460px, min(560px, 72vh)); }
@@ -607,6 +610,7 @@
   <button class="rail-btn" data-act="collection" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Colección</span></button>
   <a class="rail-btn" href="bitacora.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c3-1 5-1 8 1 3-2 5-2 8-1v14c-3-1-5-1-8 1-3-2-5-2-8-1z"/><path d="M12 6v14"/></svg><span>Bitácoras</span></a>
   <button class="rail-btn" data-act="stats" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span>Estadísticas</span></button>
+  <a class="rail-btn only-edit" href="alta.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg><span>Alta</span></a>
 </nav>
 
 <main class="main">
@@ -825,8 +829,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.16";
-const APP_BUILD = "20261104.170902";
+const APP_VERSION = "2.17";
+const APP_BUILD = "20261104.183153";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género

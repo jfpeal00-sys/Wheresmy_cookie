@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<script>try { if (localStorage.getItem('wmc_gh_token')) document.documentElement.classList.add('has-token'); } catch (e) {}</script>
 <style>
   @font-face {
     font-family: 'Raleway';
@@ -88,6 +89,8 @@
   }
   .rail-btn:hover { background: rgba(255,255,255,0.08); }
   .rail-btn:hover span, .rail-btn:focus-visible span { opacity: 1; }
+  .rail-btn.only-edit { display: none; }
+  .has-token .rail-btn.only-edit { display: flex; }
   .rail-btn.active { background: rgba(155,138,196,0.3); color: #fff; }
   .rail-btn { text-decoration: none; }
   #app, .loading-msg { margin-left: var(--rail); }
@@ -251,6 +254,7 @@
   <a class="rail-btn" data-act="collection" href="index.html#coleccion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Colección</span></a>
   <a class="rail-btn active" href="bitacora.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c3-1 5-1 8 1 3-2 5-2 8-1v14c-3-1-5-1-8 1-3-2-5-2-8-1z"/><path d="M12 6v14"/></svg><span>Bitácoras</span></a>
   <a class="rail-btn" data-act="stats" href="index.html#estadisticas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span>Estadísticas</span></a>
+  <a class="rail-btn only-edit" href="alta.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg><span>Alta</span></a>
 </nav>
 
 <div id="loadingMsg" class="loading-msg">Cargando bitácoras...</div>

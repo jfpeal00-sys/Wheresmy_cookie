@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0910">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/app/icon-192.png">
+<title>Alta de series — Wheresmy_cookie Gameplays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer onload="onGisLoaded()"></script>
+<script src="https://apis.google.com/js/api.js" async defer onload="onGapiLoaded()"></script>
+<style>
+  :root {
+    --bg: #0b0910; --panel: #15111b; --panel-2: #1d1826; --line: rgba(255,255,255,0.08);
+    --fg: #f4f1fa; --soft: #e6e0f2; --muted: #a99fbe; --accent: #9b8ac4; --accent-2: #c9bfe0;
+    --ok: #6fcf97; --warn: #e2b04a; --err: #e07a8b;
+    --font: 'Raleway', system-ui, sans-serif; --mono: 'Chakra Petch', 'Raleway', monospace;
+    --rail: 84px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--fg); font-family: var(--font); min-height: 100%; }
+  body { font-size: 15px; line-height: 1.5; }
+  a { color: var(--accent-2); }
+  .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .hidden { display: none !important; }
+  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+  /* Riel (igual al del index) */
+  .rail { position: fixed; left: 0; top: 0; bottom: 0; width: var(--rail); z-index: 40; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 0;
+    background: linear-gradient(90deg, #0b0910 0%, rgba(11,9,16,0.8) 65%, rgba(11,9,16,0) 100%); }
+  .rail-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-bottom: 18px; }
+  .rail-btn { position: relative; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #e6e0f2; text-decoration: none; transition: background 0.2s; }
+  .rail-btn svg { width: 21px; height: 21px; }
+  .rail-btn span { position: absolute; left: 58px; top: 50%; transform: translateY(-50%); white-space: nowrap; background: var(--panel-2); padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+  .rail-btn:hover { background: rgba(255,255,255,0.08); }
+  .rail-btn:hover span, .rail-btn:focus-visible span { opacity: 1; }
+  .rail-btn.active { background: rgba(155,138,196,0.3); color: #fff; }
+
+  .main { margin-left: var(--rail); min-height: 100vh; display: grid; grid-template-columns: 280px 1fr; }
+  .steps { border-right: 1px solid var(--line); padding: 36px 18px 30px 28px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .steps h1 { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+  .steps .serie { font-size: 13px; color: var(--accent-2); margin-bottom: 22px; min-height: 20px; }
+  .step-item { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 9px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .step-item:hover { background: rgba(255,255,255,0.04); }
+  .step-item b { width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; background: rgba(255,255,255,0.06); }
+  .step-item.done { color: var(--soft); }
+  .step-item.done b { background: rgba(111,207,151,0.18); color: var(--ok); }
+  .step-item.now { color: var(--fg); background: rgba(155,138,196,0.14); font-weight: 700; }
+  .step-item.now b { background: var(--accent); color: #100d14; }
+  .step-item.locked { opacity: 0.45; cursor: default; }
+
+  .content { padding: 36px 48px 120px; max-width: 980px; }
+  .topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); font-size: 13px; }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; background: #5d5470; }
+  .pill.on i { background: var(--ok); }
+  .pill button { margin-left: 4px; }
+
+  h2.q { font-size: 30px; font-weight: 900; line-height: 1.15; margin: 8px 0 8px; }
+  p.help { color: var(--muted); font-size: 14px; max-width: 640px; margin-bottom: 22px; }
+  .card { background: var(--panel); border-radius: 16px; box-shadow: inset 0 0 0 1px var(--line); padding: 22px 24px; margin-bottom: 18px; }
+  .card h3 { font-size: 16px; font-weight: 800; margin-bottom: 10px; }
+  input[type=text], input[type=url], input[type=date], select, textarea {
+    width: 100%; font: inherit; font-size: 17px; color: var(--fg); background: var(--bg); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; padding: 13px 15px; }
+  textarea { font-size: 14px; min-height: 90px; resize: vertical; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .field label { font-size: 13px; font-weight: 700; color: var(--soft); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+  .msg { font-size: 13px; margin-top: 8px; min-height: 20px; }
+  .msg.ok { color: var(--ok); } .msg.warn { color: var(--warn); } .msg.err { color: var(--err); }
+
+  button { font: inherit; font-weight: 800; font-size: 14px; border-radius: 999px; padding: 11px 20px; cursor: pointer; border: 0; background: rgba(244,241,250,0.12); color: var(--fg); }
+  button.primary { background: var(--fg); color: #100d14; }
+  button.accent { background: var(--accent); color: #100d14; }
+  button.small { padding: 7px 13px; font-size: 12px; }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .nav { position: fixed; left: calc(var(--rail) + 280px); right: 0; bottom: 0; z-index: 30; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 16px 48px; background: linear-gradient(180deg, rgba(11,9,16,0), rgba(11,9,16,0.95) 30%); }
+  .nav .hint { font-size: 13px; color: var(--muted); }
+
+  .opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 12px; cursor: pointer; }
+  .opt:hover { background: rgba(255,255,255,0.04); }
+  .opt input { margin-top: 4px; accent-color: var(--accent); }
+  .opt small { display: block; color: var(--muted); font-size: 12px; }
+
+  .pl-card { display: flex; gap: 16px; align-items: center; }
+  .pl-card img { width: 160px; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; }
+  .pl-card b { font-size: 17px; }
+  .cells { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .cell { width: 38px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; background: rgba(255,255,255,0.06); color: var(--muted); }
+  .cell.working { background: var(--accent); color: #100d14; }
+  .cell.ok { background: rgba(111,207,151,0.2); color: var(--ok); }
+  .cell.skip { background: rgba(255,255,255,0.1); color: var(--soft); }
+  .cell.error { background: rgba(224,122,139,0.25); color: var(--err); }
+  .log { font-family: var(--mono); font-size: 12px; background: var(--bg); border-radius: 10px; padding: 12px; max-height: 240px; overflow-y: auto; margin-top: 14px; }
+  .log div { display: flex; gap: 10px; } .log .t { color: #5d5470; }
+  .log .ok { color: var(--ok); } .log .warn { color: var(--warn); } .log .err { color: var(--err); }
+  .quota { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  pre.preview { white-space: pre-wrap; font-size: 13px; color: var(--soft); background: var(--bg); border-radius: 10px; padding: 14px; max-height: 260px; overflow-y: auto; margin-top: 12px; }
+
+  .checks { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .check { display: flex; gap: 10px; align-items: baseline; font-size: 14px; }
+  .check i { font-style: normal; font-weight: 900; width: 18px; }
+  .check.ok i { color: var(--ok); } .check.warn i { color: var(--warn); } .check.err i { color: var(--err); } .check.wait i { color: var(--muted); }
+
+  .drop { display: block; border: 2px dashed rgba(201,191,224,0.35); border-radius: 16px; padding: 30px; text-align: center; cursor: pointer; transition: background 0.2s, border-color 0.2s; }
+  .drop.over { background: rgba(155,138,196,0.1); border-color: var(--accent); }
+  .drop b { display: block; font-size: 16px; margin-bottom: 4px; }
+  .drop small { color: var(--muted); }
+  .img-row { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 22px; align-items: start; margin-top: 18px; }
+  .frame { position: relative; overflow: hidden; border-radius: 14px; background: #000; box-shadow: inset 0 0 0 1px var(--line); }
+  .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .frame.contain { background: linear-gradient(135deg, #2a2236, #120e18); }
+  .frame.contain img { object-fit: contain; padding: 14%; }
+  .facts { font-size: 13px; color: var(--soft); display: flex; flex-direction: column; gap: 6px; }
+  .facts .k { color: var(--muted); }
+
+  .series-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .serie-card { all: unset; cursor: pointer; display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; border-radius: 14px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
+  .serie-card:hover { box-shadow: inset 0 0 0 2px var(--accent); }
+  .serie-card b { font-size: 16px; }
+  .serie-card small { color: var(--muted); }
+  .bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+
+  dialog { margin: auto; border: 0; border-radius: 18px; background: var(--panel); color: var(--fg); padding: 26px; width: min(560px, 92vw); box-shadow: 0 30px 80px rgba(0,0,0,0.7); }
+  dialog::backdrop { background: rgba(7,6,10,0.75); }
+  .gate { max-width: 560px; margin: 18vh auto; text-align: center; }
+  .gate h1 { font-size: 26px; margin-bottom: 10px; }
+  .gate p { color: var(--muted); }
+
+  @media (max-width: 899px) {
+    :root { --rail: 0px; }
+    .rail { top: auto; bottom: 0; right: 0; width: auto; height: auto; flex-direction: row; justify-content: space-around; gap: 0; padding: 8px 6px calc(10px + env(safe-area-inset-bottom, 0px)); background: rgba(14,11,18,0.94); backdrop-filter: blur(12px); }
+    .rail-avatar, .rail-btn[data-act="search"] { display: none; }
+    .rail-btn { width: auto; min-width: 56px; height: 52px; flex-direction: column; gap: 3px; }
+    .rail-btn span { position: static; transform: none; opacity: 1; background: none; padding: 0; font-size: 10px; }
+    .main { grid-template-columns: 1fr; }
+    .steps { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 22px 16px 12px; }
+    .steps ol { display: flex; overflow-x: auto; gap: 4px; }
+    .step-item span { display: none; }
+    .content { padding: 22px 16px 170px; }
+    .nav { left: 0; bottom: 70px; padding: 12px 16px; }
+    .grid2, .img-row { grid-template-columns: 1fr; }
+    h2.q { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<nav class="rail" aria-label="Secciones">
+  <img class="rail-avatar" src="assets/app/avatar.png" alt="Wheresmy_cookie">
+  <a class="rail-btn" data-act="search" href="index.html#buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Buscar</span></a>
+  <a class="rail-btn" href="index.html"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg><span>Inicio</span></a>
+  <a class="rail-btn" href="index.html#coleccion"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Colección</span></a>
+  <a class="rail-btn" href="bitacora.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c3-1 5-1 8 1 3-2 5-2 8-1v14c-3-1-5-1-8 1-3-2-5-2-8-1z"/><path d="M12 6v14"/></svg><span>Bitácoras</span></a>
+  <a class="rail-btn" href="index.html#estadisticas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg><span>Estadísticas</span></a>
+  <a class="rail-btn active" href="alta.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg><span>Alta</span></a>
+</nav>
+
+<div class="gate hidden" id="gate">
+  <h1>Herramienta del modo edición</h1>
+  <p>Esta sección solo se usa en el navegador donde está configurado el token de edición. Configúralo desde <a href="index.html?editar=1">el modo edición</a> y vuelve aquí.</p>
+</div>
+
+<div class="main" id="app">
+  <aside class="steps">
+    <h1>Alta de series</h1>
+    <div class="serie" id="serieName"></div>
+    <ol id="stepList" style="list-style:none"></ol>
+  </aside>
+  <section class="content">
+    <div class="topbar">
+      <span class="pill" id="pillYt"><i></i><span>YouTube: <b id="ytWho">sin conectar</b></span><button class="small" id="ytBtn" disabled>Conectar</button></span>
+      <span class="pill" id="pillDrive"><i></i><span>Drive: <b id="driveWho">sin conectar</b></span><button class="small" id="driveBtn" disabled>Conectar</button></span>
+      <span class="pill" id="pillAssets"><i></i><span>Carpeta: <b id="assetsWho">—</b></span><button class="small" id="assetsBtn" disabled>Elegir</button></span>
+      <button class="small" id="cfgBtn">Configuración de Google</button>
+    </div>
+    <div id="stepBody"></div>
+  </section>
+  <div class="nav">
+    <button id="backBtn">Atrás</button>
+    <span class="hint" id="navHint"></span>
+    <button class="primary" id="nextBtn">Siguiente</button>
+  </div>
+</div>
+
+<dialog id="cfgDialog">
+  <h3 style="font-size:18px;margin-bottom:6px">Configuración de Google</h3>
+  <p class="help" style="margin-bottom:16px">Los mismos valores del Transcriptor; quedan guardados en este navegador.</p>
+  <div class="field"><label for="cfgClientId">ID de cliente OAuth</label><input type="text" id="cfgClientId" placeholder="xxxx.apps.googleusercontent.com" autocomplete="off"></div>
+  <div class="field"><label for="cfgPickerKey">API key del selector de Drive</label><input type="text" id="cfgPickerKey" placeholder="AIza..." autocomplete="off"></div>
+  <div class="field"><label for="cfgProjectNumber">Número de proyecto</label><input type="text" id="cfgProjectNumber" placeholder="123456789012" inputmode="numeric" autocomplete="off"></div>
+  <div class="btns" style="justify-content:flex-end"><button id="cfgCancel">Cancelar</button><button class="primary" id="cfgSave">Guardar</button></div>
+</dialog>
+
+<script>
+/* ============================================================
+   Alta de series: asistente paso a paso para dar de alta una serie nueva
+   (nombre, slug, playlist, datos, transcripciones, análisis con Claude, imágenes)
+   y dejar en Drive el archivo de alta que Tifa usa para el onboarding.
+   ============================================================ */
+const YT_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl";
+// Drive completo (la app está en modo prueba y solo la usa Jf): hace falta para ver las carpetas que ya
+// existen y los análisis que escribe el analizador desde el PC (archivos que esta página no creó).
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive";
+const YT_API = "https://www.googleapis.com/youtube/v3";
+const DRIVE_API = "https://www.googleapis.com/drive/v3";
+const DRIVE_UPLOAD = "https://www.googleapis.com/upload/drive/v3";
+const FOLDER_MIME = "application/vnd.google-apps.folder";
+const DAILY_QUOTA = 10000;
+const COST = { list: 1, captionsList: 50, download: 200 };
+const LANG_PRIORITY = ["es-419","es-US","es-MX","es-CO","es-AR","es-CL","es-PE","es-VE","es-EC","es"];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
+const pad2 = n => String(n).padStart(2, "0");
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// Solo en el navegador con el token de edición
+if (!lsGet("wmc_gh_token")) { $("gate").classList.remove("hidden"); $("app").classList.add("hidden"); }
+
+/* ---------- Configuración (mismas claves que el Transcriptor) ---------- */
+const cfg = {
+  clientId: () => lsGet("tr_client_id") || "",
+  pickerKey: () => lsGet("tr_picker_key") || "",
+  projectNumber: () => lsGet("tr_project_number") || ""
+};
+$("cfgBtn").onclick = () => { $("cfgClientId").value = cfg.clientId(); $("cfgPickerKey").value = cfg.pickerKey(); $("cfgProjectNumber").value = cfg.projectNumber(); $("cfgDialog").showModal(); };
+$("cfgCancel").onclick = () => $("cfgDialog").close();
+$("cfgSave").onclick = () => {
+  const id = $("cfgClientId").value.trim(), key = $("cfgPickerKey").value.trim(), num = $("cfgProjectNumber").value.trim();
+  if (id && !id.endsWith(".apps.googleusercontent.com")) { alertMsg("El ID de cliente debe terminar en .apps.googleusercontent.com."); return; }
+  lsSet("tr_client_id", id); lsSet("tr_picker_key", key); lsSet("tr_project_number", num);
+  $("cfgDialog").close(); initAuth();
+};
+function alertMsg(m) { $("navHint").textContent = m; }
+
+/* ---------- Limpieza de subtítulos (igual que el Transcriptor) ---------- */
+const TIMESTAMP_RE = /^\d{2}:\d{2}(?::\d{2})?\.\d{3}\s+-->\s+\d{2}:\d{2}(?::\d{2})?\.\d{3}(?:\s+.*)?$/;
+const TAG_RE = /<[^>]+>/g;
+const VOICE_TAG_RE = /<\/?v(?:\.[^ >]+)?[^>]*>/gi;
+const SPACE_RE = /[ \t]+/g;
+const INVALID_WIN_CHARS = /[<>:"\/\\|?*\x00-\x1f]/g;
+
+const _ta = document.createElement("textarea");
+function unescapeHtml(s) { _ta.innerHTML = s; return _ta.value; }
+function stripEdges(s) { return s.replace(/^[ .\-_]+|[ .\-_]+$/g, ""); }
+
+function safeName(text, maxLen = 120) {
+  let t = unescapeHtml(text).replace(INVALID_WIN_CHARS, "-");
+  t = stripEdges(t.replace(SPACE_RE, " "));
+  return stripEdges(t.slice(0, maxLen)) || "Sin nombre";
+}
+
+function normalizeCaption(text) {
+  let t = unescapeHtml(text);
+  t = t.replace(VOICE_TAG_RE, "").replace(TAG_RE, "");
+  t = t.replace(/\u200b/g, "").replace(/\ufeff/g, "");
+  return t.replace(SPACE_RE, " ").trim();
+}
+
+// Los subtítulos automáticos de YouTube "ruedan": cada línea repite parte de la anterior.
+function removeRollingDuplicates(lines) {
+  const cleaned = [];
+  for (let current of lines) {
+    current = current.trim();
+    if (!current) continue;
+    if (!cleaned.length) { cleaned.push(current); continue; }
+    const previous = cleaned[cleaned.length - 1];
+    if (current === previous) continue;
+    if (current.startsWith(previous) && current.length > previous.length) { cleaned[cleaned.length - 1] = current; continue; }
+    if (previous.startsWith(current)) continue;
+    const pw = previous.split(/\s+/), cw = current.split(/\s+/);
+    let overlap = 0;
+    for (let size = Math.min(pw.length, cw.length, 20); size > 1; size--) {
+      const a = pw.slice(-size).map(w => w.toLocaleLowerCase());
+      const b = cw.slice(0, size).map(w => w.toLocaleLowerCase());
+      if (a.every((w, i) => w === b[i])) { overlap = size; break; }
+    }
+    const remainder = overlap ? cw.slice(overlap).join(" ").trim() : current;
+    if (remainder) cleaned.push(remainder);
+  }
+  return cleaned;
+}
+
+function vttToText(raw) {
+  const candidates = [];
+  for (const rawLine of raw.replace(/^\ufeff/, "").split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line === "WEBVTT" || /^(Kind:|Language:|NOTE|STYLE|REGION)/.test(line)) continue;
+    if (TIMESTAMP_RE.test(line) || /^\d+$/.test(line)) continue;
+    const norm = normalizeCaption(line);
+    if (norm) candidates.push(norm);
+  }
+  return removeRollingDuplicates(candidates).join("\n").trim();
+}
+
+/* ---------- Parser de la Bitácora (copiado de bitacora.html, sin cambios) ---------- */
+const GROUP_DEFS = [
+  {
+    name: "Contenido narrativo",
+    keys: ["resumen", "cronologia", "historia10", "personal10", "referencias"]
+  },
+  {
+    name: "Contenido de referencia",
+    keys: ["ficha", "personajes", "lugares", "objetos", "jefes"]
+  },
+  {
+    name: "Metadata",
+    keys: ["encabezado", "correcciones", "proyecto", "continuidad", "infoutil", "palabrasclave"]
+  }
+];
+const SECTION_LABELS = {
+  resumen: "Resumen general",
+  cronologia: "Cronología del capítulo",
+  historia10: "10 puntos clave de la historia",
+  personal10: "10 puntos personales del jugador",
+  referencias: "Referencias históricas o culturales",
+  ficha: "Ficha técnica",
+  personajes: "Personajes importantes",
+  lugares: "Lugares / Mapas / Circuitos",
+  objetos: "Objetos / Mecánicas",
+  jefes: "Jefes / Eventos importantes",
+  encabezado: "Encabezado",
+  correcciones: "Correcciones contextuales",
+  proyecto: "Proyecto del canal",
+  continuidad: "Continuidad de la serie",
+  infoutil: "Información útil para futuras consultas",
+  palabrasclave: "Palabras clave"
+};
+const SECTION_PATTERNS = {
+  ficha: /^FICHA\s+T/i,
+  resumen: /^RESUMEN\s+GENERAL/i,
+  cronologia: /^CRONOLOG/i,
+  historia10: /^10\s+PUNTOS\s+CLAVE/i,
+  personal10: /^10\s+PUNTOS\s+PERSONALES/i,
+  personajes: /^PERSONAJES/i,
+  lugares: /^LUGARES/i,
+  objetos: /^OBJETOS/i,
+  jefes: /^JEFES/i,
+  referencias: /^REFERENCIAS/i,
+  correcciones: /^CORRECCIONES/i,
+  proyecto: /^PROYECTO\s+DEL\s+CANAL/i,
+  continuidad: /^CONTINUIDAD/i,
+  infoutil: /^INFORMACI[OÓ]N\s+ÚTIL/i,
+  palabrasclave: /^PALABRAS\s+CLAVE/i
+};
+
+// ===== Limpieza de artefactos de markdown/exportación =====
+function cleanText(t) {
+  if (!t) return '';
+  return t
+    // Tokens de cita de ChatGPT: usan caracteres de zona de uso privado Unicode
+    // (U+E200-U+E20F) como marcadores invisibles alrededor/dentro de "filecite...".
+    // Hay que quitar esos caracteres invisibles ANTES de limpiar la palabra "filecite",
+    // porque cortan el regex simple a mitad de camino y dejan basura suelta como
+    // "turn4file0" flotando en el texto.
+    .replace(/[\uE200-\uE20F]/g, '')
+    .replace(/filecite[a-z0-9]*/gi, '')
+    // Variante nueva de ChatGPT: :chatgpt-content-reference{index="N"} (aparece suelto en el texto y pegado a las URLs)
+    .replace(/[ \t]*:chatgpt-content-reference\{[^}]*\}/g, '')
+    .replace(/\\([-._=\[\]#*()])/g, '$1')     // desescapa \- \. \_ \= \[ \] \# \* \( \)
+    .replace(/\*\*(.*?)\*\*/g, '$1')           // quita negrita markdown
+    .replace(/\[([^\]]*)\]\(([^)]*)\)/g, '$2') // [texto](url) -> url
+    .replace(/^#{2,}[ \t]*(?=.*[a-záéíóúñ])(.+)$/gm, '§§$1') // subtítulos internos (## Mecánicas) -> marca §§
+    .replace(/^#+\s*/gm, '')                   // quita encabezados markdown residuales
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+// ===== Formateo inteligente de párrafos y listas =====
+// Los .txt fuente traen los párrafos "envueltos a mano" a ~72-80 caracteres
+// (saltos de línea simples que son solo ajuste visual, no separación real).
+// La separación real de bloques es la línea en blanco (\n\n). Dentro de cada
+// bloque, si (casi) todas las líneas empiezan con "- " o "N. " se trata como
+// lista real; si no, se unen con espacio para que fluya como un párrafo normal
+// y el navegador lo envuelva según el ancho de pantalla real.
+function formatSectionContent(text) {
+  if (!text || !text.trim()) return '';
+  const blocks = text.trim().split(/\n\s*\n/);
+  return blocks.map(block => {
+    const lines = block.split('\n').map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) return '';
+    // Un bloque puede traer subtítulos (§§Texto) mezclados con listas o párrafos:
+    // se parte en tramos y cada subtítulo se dibuja como encabezado propio.
+    const parts = [];
+    let cur = [];
+    lines.forEach(line => {
+      if (line.startsWith('§§')) {
+        if (cur.length) parts.push({ lines: cur });
+        parts.push({ heading: line.replace(/^§§\s*/, '') });
+        cur = [];
+      } else cur.push(line);
+    });
+    if (cur.length) parts.push({ lines: cur });
+    return parts.map(part => part.heading !== undefined
+      ? `<h5>${part.heading}</h5>`
+      : renderLines(part.lines)).join('');
+  }).join('');
+}
+
+function renderLines(lines) {
+  const bulletRe = /^[-•*]\s+/;
+  const numberedRe = /^\d+[.)]\s+/;
+  const bulletCount = lines.filter(l => bulletRe.test(l)).length;
+  const numberedCount = lines.filter(l => numberedRe.test(l)).length;
+
+  // Es un bloque de lista si al menos 2 líneas arrancan con el mismo tipo de
+  // marcador — no exigimos que TODAS lo tengan, porque un ítem largo puede
+  // envolverse en 2+ líneas y solo la primera lleva el número/guión.
+  // Una viñeta suelta (un solo renglón con - o *) también es lista, no un párrafo con el símbolo a la vista
+  const isBulletList = bulletCount >= 2 || (lines.length === 1 && bulletCount === 1);
+  const isNumberedList = numberedCount >= 2;
+
+  if (isBulletList || isNumberedList) {
+    const markerRe = isNumberedList ? numberedRe : bulletRe;
+    const items = [];
+    lines.forEach(line => {
+      if (markerRe.test(line)) {
+        items.push(line.replace(markerRe, ''));
+      } else if (items.length > 0) {
+        // Línea de continuación (envoltorio de texto): se pega al ítem anterior
+        items[items.length - 1] += ' ' + line;
+      } else {
+        items.push(line);
+      }
+    });
+    const tag = isNumberedList ? 'ol' : 'ul';
+    return `<${tag}>${items.map(i => `<li>${i}</li>`).join('')}</${tag}>`;
+  }
+
+  // Bloque de párrafo: unir líneas envueltas con espacio para que fluya normal
+  return `<p>${lines.join(' ')}</p>`;
+}
+
+// ===== Parser tolerante a variaciones de formato entre archivos =====
+function parseAnalysisFile(rawText) {
+  const text = cleanText(rawText);
+  // Separar capítulos: cada uno empieza con una línea "TÍTULO" (con o sin contenido inline)
+  const chapterChunks = text.split(/(?=^T[IÍ]TULO\b)/im).filter(c => c.trim());
+
+  return chapterChunks.map(chunk => {
+    const segments = chunk.split(/^=+\s*$/m).map(s => s.trim()).filter(Boolean);
+    const headerBlock = segments[0] || '';
+    const bodySegments = segments.slice(1);
+
+    // --- Extraer título, video id y url del bloque de encabezado ---
+    const lines = headerBlock.split('\n').map(l => l.trim()).filter(Boolean);
+    let title = '', videoId = '', url = '';
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (/^T[IÍ]TULO\b/i.test(line)) {
+        const rest = line.replace(/^T[IÍ]TULO\b:?/i, '').trim();
+        title = rest || (lines[i + 1] && !/^VIDEO ID/i.test(lines[i + 1]) ? lines[i + 1] : '');
+      } else if (/^VIDEO\s*ID\b/i.test(line)) {
+        const rest = line.replace(/^VIDEO\s*ID\b:?/i, '').trim();
+        videoId = rest || (lines[i + 1] || '');
+      } else if (/^URL\b/i.test(line)) {
+        const rest = line.replace(/^URL\b:?/i, '').trim();
+        url = rest || (lines[i + 1] || '');
+      }
+    }
+    if (!url) {
+      const m = chunk.match(/https?:\/\/\S+/);
+      if (m) url = m[0];
+    }
+
+    // --- Extraer cada sección conocida ---
+    const sections = {};
+    bodySegments.forEach(seg => {
+      const segLines = seg.split('\n');
+      const headerLine = (segLines[0] || '').replace(/^§§\s*/, '').trim();
+      const content = segLines.slice(1).join('\n').trim();
+      for (const key in SECTION_PATTERNS) {
+        if (SECTION_PATTERNS[key].test(headerLine)) {
+          sections[key] = content;
+          break;
+        }
+      }
+    });
+    sections.encabezado = `Video ID: ${videoId || 'No disponible'}\n\nURL: ${url || 'No disponible'}`;
+
+    return { title: title || 'Capítulo sin título', videoId, url, sections };
+  });
+}
+
+/* ============================================================
+   Sesiones de Google: YouTube (cuenta del canal) y Drive (cuenta de Jf)
+   ============================================================ */
+const yt = { client: null, token: null, exp: 0, who: "" };
+const drive = { client: null, token: null, exp: 0, email: "" };
+let gisLoaded = false, pickerReady = false;
+const tokenOk = s => s.token && Date.now() < s.exp - 60000;
+function onGisLoaded() { gisLoaded = true; initAuth(); }
+function onGapiLoaded() { gapi.load("picker", () => { pickerReady = true; renderTop(); }); }
+
+function initAuth() {
+  const clientId = cfg.clientId();
+  if (!clientId) { renderTop(); alertMsg("Falta el ID de cliente: abre “Configuración de Google”."); return; }
+  if (!gisLoaded) return;
+  yt.client = google.accounts.oauth2.initTokenClient({ client_id: clientId, scope: YT_SCOPE, include_granted_scopes: false,
+    callback: async r => { if (r.error) return alertMsg("YouTube: " + r.error); yt.token = r.access_token; yt.exp = Date.now() + (r.expires_in || 3600) * 1000;
+      try { const ch = await ytApi("channels", { part: "snippet", mine: "true" }); yt.who = ch.items?.[0]?.snippet?.title || "conectado"; } catch { yt.who = "conectado"; }
+      renderTop(); render(); } });
+  drive.client = google.accounts.oauth2.initTokenClient({ client_id: clientId, scope: DRIVE_SCOPE, include_granted_scopes: false,
+    callback: async r => { if (r.error) return alertMsg("Drive: " + r.error); drive.token = r.access_token; drive.exp = Date.now() + (r.expires_in || 3600) * 1000;
+      try { const a = await driveFetch(DRIVE_API + "/about?fields=user(emailAddress)"); drive.email = a.user?.emailAddress || ""; } catch {}
+      await ensureAssets(); renderTop(); render(); } });
+  renderTop();
+}
+$("ytBtn").onclick = () => yt.client && yt.client.requestAccessToken({ prompt: "select_account" });
+$("driveBtn").onclick = () => drive.client && drive.client.requestAccessToken({ prompt: "select_account" });
+
+function renderTop() {
+  const ytOn = tokenOk(yt), dOn = tokenOk(drive);
+  $("pillYt").classList.toggle("on", ytOn); $("ytWho").textContent = ytOn ? yt.who : "sin conectar";
+  $("ytBtn").disabled = !yt.client; $("ytBtn").textContent = ytOn ? "Cambiar" : "Conectar";
+  $("pillDrive").classList.toggle("on", dOn); $("driveWho").textContent = dOn ? drive.email || "conectado" : "sin conectar";
+  $("driveBtn").disabled = !drive.client; $("driveBtn").textContent = dOn ? "Cambiar" : "Conectar";
+  const a = assets.root;
+  $("pillAssets").classList.toggle("on", !!(a && dOn)); $("assetsWho").textContent = a ? a.path : "—";
+  $("assetsBtn").disabled = !dOn || !pickerReady;
+}
+
+/* ---------- APIs ---------- */
+class QuotaError extends Error {}
+class AuthError extends Error {}
+function quotaKey() { return "tr_quota_" + new Date().toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" }); }
+const quotaUsedToday = () => parseInt(lsGet(quotaKey()) || "0", 10);
+function addQuota(u) { lsSet(quotaKey(), String(quotaUsedToday() + u)); }
+
+async function ytApi(path, params = {}, { text = false, cost = COST.list } = {}) {
+  const url = YT_API + "/" + path + (Object.keys(params).length ? "?" + new URLSearchParams(params) : "");
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt) await sleep(1500 * 2 ** (attempt - 1));
+    let res;
+    try { res = await fetch(url, { headers: { Authorization: "Bearer " + yt.token } }); } catch { lastErr = new Error("Sin conexión con la API de YouTube"); continue; }
+    addQuota(cost);
+    if (res.ok) return text ? res.text() : res.json();
+    let body = {}; try { body = await res.json(); } catch {}
+    const reason = body.error?.errors?.[0]?.reason || "", msg = body.error?.message || ("HTTP " + res.status);
+    if (res.status === 401) throw new AuthError("La sesión de YouTube venció. Conéctala de nuevo.");
+    if (res.status === 403 && /quota/i.test(reason)) throw new QuotaError("Se acabó la cuota diaria de la API de YouTube.");
+    if (res.status === 429 || res.status >= 500) { lastErr = new Error(msg); continue; }
+    throw new Error(msg + (reason ? " (" + reason + ")" : ""));
+  }
+  throw lastErr;
+}
+async function driveFetch(url, opts = {}, as = "json") {
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt) await sleep(1000 * 2 ** (attempt - 1));
+    let res;
+    try { res = await fetch(url, { ...opts, headers: { Authorization: "Bearer " + drive.token, ...(opts.headers || {}) } }); }
+    catch { lastErr = new Error("Sin conexión con Google Drive"); continue; }
+    if (res.ok) return as === "raw" ? res : as === "text" ? res.text() : res.status === 204 ? null : res.json();
+    let body = {}; try { body = await res.json(); } catch {}
+    const reason = body.error?.errors?.[0]?.reason || "", msg = body.error?.message || ("HTTP " + res.status);
+    if (res.status === 401) throw new AuthError("La sesión de Drive venció. Conéctala de nuevo.");
+    if (res.status === 429 || res.status >= 500 || /rateLimit/i.test(reason)) { lastErr = new Error(msg); continue; }
+    throw new Error("Drive: " + msg + (reason ? " (" + reason + ")" : ""));
+  }
+  throw lastErr;
+}
+const qEsc = s => s.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+async function driveList(q, fields = "id,name,mimeType,size,modifiedTime") {
+  const files = []; let pageToken = "";
+  do {
+    const p = new URLSearchParams({ q, fields: "nextPageToken,files(" + fields + ")", pageSize: "1000", supportsAllDrives: "true", includeItemsFromAllDrives: "true" });
+    if (pageToken) p.set("pageToken", pageToken);
+    const d = await driveFetch(DRIVE_API + "/files?" + p);
+    files.push(...(d.files || [])); pageToken = d.nextPageToken || "";
+  } while (pageToken);
+  return files;
+}
+const driveChildren = id => driveList("'" + id + "' in parents and trashed = false");
+async function driveFindFolder(parentId, name) {
+  return (await driveList("'" + parentId + "' in parents and name = '" + qEsc(name) + "' and mimeType = '" + FOLDER_MIME + "' and trashed = false"))[0] || null;
+}
+const driveCreateFolder = (parentId, name) => driveFetch(DRIVE_API + "/files?supportsAllDrives=true&fields=id,name", {
+  method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, mimeType: FOLDER_MIME, parents: [parentId] }) });
+async function driveEnsureFolder(parentId, name) { return (await driveFindFolder(parentId, name)) || driveCreateFolder(parentId, name); }
+const driveReadText = id => driveFetch(DRIVE_API + "/files/" + id + "?alt=media&supportsAllDrives=true", {}, "text");
+function driveUploadText(parentId, name, content, existingId) {
+  if (existingId) return driveFetch(DRIVE_UPLOAD + "/files/" + existingId + "?uploadType=media&supportsAllDrives=true&fields=id", { method: "PATCH", headers: { "Content-Type": "text/plain; charset=UTF-8" }, body: content });
+  const boundary = "alta" + Math.random().toString(36).slice(2);
+  const meta = JSON.stringify({ name, parents: [parentId], mimeType: "text/plain" });
+  const body = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + meta + "\r\n--" + boundary + "\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + content + "\r\n--" + boundary + "--";
+  return driveFetch(DRIVE_UPLOAD + "/files?uploadType=multipart&supportsAllDrives=true&fields=id", { method: "POST", headers: { "Content-Type": "multipart/related; boundary=" + boundary }, body });
+}
+// Imágenes en máxima resolución: subida reanudable (sirve para archivos de más de 5 MB)
+async function driveUploadBlob(parentId, name, blob, existingId) {
+  const init = await driveFetch(DRIVE_UPLOAD + "/files" + (existingId ? "/" + existingId : "") + "?uploadType=resumable&supportsAllDrives=true&fields=id", {
+    method: existingId ? "PATCH" : "POST", headers: { "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Type": blob.type || "application/octet-stream", "X-Upload-Content-Length": String(blob.size) },
+    body: JSON.stringify(existingId ? { name } : { name, parents: [parentId] }) }, "raw");
+  const loc = init.headers.get("Location");
+  if (!loc) throw new Error("Drive no entregó la dirección de subida.");
+  const res = await fetch(loc, { method: "PUT", headers: { "Content-Type": blob.type || "application/octet-stream" }, body: blob });
+  if (!res.ok) throw new Error("Drive: la subida falló (HTTP " + res.status + ")");
+  return res.json();
+}
+
+/* ---------- Carpeta Gameplays/Assets en Drive ---------- */
+const assets = { root: JSON.parse(lsGet("alta_assets") || "null"), images: null, trans: null, altas: null };
+async function ensureAssets() {
+  try {
+    if (assets.root) { try { await driveFetch(DRIVE_API + "/files/" + assets.root.id + "?fields=id,trashed&supportsAllDrives=true"); } catch { assets.root = null; } }
+    if (!assets.root) {
+      // Busca una carpeta "Assets" dentro de una carpeta "Gameplays"
+      const cands = await driveList("name = 'Assets' and mimeType = '" + FOLDER_MIME + "' and trashed = false", "id,name,parents");
+      for (const c of cands) {
+        const par = c.parents?.[0] && await driveFetch(DRIVE_API + "/files/" + c.parents[0] + "?fields=name&supportsAllDrives=true").catch(() => null);
+        if (par && /^gameplays$/i.test(par.name)) { assets.root = { id: c.id, path: par.name + " / Assets" }; break; }
+      }
+    }
+    if (assets.root) {
+      lsSet("alta_assets", JSON.stringify(assets.root));
+      [assets.images, assets.trans, assets.altas] = await Promise.all([driveEnsureFolder(assets.root.id, "Images"), driveEnsureFolder(assets.root.id, "Transcriptions"), driveEnsureFolder(assets.root.id, "Altas")]);
+    } else alertMsg("No encontré la carpeta Gameplays / Assets en Drive. Elígela con el botón “Elegir”.");
+  } catch (e) { alertMsg(e.message); }
+  renderTop();
+}
+$("assetsBtn").onclick = () => {
+  if (!cfg.pickerKey() || !cfg.projectNumber()) { alertMsg("Para elegir la carpeta faltan la API key del selector y el número de proyecto."); return; }
+  const view = new google.picker.DocsView().setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes(FOLDER_MIME).setParent("root");
+  new google.picker.PickerBuilder().addView(view).setOAuthToken(drive.token).setDeveloperKey(cfg.pickerKey()).setAppId(cfg.projectNumber())
+    .setTitle("Elige la carpeta Assets (dentro de Gameplays)")
+    .setCallback(async d => { if (d.action !== google.picker.Action.PICKED) return; assets.root = { id: d.docs[0].id, path: d.docs[0].name }; await ensureAssets(); render(); })
+    .build().setVisible(true);
+};
+
+/* ============================================================
+   Estado de las altas (se guarda en el navegador para poder retomar)
+   ============================================================ */
+const IMAGES = [
+  { t: "BKG", name: "Fondo grande", where: "la portada del inicio y de la bitácora (escritorio y móvil)", ratio: "16 / 9", min: 2560, png: false },
+  { t: "CARD", name: "Card", where: "los pósters de Recién actualizados y Colección (se ve vertical)", ratio: "2 / 3", min: 1280, png: false },
+  { t: "SAGA", name: "Saga", where: "la fila de Sagas y el ranking de sagas", ratio: "2 / 1", min: 1200, png: false },
+  { t: "GENRE", name: "Género", where: "la fila de Géneros (rota con los demás juegos del género)", ratio: "2 / 1", min: 1200, png: false },
+  { t: "LOGO", name: "Logo", where: "sobre la portada y en todas las tarjetas", ratio: "16 / 9", min: 300, png: true, contain: true },
+  { t: "ICON", name: "Ícono pixel art", where: "junto al género en la portada", ratio: "1 / 1", min: 64, png: true, contain: true }
+];
+const STEPS = [
+  { id: "inicio", label: "Altas en curso" },
+  { id: "nombre", label: "Nombre de la serie" },
+  { id: "slug", label: "Slug" },
+  { id: "playlist", label: "Playlist" },
+  { id: "datos", label: "Datos del juego" },
+  { id: "trans", label: "Transcripciones" },
+  { id: "analisis", label: "Análisis con Claude" },
+  ...IMAGES.map(im => ({ id: "img_" + im.t, label: im.name, img: im })),
+  { id: "fin", label: "Enviar a Tifa" }
+];
+let store = JSON.parse(lsGet("alta_series") || "{}");   // { id: serie }
+let cur = null;                                           // serie en edición
+let stepIdx = 0;
+const save = () => { if (cur) { cur.updated = Date.now(); store[cur.id] = cur; } lsSet("alta_series", JSON.stringify(store)); };
+const newSerie = () => ({ id: "s" + Date.now().toString(36), name: "", slug: "", playlistUrl: "", playlistId: "", playlist: null, saga: "", genre: "", releaseDate: "", notes: "",
+  step: 1, trans: null, analysis: null, images: {}, sent: false });
+
+function stepDone(s, id) {
+  if (!s) return false;
+  return { nombre: !!s.name, slug: !!s.slug, playlist: !!s.playlist, datos: s.step > 4, trans: !!(s.trans && s.trans.ok + s.trans.skip >= s.trans.total && s.trans.total),
+    analisis: !!(s.analysis && s.analysis.valid), fin: s.sent }[id] ?? (id.startsWith("img_") ? !!s.images[id.slice(4)] : false);
+}
+
+function renderSteps() {
+  $("serieName").textContent = cur ? (cur.name || "Serie nueva") + (cur.slug ? " · " + cur.slug : "") : "";
+  $("stepList").innerHTML = STEPS.map((s, i) => {
+    const locked = i > 0 && !cur;
+    const cls = ["step-item", i === stepIdx ? "now" : "", stepDone(cur, s.id) ? "done" : "", locked ? "locked" : ""].join(" ");
+    return `<li class="${cls}" data-i="${i}"><b>${stepDone(cur, s.id) && i !== stepIdx ? "✓" : i}</b><span>${esc(s.label)}</span></li>`;
+  }).join("");
+  $("stepList").querySelectorAll(".step-item:not(.locked)").forEach(li => li.onclick = () => go(+li.dataset.i));
+}
+function go(i) { stepIdx = Math.max(0, Math.min(STEPS.length - 1, i)); if (cur) { cur.step = Math.max(cur.step, stepIdx); save(); } render(); window.scrollTo(0, 0); }
+$("backBtn").onclick = () => go(stepIdx - 1);
+$("nextBtn").onclick = async () => {
+  const s = STEPS[stepIdx];
+  const v = validators[s.id];
+  if (v) { const err = await v(); if (err) { alertMsg(err); return; } }
+  go(stepIdx + 1);
+};
+
+/* ---------- Validaciones de cada paso al dar Siguiente ---------- */
+const SLUG_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{1,40}$/;
+const validators = {
+  nombre: () => { const n = $("fName").value.trim(); if (!n) return "Escribe el nombre de la serie."; cur.name = n; save(); },
+  slug: async () => { const sl = $("fSlug").value.trim(); if (!SLUG_RE.test(sl)) return "El slug solo puede tener letras, números, guion y guion bajo.";
+    if (Object.values(store).some(x => x !== cur && x.slug === sl && !x.sent)) return "Ya hay otra alta en curso con ese slug.";
+    cur.slug = sl; save(); },
+  playlist: () => { if (!cur.playlist) return "Pega la URL de la playlist y espera a que la reconozca."; },
+  datos: () => { cur.saga = $("fSaga").value.trim(); cur.genre = $("fGenre").value.trim(); cur.releaseDate = $("fRelease").value; cur.notes = $("fNotes").value.trim(); save(); },
+  trans: () => { if (!stepDone(cur, "trans")) return "Faltan transcripciones por bajar. Si quieres seguir igual, vuelve a dar Siguiente."; },
+  analisis: () => { if (!stepDone(cur, "analisis") && !cur.analysisSkipOk) { cur.analysisSkipOk = true; save(); return "El análisis todavía no está validado. Puedes seguir y retomarlo después: vuelve a dar Siguiente."; } }
+};
+// "Siguiente" con transcripciones incompletas: el segundo clic deja pasar
+const _transV = validators.trans;
+validators.trans = () => { if (stepDone(cur, "trans") || cur.transSkipOk) return; cur.transSkipOk = true; save(); return _transV(); };
+IMAGES.forEach(im => validators["img_" + im.t] = () => { if (!cur.images[im.t]) return "Sube la imagen " + im.name.toLowerCase() + " antes de seguir."; });
+
+/* ============================================================
+   Pantallas
+   ============================================================ */
+function render() {
+  renderSteps();
+  const s = STEPS[stepIdx];
+  $("backBtn").style.visibility = stepIdx === 0 ? "hidden" : "";
+  $("nextBtn").style.visibility = stepIdx === 0 || s.id === "fin" ? "hidden" : "";
+  $("navHint").textContent = "";
+  (screens[s.id] || screens.img)(s);
+}
+const body = html => { $("stepBody").innerHTML = html; };
+const head = (n, q, help) => `<span class="lbl">Paso ${n} de ${STEPS.length - 1}</span><h2 class="q">${q}</h2>${help ? `<p class="help">${help}</p>` : ""}`;
+
+const screens = {
+  inicio() {
+    const list = Object.values(store).sort((a, b) => b.updated - a.updated);
+    body(`<span class="lbl">Alta de series</span><h2 class="q">Dar de alta una serie nueva</h2>
+      <p class="help">Paso a paso: nombre, slug, playlist, transcripciones, análisis con Claude e imágenes. Al final se crea en Drive el archivo de alta y le avisas a Tifa para el onboarding. Puedes cerrar y retomar en cualquier momento.</p>
+      <div class="btns" style="margin-bottom:28px"><button class="accent" id="newBtn">+ Nueva serie</button></div>
+      ${list.length ? `<h3 style="font-size:16px;margin-bottom:12px">Altas guardadas en este navegador</h3><div class="series-list">${list.map(x => {
+        const done = STEPS.filter(st => st.id !== "inicio" && stepDone(x, st.id)).length, total = STEPS.length - 1;
+        return `<button class="serie-card" data-id="${x.id}"><b>${esc(x.name || "Serie sin nombre")}</b><small>${esc(x.slug || "sin slug")} · ${x.sent ? "enviada a Tifa" : "paso " + x.step + " de " + total}</small>
+          <span class="bar"><i style="width:${done / total * 100}%"></i></span></button>`; }).join("")}</div>` : ""}`);
+    $("newBtn").onclick = () => { cur = newSerie(); save(); go(1); };
+    document.querySelectorAll(".serie-card").forEach(b => b.onclick = () => { cur = store[b.dataset.id]; go(Math.min(cur.step, STEPS.length - 1)); });
+  },
+
+  nombre() {
+    body(head(1, "¿Cómo se llama la serie?", "El título tal como quieres que aparezca en la app, por ejemplo “Klonoa: Door to Phantomile”.") +
+      `<div class="field"><input type="text" id="fName" value="${esc(cur.name)}" placeholder="Nombre de la serie" autofocus></div>`);
+    $("fName").onkeydown = e => { if (e.key === "Enter") $("nextBtn").click(); };
+  },
+
+  slug() {
+    const sug = cur.slug || suggestSlug(cur.name);
+    body(head(2, "¿Cuál es el slug?", "Es el nombre corto de las carpetas y archivos (Transcriptions/<b>SLUG</b>, Images/<b>SLUG</b>). Una vez creado no se cambia.") +
+      `<div class="field"><input type="text" id="fSlug" value="${esc(sug)}" placeholder="KLO_DTPM" style="font-family:var(--mono);text-transform:none"></div><div class="msg" id="slugMsg"></div>`);
+    const check = debounce(async () => {
+      const sl = $("fSlug").value.trim(), m = $("slugMsg");
+      if (!SLUG_RE.test(sl)) { m.className = "msg err"; m.textContent = "Solo letras, números, guion y guion bajo."; return; }
+      if (!tokenOk(drive) || !assets.trans) { m.className = "msg warn"; m.textContent = "Conecta Drive para comprobar que no exista ya."; return; }
+      m.className = "msg"; m.textContent = "Comprobando en Drive…";
+      try {
+        const [a, b] = await Promise.all([driveFindFolder(assets.trans.id, sl), driveFindFolder(assets.images.id, sl)]);
+        if (a || b) { m.className = "msg warn"; m.textContent = "Ya existe una carpeta " + sl + " en " + [a && "Transcriptions", b && "Images"].filter(Boolean).join(" y ") + ". Si es la misma serie, puedes seguir; si no, usa otro slug."; }
+        else { m.className = "msg ok"; m.textContent = "Disponible."; }
+      } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+    }, 400);
+    $("fSlug").oninput = check; check();
+  },
+
+  playlist() {
+    body(head(3, "¿Cuál es la playlist?", "Pega la URL de la playlist de YouTube. Tiene que ser del canal con el que iniciaste sesión en YouTube.") +
+      `<div class="field"><input type="url" id="fUrl" value="${esc(cur.playlistUrl)}" placeholder="https://www.youtube.com/playlist?list=…"></div><div class="msg" id="plMsg"></div><div id="plInfo"></div>`);
+    const show = () => { if (!cur.playlist) { $("plInfo").innerHTML = ""; return; } const p = cur.playlist;
+      $("plInfo").innerHTML = `<div class="card pl-card">${p.thumb ? `<img src="${esc(p.thumb)}" alt="">` : ""}<div><b>${esc(p.title)}</b><div class="facts" style="margin-top:6px"><span>${p.count} videos</span><span class="k">${esc(p.channel || "")}</span></div></div></div>`; };
+    const look = debounce(async () => {
+      const url = $("fUrl").value.trim(), m = $("plMsg"); cur.playlistUrl = url;
+      const id = (url.match(/[?&]list=([A-Za-z0-9_-]+)/) || [])[1] || (/^PL[A-Za-z0-9_-]{10,}$/.test(url) ? url : "");
+      if (!id) { cur.playlist = null; save(); show(); m.className = "msg"; m.textContent = url ? "No encuentro el identificador de la playlist (list=…) en esa URL." : ""; return; }
+      if (!tokenOk(yt)) { m.className = "msg warn"; m.textContent = "Conecta YouTube (arriba) para reconocer la playlist."; return; }
+      m.className = "msg"; m.textContent = "Buscando la playlist…";
+      try {
+        const d = await ytApi("playlists", { part: "snippet,contentDetails", id });
+        const p = d.items?.[0];
+        if (!p) { cur.playlist = null; m.className = "msg err"; m.textContent = "La cuenta de YouTube conectada no ve esa playlist."; }
+        else { cur.playlistId = id; cur.playlist = { id, title: p.snippet.title, count: p.contentDetails.itemCount, channel: p.snippet.channelTitle, thumb: p.snippet.thumbnails?.medium?.url || "" };
+          m.className = "msg ok"; m.textContent = "Playlist reconocida."; }
+      } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+      save(); show(); renderSteps();
+    }, 500);
+    $("fUrl").oninput = look; show(); if (cur.playlistUrl && !cur.playlist) look();
+  },
+
+  datos() {
+    body(head(4, "Datos del juego", "Todos son opcionales. Lo que dejes vacío lo investiga Tifa durante el onboarding.") +
+      `<div class="grid2">
+        <div class="field"><label for="fSaga">Saga</label><input type="text" id="fSaga" value="${esc(cur.saga)}" placeholder="Ej. Final Fantasy" list="sagaList"></div>
+        <div class="field"><label for="fGenre">Género</label><input type="text" id="fGenre" value="${esc(cur.genre)}" placeholder="Ej. RPG" list="genreList"></div>
+        <div class="field"><label for="fRelease">Fecha de lanzamiento</label><input type="date" id="fRelease" value="${esc(cur.releaseDate)}"></div>
+      </div>
+      <div class="field"><label for="fNotes">Notas para Tifa</label><textarea id="fNotes" placeholder="Cualquier cosa que deba saber: plataforma, versión, si es remake…">${esc(cur.notes)}</textarea></div>
+      <datalist id="sagaList">${["Final Fantasy","Resident Evil","Crash Bandicoot","Spyro","Pokémon","Klonoa","Ace Combat","Grand Theft Auto","Minecraft","F1","Sheep Raider"].map(x => `<option value="${x}">`).join("")}</datalist>
+      <datalist id="genreList">${["RPG","Platform","Horror","Racing","Sandbox","Simulation"].map(x => `<option value="${x}">`).join("")}</datalist>`);
+  },
+
+  trans() {
+    const t = cur.trans;
+    body(head(5, "Transcripciones", `Se guardan en Drive, en <b>${esc(assets.root ? assets.root.path : "Gameplays / Assets")} / Transcriptions / ${esc(cur.slug)}</b>.`) +
+      `<div class="card"><h3>Modo</h3>
+        <label class="opt"><input type="radio" name="tmode" value="missing" ${cur.tmode !== "overwrite" ? "checked" : ""}><span>Bajar solo las que faltan<small>Si se corta (cuota, sesión), vuelve a correr y sigue donde quedó.</small></span></label>
+        <label class="opt"><input type="radio" name="tmode" value="overwrite" ${cur.tmode === "overwrite" ? "checked" : ""}><span>Sobrescribir todas</span></label>
+      </div>
+      <div class="btns"><button class="accent" id="runBtn">Extraer transcripciones</button><button id="testBtn">Probar con un video</button><button id="cancelBtn" disabled>Cancelar</button></div>
+      <div class="quota" id="quota"></div>
+      <div class="card" style="margin-top:18px"><h3 id="stripTitle">${t ? `${t.ok + t.skip} de ${t.total} capítulos listos` : "Aún no se ha extraído nada"}</h3><div class="cells" id="cells"></div><div class="log" id="log"></div></div>
+      <pre class="preview hidden" id="preview"></pre>`);
+    document.querySelectorAll("input[name=tmode]").forEach(r => r.onchange = () => { cur.tmode = r.value; save(); });
+    const est = (cur.playlist?.count || 0) * (COST.captionsList + COST.download);
+    $("quota").textContent = `Cuota estimada: hasta ${est.toLocaleString("es-CO")} unidades · usadas hoy desde este navegador: ${quotaUsedToday().toLocaleString("es-CO")} de 10.000`;
+    $("runBtn").onclick = runTranscripts; $("testBtn").onclick = testTranscript; $("cancelBtn").onclick = () => { stopReq = true; };
+  },
+
+  analisis() {
+    const a = cur.analysis;
+    body(head(6, "Análisis con Claude", "Abre el analizador en este PC (ventana de PowerShell). Cuando termine, el análisis queda en Drive y aquí se valida con el mismo lector de la Bitácora.") +
+      `<div class="card"><h3>Ejecutar</h3>
+        <label class="opt"><input type="radio" name="amode" value="analizar" ${cur.amode !== "programar" ? "checked" : ""}><span>Analizar ahora<small>Abre una ventana de PowerShell que procesa los capítulos uno por uno.</small></span></label>
+        <label class="opt"><input type="radio" name="amode" value="programar" ${cur.amode === "programar" ? "checked" : ""}><span>Programar hasta terminar<small>Crea una tarea que se repite cada pocas horas hasta completar el juego. Puedes cerrar esta página y volver luego.</small></span></label>
+        <div class="btns" style="margin-top:10px"><button class="accent" id="anBtn">Abrir el analizador</button></div>
+        <p class="msg" id="anMsg"></p></div>
+      <div class="card"><h3>Validación</h3><div class="checks" id="checks">${a ? "" : `<div class="check wait"><i>…</i><span>Todavía no se ha revisado.</span></div>`}</div>
+        <div class="btns" style="margin-top:14px"><button id="checkBtn">Revisar ahora</button><span class="quota" id="checkAuto"></span></div></div>`);
+    document.querySelectorAll("input[name=amode]").forEach(r => r.onchange = () => { cur.amode = r.value; save(); });
+    $("anBtn").onclick = () => {
+      if (!/^[A-Za-z0-9_-]{1,64}$/.test(cur.slug)) return alertMsg("El slug no es válido para el analizador.");
+      const url = "analizador://" + cur.slug + (cur.amode === "programar" ? "?modo=programar" : "");
+      $("anMsg").textContent = "Se pidió abrir el analizador para " + cur.slug + ". Si no aparece la ventana de PowerShell, corre registrar-protocolo.ps1 una vez en este PC.";
+      cur.analysisStarted = Date.now(); save(); location.href = url;
+    };
+    $("checkBtn").onclick = checkAnalysis;
+    if (a) paintChecks(a);
+    if (tokenOk(drive)) checkAnalysis();
+    clearInterval(window._anTimer);
+    window._anTimer = setInterval(() => { if (STEPS[stepIdx].id === "analisis" && tokenOk(drive) && !stepDone(cur, "analisis")) checkAnalysis(); }, 60000);
+    $("checkAuto").textContent = "Se revisa solo cada minuto mientras esta pantalla esté abierta.";
+  },
+
+  img(s) {
+    const im = s.img, up = cur.images[im.t], n = STEPS.indexOf(s);
+    body(head(n, im.name, `Se usa en ${im.where}. Súbela en la máxima resolución que tengas: Tifa la ajusta al tamaño de cada lugar.` + (im.png ? " Debe ser PNG con fondo transparente." : "")) +
+      `<label class="drop" id="drop"><input type="file" id="file" accept="${im.png ? "image/png" : "image/png,image/jpeg,image/webp"}" hidden>
+        <b>${up ? "Cambiar imagen" : "Arrastra la imagen aquí o haz clic para elegirla"}</b><small>${im.png ? "PNG con transparencia" : "JPG, PNG o WEBP"} · se guardará como <span style="font-family:var(--mono)">${esc(fileName(im))}</span></small></label>
+      <div class="img-row" id="imgRow">${up ? previewHTML(im, up.url || "", up) : ""}</div><p class="msg" id="imgMsg"></p>`);
+    const pick = f => f && handleImage(im, f);
+    $("file").onchange = e => pick(e.target.files[0]);
+    const d = $("drop");
+    d.ondragover = e => { e.preventDefault(); d.classList.add("over"); };
+    d.ondragleave = () => d.classList.remove("over");
+    d.ondrop = e => { e.preventDefault(); d.classList.remove("over"); pick(e.dataTransfer.files[0]); };
+  },
+
+  fin() {
+    const missing = STEPS.filter(s => !["inicio", "fin", "datos"].includes(s.id) && !stepDone(cur, s.id)).map(s => s.label);
+    body(head(STEPS.length - 1, "Enviar a Tifa", "Se crea el archivo de alta en Drive con todo lo que Tifa necesita para el onboarding.") +
+      `<div class="card"><h3>Resumen</h3><div class="checks">
+        ${STEPS.filter(s => !["inicio", "fin"].includes(s.id)).map(s => `<div class="check ${stepDone(cur, s.id) ? "ok" : s.id === "datos" ? "wait" : "warn"}"><i>${stepDone(cur, s.id) ? "✓" : s.id === "datos" ? "·" : "!"}</i><span>${esc(s.label)}${s.id === "datos" ? " (opcional)" : ""}</span></div>`).join("")}
+      </div>${missing.length ? `<p class="msg warn">Hay pasos pendientes (${esc(missing.join(", "))}). Puedes enviar igual: queda anotado en el archivo de alta.</p>` : ""}</div>
+      <div class="btns"><button class="primary" id="sendBtn">Crear archivo de alta en Drive</button></div><p class="msg" id="sendMsg"></p>
+      <div class="card hidden" id="doneCard" style="margin-top:18px"><h3>Listo</h3><p>Escríbele a Tifa en el chat del proyecto:</p>
+        <pre class="preview" id="tifaMsg" style="max-height:none"></pre><div class="btns" style="margin-top:10px"><button id="copyBtn">Copiar mensaje</button></div></div>`);
+    $("sendBtn").onclick = sendAlta;
+    if (cur.sent) showDone();
+  }
+};
+
+/* ---------- Slug sugerido: primera palabra + iniciales del resto (Klonoa: Door to Phantomile → KLO_DTP) ---------- */
+function suggestSlug(name) {
+  const words = (name || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+  if (!words.length) return "";
+  const first = /^\d+$/.test(words[0]) ? words[0] : words[0].slice(0, 4).toUpperCase();
+  const rest = words.slice(1).map(w => /^\d+$/.test(w) || /^[IVX]+$/i.test(w) ? w.toUpperCase() : w[0].toUpperCase()).join("");
+  return (first + (rest ? "_" + rest : "")).slice(0, 24);
+}
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+/* ============================================================
+   Transcripciones
+   ============================================================ */
+let stopReq = false, running = false;
+function log(msg, cls = "") {
+  const box = $("log"); if (!box) return;
+  const d = document.createElement("div"); d.innerHTML = `<span class="t">${new Date().toLocaleTimeString("es-CO", { hour12: false })}</span><span class="${cls}">${esc(msg)}</span>`;
+  box.appendChild(d); box.scrollTop = box.scrollHeight;
+}
+async function loadVideos(playlistId) {
+  const vids = []; let pageToken = "";
+  do {
+    const params = { part: "snippet,contentDetails", playlistId, maxResults: "50" };
+    if (pageToken) params.pageToken = pageToken;
+    const data = await ytApi("playlistItems", params);
+    for (const it of data.items || []) { const vid = it.contentDetails?.videoId, title = it.snippet?.title || ""; if (vid && title !== "Deleted video") vids.push({ videoId: vid, title, position: it.snippet.position }); }
+    pageToken = data.nextPageToken || "";
+  } while (pageToken);
+  vids.sort((a, b) => a.position - b.position);
+  return vids.map((v, i) => ({ number: i + 1, title: v.title, videoId: v.videoId, url: "https://www.youtube.com/watch?v=" + v.videoId }));
+}
+function chooseTrack(items) {
+  const tracks = items.map(it => ({ id: it.id, lang: it.snippet.language || "", kind: (it.snippet.trackKind || "").toLowerCase() }));
+  const pick = list => { for (const lang of LANG_PRIORITY) { const t = list.find(x => x.lang === lang); if (t) return t; }
+    return list.filter(x => x.lang.toLowerCase().startsWith("es")).sort((a, b) => a.lang.length - b.lang.length || a.lang.localeCompare(b.lang))[0] || null; };
+  const asr = pick(tracks.filter(t => t.kind === "asr")); if (asr) return asr;
+  const other = pick(tracks.filter(t => t.kind !== "asr")); if (other) return other;
+  throw new Error("No hay transcripción en español. Disponibles: " + (tracks.map(t => t.lang + " (" + (t.kind || "?") + ")").join(", ") || "ninguna"));
+}
+async function fetchTranscript(video) {
+  const list = await ytApi("captions", { part: "snippet", videoId: video.videoId }, { cost: COST.captionsList });
+  const track = chooseTrack(list.items || []);
+  const vtt = await ytApi("captions/" + encodeURIComponent(track.id), { tfmt: "vtt" }, { text: true, cost: COST.download });
+  const transcript = vttToText(vtt);
+  if (!transcript) throw new Error("La transcripción quedó vacía después de limpiarla.");
+  return { track, transcript };
+}
+const buildFileText = (v, track, transcript) => "TÍTULO: " + v.title + "\nVIDEO ID: " + v.videoId + "\nIDIOMA DE LA TRANSCRIPCIÓN: " + track.lang + "\nURL: " + v.url + "\n" + "=".repeat(80) + "\n\n" + transcript + "\n";
+const numbersFromNames = names => new Set(names.map(n => (n.match(/^(\d{2,}) - .*\.txt$/) || [])[1]).filter(Boolean).map(Number));
+
+function needs(...what) {
+  if (what.includes("yt") && !tokenOk(yt)) return "Conecta YouTube (arriba) con la cuenta del canal.";
+  if (what.includes("drive") && !tokenOk(drive)) return "Conecta Drive (arriba).";
+  if (what.includes("drive") && !assets.trans) return "Falta ubicar la carpeta Gameplays / Assets en Drive.";
+}
+async function testTranscript() {
+  const err = needs("yt"); if (err) return alertMsg(err);
+  try {
+    const vids = await loadVideos(cur.playlistId); if (!vids.length) throw new Error("La playlist no tiene videos disponibles.");
+    const { track, transcript } = await fetchTranscript(vids[0]);
+    const p = $("preview"); p.classList.remove("hidden");
+    p.textContent = vids[0].title + " · " + (track.kind === "asr" ? "automática" : "subida a mano") + " · " + track.lang + "\n\n" + transcript.slice(0, 3000) + (transcript.length > 3000 ? "\n[…]" : "");
+    log("PRUEBA OK: " + vids[0].title, "ok");
+  } catch (e) { log("PRUEBA FALLIDA: " + e.message, "err"); }
+}
+async function runTranscripts() {
+  const err = needs("yt", "drive"); if (err) return alertMsg(err);
+  if (running) return;
+  running = true; stopReq = false; $("runBtn").disabled = true; $("testBtn").disabled = true; $("cancelBtn").disabled = false;
+  const mode = cur.tmode === "overwrite" ? "overwrite" : "missing";
+  let ok = 0, skip = 0; const failed = [];
+  try {
+    const folder = await driveEnsureFolder(assets.trans.id, cur.slug);
+    const files = await driveChildren(folder.id);
+    const byName = new Map(files.map(f => [f.name, f.id])), existing = numbersFromNames(files.map(f => f.name));
+    log("Carpeta: Transcriptions / " + cur.slug);
+    const videos = await loadVideos(cur.playlistId);
+    $("cells").innerHTML = videos.map(v => `<div class="cell" title="${esc(v.title)}">${pad2(v.number)}</div>`).join("");
+    const cells = [...$("cells").children];
+    for (const v of videos) {
+      if (stopReq) break;
+      const cell = cells[v.number - 1];
+      if (mode === "missing" && existing.has(v.number)) { skip++; cell.className = "cell skip"; continue; }
+      cell.className = "cell working";
+      try {
+        const { track, transcript } = await fetchTranscript(v);
+        const name = pad2(v.number) + " - " + safeName(v.title) + ".txt";
+        const res = await driveUploadText(folder.id, name, buildFileText(v, track, transcript), byName.get(name));
+        if (res?.id) byName.set(name, res.id);
+        ok++; cell.className = "cell ok"; log("OK: " + name, "ok");
+      } catch (e) {
+        cell.className = "cell error"; cell.title = e.message; log("ERROR " + pad2(v.number) + ": " + e.message, "err");
+        if (e instanceof QuotaError || e instanceof AuthError) { failed.push(e.message); break; }
+        failed.push(pad2(v.number) + ". " + v.title + ": " + e.message);
+      }
+      $("stripTitle").textContent = `${ok + skip} de ${videos.length} capítulos listos`;
+    }
+    const report = ["JUEGO: " + cur.name, "CARPETA (SLUG): " + cur.slug, "PLAYLIST: https://www.youtube.com/playlist?list=" + cur.playlistId, "FECHA: " + new Date().toISOString().slice(0, 19),
+      "VIDEOS DETECTADOS: " + videos.length, "CORRECTOS EN ESTA EJECUCIÓN: " + ok, "OMITIDOS: " + skip, "FALLIDOS: " + failed.length, "", ...(failed.length ? ["DETALLE DE FALLOS:", ...failed] : [])];
+    await driveUploadText(folder.id, "_reporte.txt", report.join("\n") + "\n", byName.get("_reporte.txt")).catch(() => {});
+    cur.trans = { total: videos.length, ok: (cur.trans?.ok || 0) + ok, skip: 0, failed: failed.length, at: Date.now() };
+    // listos = los que hay ahora en la carpeta
+    const now = numbersFromNames((await driveChildren(folder.id)).map(f => f.name));
+    cur.trans.ok = videos.filter(v => now.has(v.number)).length; cur.trans.skip = 0;
+    save(); renderSteps();
+    log(`Terminado: ${cur.trans.ok} de ${videos.length} capítulos en Drive${failed.length ? ", " + failed.length + " con error" : ""}.`, failed.length ? "warn" : "ok");
+  } catch (e) { log("ERROR: " + e.message, "err"); }
+  running = false; $("runBtn").disabled = false; $("testBtn").disabled = false; $("cancelBtn").disabled = true;
+}
+
+/* ============================================================
+   Validación del análisis (lee lo que dejó el analizador en Drive)
+   ============================================================ */
+const REQUIRED = GROUP_DEFS.flatMap(g => g.keys).filter(k => k !== "encabezado");
+async function checkAnalysis() {
+  const err = needs("drive"); if (err) return alertMsg(err);
+  const box = $("checks"); if (box) box.innerHTML = `<div class="check wait"><i>…</i><span>Revisando Drive…</span></div>`;
+  const r = { at: Date.now(), items: [], valid: false };
+  try {
+    const folder = await driveFindFolder(assets.trans.id, cur.slug);
+    if (!folder) { r.items.push(["err", "No existe la carpeta Transcriptions / " + cur.slug + "."]); throw 0; }
+    const files = await driveChildren(folder.id);
+    const nTrans = numbersFromNames(files.map(f => f.name)).size;
+    r.items.push([nTrans ? "ok" : "err", nTrans + " transcripciones en la carpeta."]);
+    const an = files.find(f => f.mimeType === FOLDER_MIME && /^an[aá]lisis$/i.test(f.name));
+    if (!an) { r.items.push(["wait", "Todavía no hay carpeta Analisis: el analizador no ha terminado o no ha empezado."]); throw 0; }
+    const txts = (await driveChildren(an.id)).filter(f => /\.txt$/i.test(f.name)).sort((a, b) => a.name.localeCompare(b.name));
+    if (!txts.length) { r.items.push(["wait", "La carpeta Analisis está vacía."]); throw 0; }
+    r.files = txts.map(f => f.name);
+    let chapters = [];
+    for (const f of txts) chapters.push(...parseAnalysisFile(await driveReadText(f.id)));
+    r.chapters = chapters.length;
+    r.items.push([chapters.length >= nTrans && chapters.length ? "ok" : "warn", `${chapters.length} capítulos analizados de ${nTrans} transcripciones (${txts.map(f => f.name).join(", ")}).`]);
+    const incompletos = chapters.map((c, i) => ({ i: i + 1, miss: REQUIRED.filter(k => !c.sections[k]) })).filter(x => x.miss.length);
+    if (incompletos.length) incompletos.slice(0, 8).forEach(x => r.items.push(["warn", `Capítulo ${pad2(x.i)}: faltan ${x.miss.map(k => SECTION_LABELS[k]).join(", ")}.`]));
+    else if (chapters.length) r.items.push(["ok", "Todos los capítulos tienen todas las secciones que lee la Bitácora."]);
+    const sinVideo = chapters.filter(c => !c.videoId).length;
+    if (sinVideo) r.items.push(["warn", sinVideo + " capítulo(s) sin VIDEO ID."]);
+    const rep = files.find(f => f.name === "_reporte_analisis.txt");
+    if (rep) r.report = (await driveReadText(rep.id)).trim().slice(0, 600);
+    const rev = files.find(f => f.name === "_puntos_para_revisar.txt");
+    if (rev) r.items.push(["warn", "El analizador dejó _puntos_para_revisar.txt: Tifa lo revisa en el onboarding."]);
+    r.valid = chapters.length >= nTrans && nTrans > 0 && !incompletos.length;
+  } catch (e) { if (e) r.items.push(["err", e.message]); }
+  cur.analysis = r; save(); renderSteps(); paintChecks(r);
+}
+function paintChecks(r) {
+  const box = $("checks"); if (!box) return;
+  const ico = { ok: "✓", warn: "!", err: "✕", wait: "…" };
+  box.innerHTML = r.items.map(([c, t]) => `<div class="check ${c}"><i>${ico[c]}</i><span>${esc(t)}</span></div>`).join("") +
+    (r.report ? `<pre class="preview">${esc(r.report)}</pre>` : "") +
+    `<div class="check ${r.valid ? "ok" : "wait"}" style="margin-top:6px"><i>${r.valid ? "✓" : "…"}</i><span><b>${r.valid ? "Análisis validado." : "Análisis aún no validado."}</b> Última revisión: ${new Date(r.at).toLocaleTimeString("es-CO", { hour12: false })}</span></div>`;
+}
+
+/* ============================================================
+   Imágenes: se suben en su resolución original a Images/<SLUG>/<slug>_<tipo>.<ext>
+   ============================================================ */
+const extOf = f => (f.type === "image/png" ? "png" : f.type === "image/webp" ? "webp" : "jpg");
+const fileName = (im, file) => cur.slug.toLowerCase() + "_" + im.t.toLowerCase() + "." + (file ? extOf(file) : im.png ? "png" : "jpg");
+function previewHTML(im, url, info) {
+  const frame = `<div class="frame ${im.contain ? "contain" : ""}" style="aspect-ratio:${im.ratio}">${url ? `<img src="${esc(url)}" alt="">` : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px">Subida: ${esc(info.name)}</div>`}</div>`;
+  return frame + `<div class="facts"><span class="k">Archivo en Drive</span><span style="font-family:var(--mono)">${esc(info.name)}</span>
+    <span class="k">Tamaño original</span><span>${info.w} × ${info.h} px · ${(info.size / 1048576).toFixed(1)} MB</span>
+    ${info.warn ? `<span class="k">Aviso</span><span style="color:var(--warn)">${esc(info.warn)}</span>` : ""}<span class="k">Vista</span><span>Así se verá aproximadamente en ${esc(im.where)}.</span></div>`;
+}
+async function handleImage(im, file) {
+  const err = needs("drive"); if (err) return alertMsg(err);
+  if (!/^image\//.test(file.type)) return alertMsg("Ese archivo no es una imagen.");
+  const url = URL.createObjectURL(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; }).catch(() => null);
+  if (!img) return alertMsg("No se pudo leer la imagen.");
+  const w = img.naturalWidth, h = img.naturalHeight, warns = [];
+  if (Math.max(w, h) < im.min) warns.push(`Es pequeña (${w} px); lo ideal es al menos ${im.min} px de ancho.`);
+  if (im.png) {
+    if (file.type !== "image/png") warns.push("Debería ser PNG para conservar la transparencia.");
+    else if (!hasAlpha(img)) warns.push("No tiene transparencia: se verá el fondo de la imagen sobre la portada.");
+  }
+  const name = fileName(im, file), info = { name, w, h, size: file.size, warn: warns.join(" ") };
+  $("imgRow").innerHTML = previewHTML(im, url, info);
+  const m = $("imgMsg"); m.className = "msg"; m.textContent = "Subiendo a Drive…";
+  try {
+    const folder = await driveEnsureFolder(assets.images.id, cur.slug);
+    const files = await driveChildren(folder.id);
+    // si había una versión anterior de este tipo (incluso con otra extensión), se reemplaza / se borra
+    const same = files.find(f => f.name === name);
+    const prev = files.filter(f => f.name !== name && f.name.toLowerCase().startsWith(cur.slug.toLowerCase() + "_" + im.t.toLowerCase() + "."));
+    await driveUploadBlob(folder.id, name, file, same && same.id);
+    for (const p of prev) await driveFetch(DRIVE_API + "/files/" + p.id + "?supportsAllDrives=true", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trashed: true }) }).catch(() => {});
+    cur.images[im.t] = info; save(); renderSteps();
+    m.className = "msg ok"; m.textContent = "Guardada en Images / " + cur.slug + " / " + name + (warns.length ? ". Revisa el aviso." : ".");
+  } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+}
+function hasAlpha(img) {
+  try {
+    const c = document.createElement("canvas"), s = Math.min(1, 256 / Math.max(img.naturalWidth, img.naturalHeight));
+    c.width = Math.max(1, Math.round(img.naturalWidth * s)); c.height = Math.max(1, Math.round(img.naturalHeight * s));
+    const x = c.getContext("2d"); x.drawImage(img, 0, 0, c.width, c.height);
+    const d = x.getImageData(0, 0, c.width, c.height).data;
+    for (let i = 3; i < d.length; i += 4) if (d[i] < 250) return true;
+    return false;
+  } catch { return true; }
+}
+
+/* ============================================================
+   Archivo de alta para Tifa: Assets/Altas/<SLUG>.md
+   ============================================================ */
+function altaMarkdown() {
+  const a = cur.analysis, t = cur.trans;
+  const pend = STEPS.filter(s => !["inicio", "fin", "datos"].includes(s.id) && !stepDone(cur, s.id)).map(s => s.label);
+  const data = { nombre: cur.name, slug: cur.slug, playlistUrl: "https://www.youtube.com/playlist?list=" + cur.playlistId, playlistTitulo: cur.playlist?.title, videos: cur.playlist?.count,
+    saga: cur.saga || null, genero: cur.genre || null, lanzamiento: cur.releaseDate || null, notas: cur.notes || null,
+    transcripciones: t ? { listas: t.ok, total: t.total } : null, analisis: a ? { validado: a.valid, capitulos: a.chapters || 0, archivos: a.files || [] } : null,
+    imagenes: Object.fromEntries(Object.entries(cur.images).map(([k, v]) => [k, { archivo: v.name, ancho: v.w, alto: v.h, aviso: v.warn || null }])),
+    pendientes: pend, creado: new Date().toISOString() };
+  return `# Alta de serie: ${cur.name}
+
+- **Nombre:** ${cur.name}
+- **Slug:** ${cur.slug}
+- **Playlist:** https://www.youtube.com/playlist?list=${cur.playlistId} (${cur.playlist?.count ?? "?"} videos)
+- **Saga:** ${cur.saga || "(investigar)"}
+- **Género:** ${cur.genre || "(investigar)"}
+- **Lanzamiento:** ${cur.releaseDate || "(investigar)"}
+- **Transcripciones:** Transcriptions/${cur.slug}/ — ${t ? t.ok + " de " + t.total : "no extraídas"}
+- **Análisis:** ${a ? (a.valid ? "validado" : "sin validar") + ", " + (a.chapters || 0) + " capítulos" : "no ejecutado"}
+- **Imágenes:** Images/${cur.slug}/ — ${Object.values(cur.images).map(v => v.name).join(", ") || "ninguna"}
+- **Pendientes:** ${pend.length ? pend.join(", ") : "ninguno"}
+${cur.notes ? "\n## Notas de Jf\n\n" + cur.notes + "\n" : ""}
+## Datos (JSON)
+
+\`\`\`json
+${JSON.stringify(data, null, 2)}
+\`\`\`
+`;
+}
+async function sendAlta() {
+  const err = needs("drive"); if (err) return alertMsg(err);
+  const m = $("sendMsg"); m.className = "msg"; m.textContent = "Creando el archivo…";
+  try {
+    const name = cur.slug + ".md";
+    const same = (await driveChildren(assets.altas.id)).find(f => f.name === name);
+    await driveUploadText(assets.altas.id, name, altaMarkdown(), same && same.id);
+    cur.sent = Date.now(); save(); renderSteps();
+    m.className = "msg ok"; m.textContent = "Archivo creado: Assets / Altas / " + name; showDone();
+  } catch (e) { m.className = "msg err"; m.textContent = e.message; }
+}
+function showDone() {
+  $("doneCard").classList.remove("hidden");
+  const txt = `Tifa, se cargó una nueva serie a Drive: ${cur.name} (slug ${cur.slug}). El archivo de alta está en Gameplays/Assets/Altas/${cur.slug}.md. Inicia el onboarding.`;
+  $("tifaMsg").textContent = txt;
+  $("copyBtn").onclick = () => navigator.clipboard.writeText(txt).then(() => $("copyBtn").textContent = "Copiado ✓");
+}
+
+render();
+</script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
+</body>
+</html>
