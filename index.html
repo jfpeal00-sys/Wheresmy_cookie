@@ -84,15 +84,26 @@
   .rail-btn:hover span, .rail-btn:focus-visible span { opacity: 1; }
   .rail-btn.active { background: rgba(155,138,196,0.3); color: #fff; }
 
-  .main { position: relative; z-index: 1; padding-bottom: 60px; }
+  .main { position: relative; z-index: 1; padding-bottom: 60px; --hero-h: max(460px, min(560px, 72vh)); }
+  .main > section, .main > p { position: relative; z-index: 1; }
+
+  /* ===== Fondo de escenario: la imagen del juego destacado ocupa la parte alta de la página.
+     En la portada se ve nítida; debajo sigue visible pero difuminada y apagada detrás de las filas. ===== */
+  .stage { position: absolute; top: 0; left: 0; right: 0; z-index: 0; height: max(var(--hero-h), 56.25vw); overflow: hidden; pointer-events: none; }
+  .stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,9,16,0) 72%, var(--bg) 100%); }
+  .stage-veil { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--hero-h) - 150px);
+    backdrop-filter: blur(22px) saturate(0.85); -webkit-backdrop-filter: blur(22px) saturate(0.85);
+    background: linear-gradient(180deg, rgba(11,9,16,0) 0, rgba(11,9,16,0.6) 150px, rgba(11,9,16,0.74) 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 150px); mask-image: linear-gradient(180deg, transparent 0, #000 150px); }
 
   /* ===== Portada ===== */
-  .hero { position: relative; height: min(560px, 72vh); min-height: 460px; overflow: hidden; }
-  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--pos-d, center 30%); opacity: 0; transition: opacity 0.8s ease; }
+  .hero { position: relative; height: var(--hero-h); overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--pos-d, center 30%); opacity: 0; transition: opacity 0.9s ease; }
   .hero-bg.show { opacity: 1; }
   .hero-scrim { position: absolute; inset: 0; background:
       linear-gradient(90deg, rgba(11,9,16,0.96) 0%, rgba(11,9,16,0.62) 38%, rgba(11,9,16,0) 72%),
-      linear-gradient(180deg, rgba(11,9,16,0.35) 0%, rgba(11,9,16,0) 18%, rgba(11,9,16,0) 58%, var(--bg) 100%); }
+      linear-gradient(180deg, rgba(11,9,16,0.35) 0%, rgba(11,9,16,0) 18%, rgba(11,9,16,0) 100%); }
+  .hero-scrim { -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%); mask-image: linear-gradient(180deg, #000 62%, transparent 100%); }
   .hero-content { position: absolute; left: calc(var(--rail) + 56px); bottom: 64px; width: min(560px, 46vw); display: flex; flex-direction: column; gap: 16px; }
   .hero-logo { height: 110px; width: auto; max-width: 100%; object-fit: contain; object-position: left; align-self: flex-start; filter: drop-shadow(0 6px 22px rgba(0,0,0,0.55)); }
   .hero-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -129,6 +140,13 @@
   .hero-dots button { all: unset; cursor: pointer; width: 8px; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.35); transition: width 0.3s, background 0.3s; }
   .hero-dots button:hover { background: rgba(255,255,255,0.7); }
   .hero-dots button.active { width: 26px; background: var(--fg); }
+  .hero-arrow { all: unset; cursor: pointer; position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; background: rgba(11,9,16,0.45); border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0.75; transition: opacity 0.2s, background 0.2s; }
+  .hero-arrow:hover, .hero-arrow:focus-visible { opacity: 1; background: rgba(11,9,16,0.7); }
+  .hero-arrow svg { width: 18px; height: 18px; }
+  .hero-arrow.prev { left: calc(var(--rail) + 4px); }
+  .hero-arrow.next { right: 24px; }
   .mobile-top { display: none; }
   .sync-status { position: absolute; right: 48px; top: 22px; font-size: 11px; color: var(--accent-2); opacity: 0; transition: opacity 0.4s; }
 
@@ -290,8 +308,12 @@
     .rail-btn.active { background: none; color: #fff; }
     .rail-btn:not(.active) { color: var(--muted); }
     .main { padding-bottom: 110px; }
-    .hero { height: 540px; min-height: 0; }
-    .hero-scrim { background: linear-gradient(180deg, rgba(11,9,16,0.6) 0%, rgba(11,9,16,0.1) 26%, rgba(11,9,16,0.65) 58%, var(--bg) 100%); }
+    .main { --hero-h: 540px; }
+    .stage { height: calc(var(--hero-h) + 460px); }
+    .hero-arrow { top: 150px; width: 38px; height: 38px; }
+    .hero-arrow.prev { left: 8px; }
+    .hero-arrow.next { right: 8px; }
+    .hero-scrim { background: linear-gradient(180deg, rgba(11,9,16,0.6) 0%, rgba(11,9,16,0.1) 26%, rgba(11,9,16,0.65) 58%, rgba(11,9,16,0.35) 82%, rgba(11,9,16,0) 100%); }
     .hero-content { left: 16px; right: 16px; width: auto; bottom: 40px; align-items: center; text-align: center; gap: 12px; }
     .hero-logo { height: 80px; align-self: center; object-position: center; }
     .hero-meta { justify-content: center; }
@@ -355,9 +377,12 @@
 </nav>
 
 <main class="main">
-  <section class="hero" id="hero" aria-label="Juego destacado">
+  <div class="stage" aria-hidden="true">
     <img class="hero-bg" id="heroBgA" alt="">
     <img class="hero-bg" id="heroBgB" alt="">
+    <div class="stage-veil"></div>
+  </div>
+  <section class="hero" id="hero" aria-label="Juego destacado">
     <div class="hero-scrim"></div>
     <div class="mobile-top">
       <img id="mobileAvatar" alt="">
@@ -367,6 +392,8 @@
     <div class="hero-content" id="heroContent"></div>
     <div class="rotator" id="rotator"></div>
     <div class="hero-dots" id="heroDots"></div>
+    <button class="hero-arrow prev" type="button" id="heroPrev" aria-label="Juego anterior"><svg viewBox="0 0 24 24" fill="none" stroke="#f4f1fa" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="hero-arrow next" type="button" id="heroNext" aria-label="Juego siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="#f4f1fa" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     <span class="sync-status" id="syncStatus" aria-live="polite"></span>
   </section>
 
@@ -518,7 +545,7 @@ const HERO_POS = {
 };
 
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
-const HERO_INTERVAL = 5000;    // ms entre cambios automáticos de la portada (rotan todos los juegos)
+const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
 
 // ===== Utilidades =====
@@ -565,6 +592,7 @@ let heroQueue = [];
 let heroIdx = 0;
 let heroTimer = null;
 let heroPaused = false;
+let heroPendingSchedule = false; // el temporizador arranca cuando la imagen nueva ya se ve
 
 function renderHero(game) {
   heroGame = game;
@@ -577,10 +605,10 @@ function renderHero(game) {
     const pos = HERO_POS[game.title] || {};
     next.style.setProperty('--pos-d', pos.d || 'center 30%');
     next.style.setProperty('--pos-m', pos.m || 'center 30%');
-    const swap = () => { next.classList.add('show'); if (shown) shown.classList.remove('show'); };
+    const swap = () => { next.classList.add('show'); if (shown) shown.classList.remove('show'); heroShown(); };
     if (next.getAttribute('src') === src && next.complete) swap();
-    else { next.onload = swap; next.src = src; }
-  }
+    else { next.onload = swap; next.onerror = heroShown; next.src = src; }
+  } else heroShown();
   const isQueued = heroQueue.indexOf(game) > -1 && heroQueue.indexOf(game) < HERO_RECENT;
   const iconPx = ICON_SIZE[game.title] || 46;
   const bit = hasBitacora(game);
@@ -628,7 +656,13 @@ function renderRotator() {
 
 function goHero(i) {
   heroIdx = (i + heroQueue.length) % heroQueue.length;
+  clearTimeout(heroTimer);
+  heroPendingSchedule = true;
   renderHero(heroQueue[heroIdx]);
+}
+function heroShown() {
+  if (!heroPendingSchedule) return;
+  heroPendingSchedule = false;
   scheduleHero();
 }
 function scheduleHero() {
@@ -956,33 +990,28 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
 }));
 
 // ===== Géneros: la imagen rota entre los juegos de esa categoría =====
-// Un temporizador por género, iniciado una sola vez; cada paso busca la tarjeta actual en el DOM,
-// así sigue funcionando aunque las filas se vuelvan a pintar tras la sincronización con YouTube.
+// Un solo reloj (cada GENRE_INTERVAL) cambia todas las tarjetas a la vez; cada paso busca las tarjetas
+// actuales en el DOM, así sigue funcionando aunque las filas se repinten tras la sincronización con YouTube.
 const genreIdx = {};
+let genreTicker = null;
+function stepGenre(card) {
+  const gn = card.dataset.genre, pool = JSON.parse(card.dataset.pool || '[]');
+  if (pool.length < 2) return;
+  genreIdx[gn] = ((genreIdx[gn] || 0) + 1) % pool.length;
+  const src = pool[genreIdx[gn]];
+  const [a, b] = card.querySelectorAll('.bg');
+  const shown = a.classList.contains('show') ? a : b, next = shown === a ? b : a;
+  const swap = () => { next.classList.add('show'); shown.classList.remove('show'); };
+  if (next.getAttribute('src') === src && next.complete) swap(); else { next.onload = swap; next.src = src; }
+}
 function startGenreRotation() {
-  document.querySelectorAll('#genreScroller .genre').forEach((card, n) => {
-    const gn = card.dataset.genre;
-    if (gn in genreIdx) { // ya rota: la tarjeta repintada arranca en la imagen actual
-      const pool = JSON.parse(card.dataset.pool || '[]'), src = pool[genreIdx[gn] % pool.length];
-      if (src) card.querySelector('.bg').src = src;
-      return;
-    }
-    genreIdx[gn] = 0;
-    const step = () => {
-      const c = document.querySelector(`#genreScroller .genre[data-genre="${CSS.escape(gn)}"]`);
-      if (!c) return;
-      const pool = JSON.parse(c.dataset.pool || '[]');
-      if (pool.length < 2) return;
-      genreIdx[gn] = (genreIdx[gn] + 1) % pool.length;
-      const src = pool[genreIdx[gn]];
-      const [a, b] = c.querySelectorAll('.bg');
-      const shown = a.classList.contains('show') ? a : b, next = shown === a ? b : a;
-      const swap = () => { next.classList.add('show'); shown.classList.remove('show'); };
-      if (next.getAttribute('src') === src && next.complete) swap(); else { next.onload = swap; next.src = src; }
-    };
-    // arranques escalonados para que no cambien todas a la vez
-    setTimeout(() => { step(); setInterval(step, GENRE_INTERVAL); }, GENRE_INTERVAL + n * 1200);
+  // si las filas se repintan, cada tarjeta arranca en la imagen que ya tenía
+  document.querySelectorAll('#genreScroller .genre').forEach(card => {
+    const pool = JSON.parse(card.dataset.pool || '[]'), i = genreIdx[card.dataset.genre] || 0;
+    if (pool[i]) card.querySelector('.bg').src = pool[i];
   });
+  // un solo reloj para todas: cambian al mismo tiempo
+  if (!genreTicker) genreTicker = setInterval(() => document.querySelectorAll('#genreScroller .genre').forEach(stepGenre), GENRE_INTERVAL);
 }
 
 // ===== Arranque =====
@@ -990,11 +1019,16 @@ $('mobileAvatar').src = document.querySelector('.rail-avatar').src; // el avatar
 function initHero() {
   heroQueue = playlists.slice().sort(byUpdatedDesc);
   heroIdx = 0;
-  renderHero(heroQueue[0]);
-  scheduleHero();
+  goHero(0);
 }
-$('hero').addEventListener('mouseenter', () => { if (!heroPaused) clearTimeout(heroTimer); });
-$('hero').addEventListener('mouseleave', () => { if (!heroPaused) scheduleHero(); });
+// Flechas de la portada (y teclas ← → cuando no hay un panel abierto); reinician la cuenta de 7 s
+$('heroPrev').addEventListener('click', () => { heroPaused = false; goHero(heroIdx - 1); });
+$('heroNext').addEventListener('click', () => { heroPaused = false; goHero(heroIdx + 1); });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if (document.querySelector('.overlay.show, .modal-overlay.show, #confirmModal.show') || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+  heroPaused = false; goHero(heroIdx + (e.key === 'ArrowRight' ? 1 : -1));
+});
 renderRows();
 initHero();
 renderStats();
