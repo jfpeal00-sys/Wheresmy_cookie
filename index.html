@@ -254,6 +254,10 @@
     background: rgba(11,9,16,0.72); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25); cursor: pointer; opacity: 0.85; transition: opacity 0.15s, background 0.15s; }
   .frame-btn:hover { opacity: 1; background: var(--accent); }
   .frame-btn svg { width: 15px; height: 15px; }
+  .frame-btn.hero-frame { top: 64px; right: 24px; width: auto; height: 36px; padding: 0 14px; gap: 8px; border-radius: 999px; z-index: 8; }
+  .frame-btn.hero-frame b { font-size: 12px; font-weight: 700; }
+  .framing.framing-hero { z-index: 9; border-radius: 0; }
+  @media (max-width: 899px) { .frame-btn.hero-frame { top: 96px; right: 16px; } }
   .framing { position: absolute; inset: 0; z-index: 7; cursor: grab; touch-action: none; box-shadow: inset 0 0 0 2px var(--accent); border-radius: inherit; }
   .framing:active { cursor: grabbing; }
   .framing .hint { position: absolute; left: 8px; right: 8px; top: 8px; font-size: 11px; font-weight: 700; color: #fff; text-shadow: 0 1px 6px #000; text-align: center; pointer-events: none; }
@@ -689,6 +693,7 @@
 <div class="edit-bar" id="editBar">
   <b>Modo edición</b><span class="msg" id="editMsg">Toca el botón ✥ de una tarjeta para encuadrarla</span>
   <button class="btn btn-primary" type="button" id="editSave">Guardar en GitHub</button>
+  <button class="btn btn-ghost" type="button" id="editMobile" title="Abre la app en una ventana del tamaño de un celular">Vista móvil</button>
   <button class="btn btn-ghost" type="button" id="editExit">Salir</button>
 </div>
 <div id="tokenModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="tokenTitle">
@@ -791,8 +796,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.11";
-const APP_BUILD = "20261104.162358";
+const APP_VERSION = "2.12";
+const APP_BUILD = "20261104.162654";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -852,6 +857,7 @@ function renderHero(game) {
   if (!shown || shown.getAttribute('src') !== src) {
     const next = layers.find(l => l !== shown);
     const pos = HERO_POS[game.title] || {};
+    next.dataset.posd = pos.d || 'center 30%'; next.dataset.posm = pos.m || 'center center';
     next.style.setProperty('--pos-d', pos.d || 'center 30%');
     next.style.setProperty('--pos-m', pos.m || 'center center');
     const swap = () => { next.classList.add('show'); if (shown) shown.classList.remove('show'); heroShown(); };
@@ -1321,7 +1327,8 @@ function startGenreRotation() {
 // index.html?editar=1, o automático en el navegador donde Jf guardó su token de GitHub.
 const FRAME_REPO = 'jfpeal00-sys/Wheresmy_cookie', FRAME_PATH = 'assets/encuadres.json';
 const FRAME_KINDS = ['poster', 'saga', 'genre', 'moment', 'art-card', 'card'];
-const FRAME_SEL = '.poster, .saga, .genre, .moment, .art-card, .card-art, .mini-posters button, .time-row .thumb';
+const FRAME_SEL = '.poster, .saga, .genre, .moment, .art-card, .card-art, .mini-posters button, .time-row .thumb, .stage';
+const isMobileLayout = () => matchMedia('(max-width: 899px)').matches;
 const EDIT_SEL = '.poster, .saga, .genre, .moment, .art-card, .card-art';
 const store2 = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -1331,23 +1338,29 @@ let frames = {}, framesDirty = {};
 const frameCard = img => img.closest(FRAME_SEL);
 function frameKey(img) {
   const card = frameCard(img); if (!card) return null;
+  // la portada tiene encuadre propio en escritorio (hero) y en móvil (hero-m): sus proporciones son muy distintas
+  if (card.classList.contains('stage')) return (isMobileLayout() ? 'hero-m' : 'hero') + '|' + (img.getAttribute('src') || '');
   const kind = card.matches('.mini-posters button, .time-row .thumb') ? 'poster' : (FRAME_KINDS.find(k => card.classList.contains(k)) || 'card');
   return kind + '|' + (img.getAttribute('src') || '');
 }
 // La imagen se dimensiona con su proporción real para cubrir la tarjeta (no con object-fit, que la recortaría
 // en su propia caja) y luego se desplaza/escala; así al moverla se ve el resto de la imagen y no un borde.
-const frameRO = new ResizeObserver(entries => entries.forEach(e => e.target.querySelectorAll('img.bg, :scope > img:not(.bg-fill)').forEach(applyFrame)));
+const frameRO = new ResizeObserver(entries => entries.forEach(e => e.target.querySelectorAll('img.bg, img.hero-bg, :scope > img:not(.bg-fill)').forEach(applyFrame)));
 function applyFrame(img) {
   const key = frameKey(img); if (!key) return;
   const f = frames[key], card = frameCard(img);
   let fill = card.querySelector(':scope > .bg-fill');
   if (!f) {
-    if (img.dataset.framed) { img.removeAttribute('style'); delete img.dataset.framed; }
+    if (img.dataset.framed) {
+      img.removeAttribute('style'); delete img.dataset.framed;
+      if (img.dataset.posd) { img.style.setProperty('--pos-d', img.dataset.posd); img.style.setProperty('--pos-m', img.dataset.posm); } // encuadre base de la portada
+    }
     if (fill && !card.querySelector('.framing') && !card.querySelector('[data-framed]')) fill.remove();
     return;
   }
   if (!card.dataset.ro) { card.dataset.ro = '1'; frameRO.observe(card); }
-  const cw = card.clientWidth, ch = card.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
+  // en móvil la imagen de portada ocupa solo la portada + 220 px (ver CSS), no todo el escenario
+  const cw = card.clientWidth, ch = card.classList.contains('stage') && isMobileLayout() ? $('hero').offsetHeight + 220 : card.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
   if (!cw || !ch || !nw || !nh) return; // se reintenta al cargar la imagen o al hacerse visible la tarjeta
   const s0 = Math.max(cw / nw, ch / nh), w = nw * s0, h = nh * s0;
   img.dataset.framed = '1';
@@ -1359,8 +1372,8 @@ function applyFrame(img) {
   if (!fill) { fill = document.createElement('img'); fill.className = 'bg-fill'; fill.alt = ''; card.insertBefore(fill, card.firstChild); }
   if (fill.getAttribute('src') !== img.getAttribute('src')) fill.src = img.getAttribute('src');
 }
-const frameImgs = (root = document) => root.querySelectorAll('img.bg, .art-card > img:not(.bg-fill)');
-document.addEventListener('load', e => { if (e.target.matches && e.target.matches('img.bg, .art-card > img:not(.bg-fill)')) applyFrame(e.target); }, true);
+const frameImgs = (root = document) => root.querySelectorAll('img.bg, img.hero-bg, .art-card > img:not(.bg-fill)');
+document.addEventListener('load', e => { if (e.target.matches && e.target.matches('img.bg, img.hero-bg, .art-card > img:not(.bg-fill)')) applyFrame(e.target); }, true);
 
 fetch('./' + FRAME_PATH, { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(remote => {
   frames = remote || {};
@@ -1389,23 +1402,27 @@ function updateEditMsg() {
   $('editMsg').textContent = n ? `${n} encuadre${n !== 1 ? 's' : ''} sin guardar` : 'Toca el botón ✥ de una tarjeta para encuadrarla';
 }
 function startFraming(card) {
-  if (card.querySelector('.framing')) return;
-  const img = card.querySelector('img.bg.show') || card.querySelector('img.bg') || card.querySelector(':scope > img:not(.bg-fill)');
+  // la portada se encuadra sobre la sección visible (#hero) aunque la imagen viva en el escenario (.stage)
+  const host = card.classList.contains('stage') ? $('hero') : card;
+  if (host.querySelector('.framing')) return;
+  if (host !== card) { heroPaused = true; clearTimeout(heroTimer); }
+  const img = card.querySelector('img.hero-bg.show') || card.querySelector('img.bg.show') || card.querySelector('img.bg') || card.querySelector(':scope > img:not(.bg-fill)');
   const key = frameKey(img); if (!key) return;
   const before = frames[key] ? { ...frames[key] } : null;
   const f = frames[key] = { ...(frames[key] || { x: 0, y: 0, z: 1 }) };
   card.classList.add('is-framing');
   const ov = document.createElement('div');
+  if (host !== card) ov.classList.add('framing-hero');
   ov.className = 'framing';
   ov.innerHTML = '<div class="hint">Arrastra para mover · rueda o − / + para zoom</div><div class="bar"><span data-a="out" title="Alejar">−</span><span data-a="in" title="Acercar">+</span><span data-a="reset" title="Restablecer">↺</span><span data-a="cancel" title="Cancelar">✕</span><span data-a="ok" class="ok" title="Listo">✓</span></div>';
-  card.appendChild(ov);
+  host.appendChild(ov);
   const redraw = () => { f.x = +f.x.toFixed(4); f.y = +f.y.toFixed(4); f.z = +Math.min(4, Math.max(0.4, f.z)).toFixed(3); frames[key] = f; applyFrame(img); };
   redraw();
   const stop = e => { e.preventDefault(); e.stopPropagation(); };
   ov.addEventListener('click', stop);
   let drag = null;
   ov.addEventListener('pointerdown', e => { if (e.target.closest('.bar')) return; stop(e); drag = { x: e.clientX, y: e.clientY, fx: f.x, fy: f.y }; ov.setPointerCapture(e.pointerId); });
-  ov.addEventListener('pointermove', e => { if (!drag) return; const r = card.getBoundingClientRect(); f.x = drag.fx + (e.clientX - drag.x) / r.width; f.y = drag.fy + (e.clientY - drag.y) / r.height; redraw(); });
+  ov.addEventListener('pointermove', e => { if (!drag) return; const r = card.getBoundingClientRect(); const rh = host !== card && isMobileLayout() ? $('hero').offsetHeight + 220 : r.height; f.x = drag.fx + (e.clientX - drag.x) / r.width; f.y = drag.fy + (e.clientY - drag.y) / rh; redraw(); });
   ov.addEventListener('pointerup', () => { drag = null; });
   ov.addEventListener('wheel', e => { stop(e); f.z *= e.deltaY < 0 ? 1.06 : 1 / 1.06; redraw(); }, { passive: false });
   ov.querySelector('.bar').addEventListener('click', e => {
@@ -1422,7 +1439,7 @@ function startFraming(card) {
       }
       ov.remove(); card.classList.remove('is-framing');
       frameImgs(card).forEach(applyFrame); // también la otra capa (géneros) o tarjetas gemelas
-      document.querySelectorAll('img.bg, .art-card > img:not(.bg-fill)').forEach(i => { if (frameKey(i) === key) applyFrame(i); });
+      document.querySelectorAll('img.bg, img.hero-bg, .art-card > img:not(.bg-fill)').forEach(i => { if (frameKey(i) === key) applyFrame(i); });
       updateEditMsg();
     }
   });
@@ -1462,6 +1479,14 @@ if (editing) {
   try { const p = JSON.parse(store2.get('wmc_frames_pending') || 'null'); if (p) { frames = { ...frames, ...p }; Object.keys(p).forEach(k => framesDirty[k] = true); } } catch (e) {}
   new MutationObserver(() => requestAnimationFrame(decorate)).observe(document.body, { childList: true, subtree: true });
   decorate(); updateEditMsg();
+  const hb = document.createElement('span');
+  hb.className = 'frame-btn hero-frame'; hb.setAttribute('role', 'button'); hb.title = 'Encuadrar el fondo de la portada';
+  hb.innerHTML = ICON_MOVE + '<b>Encuadrar fondo</b>';
+  hb.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); startFraming(document.querySelector('.stage')); });
+  $('hero').appendChild(hb);
+  // la portada cambia de encuadre al cruzar el punto de corte escritorio/móvil
+  matchMedia('(max-width: 899px)').addEventListener('change', () => document.querySelectorAll('img.hero-bg').forEach(applyFrame));
+  $('editMobile').addEventListener('click', () => window.open(location.pathname + '?editar=1', 'wmc_movil', 'width=400,height=860'));
   $('editSave').addEventListener('click', saveFrames);
   $('editExit').addEventListener('click', () => {
     sessionStorage.setItem('wmc_edit_off', '1');
