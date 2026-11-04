@@ -265,6 +265,11 @@
   .framing .bar span { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: var(--fg); background: rgba(255,255,255,0.1); cursor: pointer; user-select: none; }
   .framing .bar span:hover { background: rgba(255,255,255,0.22); }
   .framing .bar span.ok { background: var(--accent); color: #100d14; }
+  .phone-preview { position: fixed; inset: 0; z-index: 120; background: rgba(7,6,10,0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .phone-wrap { display: flex; flex-direction: column; gap: 10px; max-height: 100%; }
+  .phone-head { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted); }
+  .phone-head b { color: var(--fg); font-size: 15px; }
+  .phone { width: 390px; height: min(844px, calc(100vh - 90px)); border: 10px solid #000; border-radius: 40px; background: var(--bg); box-shadow: 0 0 0 2px #2a2433, 0 30px 80px rgba(0,0,0,0.7); }
   .edit-bar { position: fixed; z-index: 90; right: 20px; bottom: 20px; display: none; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; border-radius: 14px;
     background: var(--panel); box-shadow: 0 16px 40px rgba(0,0,0,0.6), inset 0 0 0 1px var(--line); font-size: 13px; }
   body.editing .edit-bar { display: flex; }
@@ -299,7 +304,7 @@
   .s-sec > h3 { font-size: 18px; font-weight: 800; margin-bottom: 14px; }
   .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
   .kpi { padding: 18px 20px; border-radius: 14px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); display: flex; flex-direction: column; gap: 6px; }
-  .kpi b { font-size: 34px; font-weight: 900; line-height: 1; white-space: nowrap; }
+  .kpi b { font-size: 34px; font-weight: 900; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .kpi b small { font-size: 14px; font-weight: 700; color: var(--muted); }
   .kpi span { font-size: 13px; color: var(--muted); }
   .time-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 6px 40px; }
@@ -385,6 +390,16 @@
   .viz [data-tip] { cursor: pointer; }
   .viz .hit { fill: transparent; }
   .viz .row:hover .hit { fill: rgba(255,255,255,0.04); }
+  .saga-rank { display: grid; grid-template-columns: repeat(auto-fill, minmax(560px, 1fr)); gap: 6px 40px; }
+  .sr-row { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 28px 96px 220px 1fr 74px; align-items: center; gap: 14px; padding: 6px 10px 6px 6px; border-radius: 10px; }
+  .sr-row:hover { background: rgba(255,255,255,0.05); }
+  .sr-n { font-size: 15px; font-weight: 800; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+  .sr-art { position: relative; display: block; width: 96px; height: 48px; border-radius: 8px; overflow: hidden; }
+  .sr-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sr-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .sr-t b { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sr-t small { font-size: 12px; color: var(--muted); }
+  .sr-row .v { font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; text-align: right; color: var(--soft); }
   .s-tip { position: fixed; z-index: 95; pointer-events: none; padding: 8px 11px; border-radius: 9px; background: #231d2e; box-shadow: 0 10px 30px rgba(0,0,0,0.55), inset 0 0 0 1px var(--line);
     font-size: 12px; color: var(--soft); line-height: 1.45; opacity: 0; transition: opacity 0.12s; max-width: 260px; }
   .s-tip b { color: var(--fg); }
@@ -536,6 +551,10 @@
     .figs .kpi.hero { grid-column: 1 / -1; }
     .s-grid2, .time-list { grid-template-columns: 1fr; }
     .s-card { padding: 16px; }
+    .saga-rank { grid-template-columns: 1fr; }
+    .sr-row { grid-template-columns: 22px 64px 1fr 56px; gap: 10px; }
+    .sr-art { width: 64px; height: 32px; }
+    .sr-row .s-bar { grid-column: 3 / 5; grid-row: 2; }
     .db-row { grid-template-columns: 112px 1fr 58px; height: 30px; }
     .db-grid { left: 112px; right: 58px; }
     .db-axis .db-track span:nth-child(even) { display: none; }
@@ -662,6 +681,7 @@
       <button class="tab" data-tab="records" type="button" role="tab">Récords</button>
       <button class="tab" data-tab="categorias" type="button" role="tab">Categorías</button>
       <button class="tab" data-tab="cronologia" type="button" role="tab">Cronología</button>
+      <button class="tab" data-tab="sagas" type="button" role="tab">Sagas</button>
       <button class="tab" data-tab="comparar" type="button" role="tab">Comparar</button>
     </div>
     <div class="tab-body">
@@ -669,6 +689,7 @@
       <div class="stat-tab-content hidden" id="statTabRecords"></div>
       <div class="stat-tab-content hidden" id="statTabCategorias"></div>
       <div class="stat-tab-content hidden" id="statTabCronologia"></div>
+      <div class="stat-tab-content hidden" id="statTabSagas"></div>
       <div class="stat-tab-content hidden" id="statTabComparar"></div>
     </div>
   </aside>
@@ -796,8 +817,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.12";
-const APP_BUILD = "20261104.162654";
+const APP_VERSION = "2.13";
+const APP_BUILD = "20261104.163608";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -1233,6 +1254,36 @@ function renderStats() {
         ${Object.keys(byDecade).sort().map(k => `<div class="year-row"><b>${k < 2000 ? "'" + String(k).slice(2) : k}s<small>${byDecade[k].length} juego${byDecade[k].length !== 1 ? 's' : ''}</small></b><div class="mini-posters">${byDecade[k].map(posterBtn).join('')}</div></div>`).join('')}</div>
     </section>`;
 
+  // ===== SAGAS: cuáles son tus franquicias favoritas (por tiempo grabado) =====
+  const sagaMap = groupBy(playlists, p => p.saga || p.title);
+  const sagas = Object.entries(sagaMap).map(([name, games]) => ({ name, games: games.slice().sort(byUpdatedDesc),
+    m: games.reduce((t, p) => t + mins(p), 0), v: games.reduce((t, p) => t + videoCountOf(p), 0) })).sort((a, b) => b.m - a.m || b.v - a.v);
+  const top = sagas.filter(x => x.m > 0).slice(0, 5), rest = sagas.filter(x => !top.includes(x));
+  const topSorted = top.map(x => x.name).sort();
+  const sagaColor = n => GENRE_COLORS[topSorted.indexOf(n) % GENRE_COLORS.length];
+  const restMin = rest.reduce((t, x) => t + x.m, 0), maxSaga = sagas.length ? sagas[0].m || 1 : 1;
+  const segParts = [...top.map(x => ({ n: x.name, m: x.m, c: sagaColor(x.name) })), ...(restMin ? [{ n: 'Otras ' + rest.length, m: restMin, c: '#5d5470' }] : [])];
+  $('statTabSagas').innerHTML = `
+    <section class="s-sec"><div class="figs">
+      <div class="kpi"><b>${sagas.length}</b><span>Sagas</span></div>
+      <div class="kpi"><b>${esc(sagas[0] ? sagas[0].name : '—')}</b><span>Tu saga con más horas</span></div>
+      <div class="kpi"><b>${sagas.filter(x => x.games.length > 1).length}</b><span>Sagas con más de un juego</span></div>
+      <div class="kpi"><b>${top.length ? Math.round(top.slice(0, 3).reduce((t, x) => t + x.m, 0) / totalMinutes * 100) : 0}%</b><span>Del tiempo en tus 3 sagas top</span></div>
+      <div class="kpi"><b>${formatMinutes(sagas.length ? totalMinutes / sagas.length : 0)}</b><span>Promedio por saga</span></div>
+    </div></section>
+    <section class="s-sec s-card"><h3>Tiempo grabado por saga</h3><p class="sub">Tus cinco sagas con más horas y el resto agrupado</p>
+      <div class="seg" role="img" aria-label="Reparto del tiempo por saga">${segParts.map(x => { const pct = x.m / totalMinutes * 100;
+        return `<i style="flex:${x.m} 1 0;background:${x.c}" ${tip(x.n, [formatMinutes(x.m) + ' · ' + pct.toFixed(0) + '% del tiempo'])}>${pct >= 7 ? pct.toFixed(0) + '%' : ''}</i>`; }).join('')}</div>
+      <div class="legend">${segParts.map(x => `<span><i style="background:${x.c}"></i><b>${esc(x.n)}</b><small>${formatMinutes(x.m)}</small></span>`).join('')}</div>
+    </section>
+    <section class="s-sec s-card"><h3>Ranking de sagas</h3><p class="sub">Ordenadas por horas grabadas · toca una para ver sus juegos</p><div class="saga-rank">
+      ${sagas.map((x, i) => `<button class="sr-row" type="button" data-saga="${esc(x.name)}" ${tip(x.name, [formatMinutes(x.m) + ' · ' + x.v + ' videos', x.games.map(g => g.title).join(' · ')])}>
+        <span class="sr-n">${i + 1}</span><span class="sr-art"><img class="bg" src="${esc(imgOf(x.games[0], 'saga'))}" alt="" loading="lazy"></span>
+        <span class="sr-t"><b>${esc(x.name)}</b><small>${x.games.length} juego${x.games.length !== 1 ? 's' : ''} · ${x.v} videos</small></span>
+        <span class="s-bar"><i style="width:${(x.m / maxSaga * 100).toFixed(1)}%"></i></span><span class="v">${formatMinutes(x.m)}</span></button>`).join('')}
+    </div></section>`;
+  $('statTabSagas').querySelectorAll('.sr-row').forEach(el => el.addEventListener('click', () => openCollection({ saga: el.dataset.saga })));
+
   // ===== COMPARAR: dos pósters frente a frente; se resalta el valor mayor =====
   const options = playlists.map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('');
   $('statTabComparar').innerHTML = `<div class="cmp">
@@ -1327,7 +1378,7 @@ function startGenreRotation() {
 // index.html?editar=1, o automático en el navegador donde Jf guardó su token de GitHub.
 const FRAME_REPO = 'jfpeal00-sys/Wheresmy_cookie', FRAME_PATH = 'assets/encuadres.json';
 const FRAME_KINDS = ['poster', 'saga', 'genre', 'moment', 'art-card', 'card'];
-const FRAME_SEL = '.poster, .saga, .genre, .moment, .art-card, .card-art, .mini-posters button, .time-row .thumb, .stage';
+const FRAME_SEL = '.poster, .saga, .genre, .moment, .art-card, .card-art, .mini-posters button, .time-row .thumb, .sr-art, .stage';
 const isMobileLayout = () => matchMedia('(max-width: 899px)').matches;
 const EDIT_SEL = '.poster, .saga, .genre, .moment, .art-card, .card-art';
 const store2 = {
@@ -1340,6 +1391,7 @@ function frameKey(img) {
   const card = frameCard(img); if (!card) return null;
   // la portada tiene encuadre propio en escritorio (hero) y en móvil (hero-m): sus proporciones son muy distintas
   if (card.classList.contains('stage')) return (isMobileLayout() ? 'hero-m' : 'hero') + '|' + (img.getAttribute('src') || '');
+  if (card.classList.contains('sr-art')) return 'saga|' + (img.getAttribute('src') || '');
   const kind = card.matches('.mini-posters button, .time-row .thumb') ? 'poster' : (FRAME_KINDS.find(k => card.classList.contains(k)) || 'card');
   return kind + '|' + (img.getAttribute('src') || '');
 }
@@ -1486,7 +1538,19 @@ if (editing) {
   $('hero').appendChild(hb);
   // la portada cambia de encuadre al cruzar el punto de corte escritorio/móvil
   matchMedia('(max-width: 899px)').addEventListener('change', () => document.querySelectorAll('img.hero-bg').forEach(applyFrame));
-  $('editMobile').addEventListener('click', () => window.open(location.pathname + '?editar=1', 'wmc_movil', 'width=400,height=860'));
+  // Vista móvil: la misma app dentro de un marco de 390 px de ancho, donde aplica el diseño móvil
+  if (new URLSearchParams(location.search).has('movil')) $('editMobile').style.display = 'none';
+  $('editMobile').addEventListener('click', () => {
+    const box = document.createElement('div');
+    box.className = 'phone-preview';
+    box.innerHTML = `<div class="phone-wrap"><div class="phone-head"><b>Vista móvil</b><span>390 × 844 · los cambios se guardan igual</span>
+      <button class="close" type="button" aria-label="Cerrar vista móvil"><svg viewBox="0 0 24 24" fill="none" stroke="#f4f1fa" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <iframe class="phone" src="${location.pathname}?editar=1&movil=1" title="Vista móvil"></iframe></div>`;
+    document.body.appendChild(box); document.body.style.overflow = 'hidden';
+    const close = () => { box.remove(); document.body.style.overflow = ''; };
+    box.querySelector('.close').addEventListener('click', close);
+    box.addEventListener('click', e => { if (e.target === box) close(); });
+  });
   $('editSave').addEventListener('click', saveFrames);
   $('editExit').addEventListener('click', () => {
     sessionStorage.setItem('wmc_edit_off', '1');
