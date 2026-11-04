@@ -147,6 +147,7 @@
   .hero-arrow.prev { left: calc(var(--rail) + 4px); }
   .hero-arrow.next { right: 24px; }
   .mobile-top { display: none; }
+  .app-version { position: absolute; z-index: 2; left: calc(var(--rail) + 28px); top: 22px; font-size: 12px; color: #6f6584; }
   .sync-status { position: absolute; right: 48px; top: 22px; font-size: 11px; color: var(--accent-2); opacity: 0; transition: opacity 0.4s; }
 
   /* ===== Filas ===== */
@@ -406,6 +407,7 @@
     .mobile-top b { flex: 1; font-size: 15px; font-weight: 800; }
     .mobile-top .close { margin-left: 0; width: 44px; height: 44px; background: rgba(11,9,16,0.5); }
     .sync-status { right: 16px; top: 60px; }
+    .app-version { left: 16px; top: calc(58px + env(safe-area-inset-top, 0px)); }
     .row { padding: 24px 0 0 16px; }
     .row-head { padding-right: 16px; }
     .row-head .arrows { display: none; }
@@ -493,6 +495,7 @@
     <div class="hero-dots" id="heroDots"></div>
     <button class="hero-arrow prev" type="button" id="heroPrev" aria-label="Juego anterior"><svg viewBox="0 0 24 24" fill="none" stroke="#f4f1fa" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
     <button class="hero-arrow next" type="button" id="heroNext" aria-label="Juego siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="#f4f1fa" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    <span class="app-version" id="appVersion"></span>
     <span class="sync-status" id="syncStatus" aria-live="polite"></span>
   </section>
 
@@ -641,6 +644,11 @@ const HERO_POS = {
   "Crash Bandicoot 2: Cortex Strikes Back": { m: "72% center" },
 };
 
+// ===== Versión de la app =====
+// MAYOR.MENOR.FECHAHORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
+// de cambios visibles; FECHAHORA (AAAAMMDDhhmmss, hora de Bogotá) se actualiza en cada publicación.
+const APP_VERSION = "2.3";
+const APP_BUILD = "20261104151053";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -1124,6 +1132,7 @@ function startGenreRotation() {
 }
 
 // ===== Arranque =====
+$('appVersion').textContent = 'v' + APP_VERSION + '.' + APP_BUILD;
 $('mobileAvatar').src = document.querySelector('.rail-avatar').src; // el avatar se embebe una sola vez
 function initHero() {
   heroQueue = playlists.slice().sort(byUpdatedDesc);
