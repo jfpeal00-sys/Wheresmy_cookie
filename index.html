@@ -216,7 +216,7 @@
   .moment .play svg { width: 11px; height: 11px; }
   .moment div { position: absolute; z-index: 1; left: 10px; right: 10px; bottom: 12px; display: flex; flex-direction: column; gap: 3px; }
   .moment small { font-family: var(--mono); font-size: 11px; color: var(--accent-2); }
-  .moment b { font-size: 13px; line-height: 1.25; }
+  .moment b { font-size: 13px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
   .foot { padding: 40px calc(48px) 0 calc(var(--rail) + 28px); font-size: 12px; color: #6f6584; }
 
@@ -520,7 +520,7 @@
   </section>
 
   <section class="row" aria-labelledby="hMoments" id="rowMoments">
-    <div class="row-head"><h2 id="hMoments">Momentos</h2><span class="lbl">Elegidos por JF</span>
+    <div class="row-head"><h2 id="hMoments">Momentos</h2><span class="lbl">Al azar de tus bitácoras</span>
       <div class="arrows" style="margin-left:auto"><button class="arrow" type="button" data-scroll="momentScroller" data-dir="-1" aria-label="Anteriores"><svg viewBox="0 0 24 24" fill="none" stroke="#f4f1fa" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><button class="arrow" type="button" data-scroll="momentScroller" data-dir="1" aria-label="Siguientes"><svg viewBox="0 0 24 24" fill="none" stroke="#f4f1fa" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
     </div>
     <div class="scroller" id="momentScroller"></div>
@@ -616,22 +616,39 @@ const BITACORA_GAMES = {
   "Klonoa: Door to Phantomile": "KLO_DTPM",
 };
 
-// ===== Momentos: capítulos destacados, elegidos a mano por JF =====
-// juego = título exacto (como en playlists), cap = número de capítulo en la bitácora,
-// titulo = texto corto de la tarjeta, foco = posición de la imagen de fondo (CSS object-position).
-const MOMENTOS = [
-  { juego: "Final Fantasy IX", cap: 3, titulo: "Dali & Black Waltz", foco: "30% 30%" },
-  { juego: "Final Fantasy 7 Remake | Intergrade", cap: 7, titulo: "Mako Reactor 5", foco: "40% 30%" },
-  { juego: "Ace Combat 2", cap: 1, titulo: "Gambit to Sledgehammer", foco: "50% 40%" },
-  { juego: "Final Fantasy IX", cap: 16, titulo: "Crystal Palace & Oeilvert", foco: "70% 30%" },
-  { juego: "Final Fantasy 7 Remake | Intergrade", cap: 18, titulo: "Hojo's Lab and Jenova", foco: "75% 30%" },
-  { juego: "Final Fantasy IX", cap: 22, titulo: "Memoria + Finale", foco: "55% 20%" },
-  { juego: "Final Fantasy 7 Remake | Intergrade", cap: 17, titulo: "Shinra Building", foco: "20% 30%" },
-  { juego: "Final Fantasy IX", cap: 13, titulo: "Alexandria 2 y Alexander", foco: "10% 30%" },
-];
+// ===== Momentos: 12 capítulos al azar de todas las bitácoras, distintos en cada carga =====
+// Los títulos salen de assets/Transcripciones/capitulos.json (Tifa lo regenera al dar de alta una bitácora).
+const MOMENT_COUNT = 12;
+let momentPicks = null;
+function pickMoments(catalog) {
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pools = Object.entries(catalog).filter(([t]) => playlists.some(p => p.title === t))
+    .map(([juego, caps]) => ({ juego, caps: shuffle(caps.slice()) }));
+  const picks = [];
+  // Por rondas: un capítulo de cada juego (en orden aleatorio) hasta llegar a 12; así todas las bitácoras aparecen
+  while (picks.length < MOMENT_COUNT && pools.some(p => p.caps.length)) {
+    for (const pool of shuffle(pools.slice())) {
+      if (picks.length >= MOMENT_COUNT || !pool.caps.length) continue;
+      const [cap, titulo] = pool.caps.pop();
+      picks.push({ juego: pool.juego, cap, titulo });
+    }
+  }
+  return picks;
+}
+function renderMoments() {
+  const moments = (momentPicks || []).map(m => ({ ...m, game: playlists.find(p => p.title === m.juego) })).filter(m => m.game);
+  $('rowMoments').classList.toggle('hidden', moments.length === 0);
+  $('momentScroller').innerHTML = moments.map(m => `
+    <a class="moment" href="${bitacoraUrl(m.juego, m.cap)}">
+      <img class="bg" src="${esc(imgOf(m.game, 'poster'))}" alt="" loading="lazy">
+      <span class="play">${ICONS.play}</span>
+      <div><small>${esc(SHORT_NAMES[m.juego] || m.juego)} · Cap. ${String(m.cap).padStart(2, '0')}</small><b>${esc(m.titulo)}</b></div>
+    </a>`).join('');
+}
+fetch('./assets/Transcripciones/capitulos.json').then(r => r.json()).then(c => { momentPicks = pickMoments(c); renderMoments(); }).catch(() => {});
 
 // Abreviaturas para las tarjetas de Momentos
-const SHORT_NAMES = { "Final Fantasy 7 Remake | Intergrade": "FF7 Remake", "Final Fantasy IX": "FF IX", "Resident Evil Director's Cut": "RE Director's Cut" };
+const SHORT_NAMES = { "Final Fantasy 7 Remake | Intergrade": "FF7 Remake", "Final Fantasy IX": "FF IX", "Resident Evil Director's Cut": "RE Director's Cut", "Klonoa: Door to Phantomile": "Klonoa", "F1 2000 (PSX)": "F1 2000" };
 
 // Tamaño del ícono pixel art en la portada (px); excepciones por título
 const ICON_SIZE = { "Minecraft": 38, "F1 2000 (PSX)": 64 };
@@ -647,8 +664,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.3";
-const APP_BUILD = "20261104.151612";
+const APP_VERSION = "2.4";
+const APP_BUILD = "20261104.152110";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -859,15 +876,8 @@ function renderRows() {
   $('genreScroller').querySelectorAll('.genre').forEach(b => b.addEventListener('click', () => openCollection({ genre: b.dataset.genre })));
   startGenreRotation();
 
-  // Momentos
-  const moments = MOMENTOS.map(m => ({ ...m, game: playlists.find(p => p.title === m.juego) })).filter(m => m.game);
-  $('rowMoments').classList.toggle('hidden', moments.length === 0);
-  $('momentScroller').innerHTML = moments.map(m => `
-    <a class="moment" href="${bitacoraUrl(m.juego, m.cap)}">
-      <img class="bg" src="${esc(imgOf(m.game, 'moment'))}" alt="" loading="lazy" style="object-position:${esc(m.foco || 'center')}">
-      <span class="play">${ICONS.play}</span>
-      <div><small>${esc(SHORT_NAMES[m.juego] || m.juego)} · Cap. ${String(m.cap).padStart(2, '0')}</small><b>${esc(m.titulo)}</b></div>
-    </a>`).join('');
+  // Momentos (se pintan cuando llega el catálogo de capítulos)
+  renderMoments();
 
   const totalVideos = playlists.reduce((s, p) => s + videoCountOf(p), 0);
   const totalMinutes = playlists.reduce((s, p) => s + parseDurationToMinutes(p.duration), 0);

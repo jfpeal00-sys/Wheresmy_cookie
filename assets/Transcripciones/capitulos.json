@@ -1,0 +1,324 @@
+{
+ "Ace Combat 2": [
+  [
+   1,
+   "Campaign 1 · Gambit To Sledgehammer"
+  ],
+  [
+   2,
+   "Campaign 1 · Rising High To Powerplay"
+  ],
+  [
+   3,
+   "Campaign 1 · Operation Bellisima And Finale"
+  ],
+  [
+   4,
+   "Campaign 2 · Gambit To Sledgehammer"
+  ],
+  [
+   5,
+   "Campaign 2 · Cuckoo'S Nest To Powerplay"
+  ],
+  [
+   6,
+   "Campaign 2 · Operation Alphaville And Finale"
+  ],
+  [
+   7,
+   "Extras · Electric Dreams, Juggernaut, Campaigns Debrief"
+  ]
+ ],
+ "F1 2000 (PSX)": [
+  [
+   1,
+   "Albert Park + Interlagos"
+  ],
+  [
+   2,
+   "Imola + Silverstone + Montmeló"
+  ],
+  [
+   3,
+   "Europa (Nürburgring) + Mónaco +"
+  ],
+  [
+   4,
+   "Magny-Cours + A1 Ring"
+  ],
+  [
+   5,
+   "Hockenheim + Hungaroring +"
+  ],
+  [
+   6,
+   "Monza + Indianapolis + Suzuka +"
+  ]
+ ],
+ "Resident Evil Director's Cut": [
+  [
+   1,
+   "Chris Redfield · The Spencer Mansion I"
+  ],
+  [
+   2,
+   "Chris Redfield · Courtyard & Guardhouse"
+  ],
+  [
+   3,
+   "Chris Redfield · Guardhouse & The Spencer Mansion II"
+  ],
+  [
+   4,
+   "Chris Redfield · The Spencer Mansion III (Locked Areas)"
+  ],
+  [
+   5,
+   "Chris Redfield · The Underground, Laboratory & Finale"
+  ],
+  [
+   6,
+   "Jill Valentine · The Spencer Mansion I & Guardhouse I"
+  ],
+  [
+   7,
+   "Jill Valentine · Guardhouse II & The Spencer Mansion II"
+  ],
+  [
+   8,
+   "Jill Valentine · The Underground, Laboratory & Finale"
+  ]
+ ],
+ "Final Fantasy IX": [
+  [
+   1,
+   "Alexandria (Parte 1)"
+  ],
+  [
+   2,
+   "Evil Forest & Ice Cavern"
+  ],
+  [
+   3,
+   "Dali & Black Waltz"
+  ],
+  [
+   4,
+   "Lindblum (Parte 1)"
+  ],
+  [
+   5,
+   "Chocobo Hot & Cold I, Chocobo Treasure Hunt I y EXP Farming"
+  ],
+  [
+   6,
+   "Gizamaluke's Grotto, Bohden Gate y Burmecia"
+  ],
+  [
+   7,
+   "South Gate y Treno"
+  ],
+  [
+   8,
+   "Cleyra y Castillo de Alexandria"
+  ],
+  [
+   9,
+   "Pinnacle Rocks, Lindblum (2) y Chocobo Treasure Hunt (2)"
+  ],
+  [
+   10,
+   "Fossil Roo, Conde Petie & Black Mage Village"
+  ],
+  [
+   11,
+   "Conde Petie Mountain Path & Madain Sari (Parte 1)"
+  ],
+  [
+   12,
+   "Lifa Tree (Bottom), Madain Sari (Parte 2) & Lifa Tree (Trunk And Path)"
+  ],
+  [
+   13,
+   "Alexandria 2, Tetra Master Tournament & Alexander"
+  ],
+  [
+   14,
+   "Lindblum 3, Chocobo Hot 'N Cold 2, Chocobo Treasure Hunt 3"
+  ],
+  [
+   15,
+   "Chocobo Hot 'N Cold 3 & Chocobo Treasure Hunt 4"
+  ],
+  [
+   16,
+   "Crystal Palace & Oeilvert"
+  ],
+  [
+   17,
+   "Esto Gaza, Chocobo Hot 'N Cold 4 & Chocobo Treasure Hunt 5"
+  ],
+  [
+   18,
+   "Moogle Central, Chocobo Hot 'N Cold 5, Chocobo Treasure Hunt 6 & Ozma"
+  ],
+  [
+   19,
+   "Ipsen Castle, Daguerreo & 4 Shrines"
+  ],
+  [
+   20,
+   "Bran Bal, Pandemonium, Gaia"
+  ],
+  [
+   21,
+   "Chocobo Paradise, Ozma, Chocobo Treasure Hunt 7 + Final Side Quests"
+  ],
+  [
+   22,
+   "Memoria + Finale"
+  ]
+ ],
+ "Final Fantasy 7 Remake | Intergrade": [
+  [
+   1,
+   "Mako Reactor 1"
+  ],
+  [
+   2,
+   "Sector 8 Backlash"
+  ],
+  [
+   3,
+   "Sector 7 Slums & 7th Heaven"
+  ],
+  [
+   4,
+   "Sector 7 Topside"
+  ],
+  [
+   5,
+   "Corkscrew Tunnels"
+  ],
+  [
+   6,
+   "Sector 4 Plate"
+  ],
+  [
+   7,
+   "Mako Reactor 5"
+  ],
+  [
+   8,
+   "Sector 5 Slums"
+  ],
+  [
+   9,
+   "Sector 6 Slums & Wall Market"
+  ],
+  [
+   10,
+   "Honeybee Inn & Don Corneo'S Mansion"
+  ],
+  [
+   11,
+   "The Sewers"
+  ],
+  [
+   12,
+   "The Train Graveyard"
+  ],
+  [
+   13,
+   "Sector 7 Plate"
+  ],
+  [
+   14,
+   "Underground Test Site"
+  ],
+  [
+   15,
+   "Final Quests: Sector 5 Slums & Wall Market"
+  ],
+  [
+   16,
+   "The Sewers 2 & Collapsed Sector 7 Plate"
+  ],
+  [
+   17,
+   "Shinra Building"
+  ],
+  [
+   18,
+   "Hojo'S Lab And Jenova"
+  ],
+  [
+   19,
+   "Destiny Crossroads & Finale"
+  ],
+  [
+   20,
+   "DLC INTERmission: SECTOR 7 SLUMS"
+  ],
+  [
+   21,
+   "DLC INTERmission: SHINRA ADVANCED WEAPONRY & FINAL"
+  ]
+ ],
+ "Sheep Raider": [
+  [
+   1,
+   "ACME Training Zone, Nivel 1 y Nivel 2"
+  ],
+  [
+   2,
+   "Nivel 3, Nivel 4 y nivel oculto de otoño (B1)"
+  ],
+  [
+   3,
+   "Nivel 5 y Nivel 6 (niveles de hielo)"
+  ],
+  [
+   4,
+   "Nivel 7, Nivel 8 y nivel oculto B2 (pasado-presente)"
+  ],
+  [
+   5,
+   "Nivel 9 (pantano) y Nivel 10 (afueras del castillo y Gossamer)"
+  ],
+  [
+   6,
+   "Nivel 11 (interior del castillo) y Nivel 12 (nivel de los fantasmas)"
+  ],
+  [
+   7,
+   "Nivel 13 (la playa de los piratas) y Nivel 14 (el nivel del tren)"
+  ],
+  [
+   8,
+   "Final: Nivel 15 (Planet X) y final del juego"
+  ]
+ ],
+ "Klonoa: Door to Phantomile": [
+  [
+   1,
+   "Breezegale, Gunston Mine, Forlock y Jugpot (Visions 1-1 a 2-2)"
+  ],
+  [
+   2,
+   "Forlock, Tree Mansion, Ruinas del Reino del Viento y Leviathan's Ice Cavern (Visions 3-1 a 4-2)"
+  ],
+  [
+   3,
+   "Coronia, Temple of the Sun y High Above Coronia (Visions 5-1 y 5-2) y jefe Joka"
+  ],
+  [
+   4,
+   "Cress, the Moon Kingdom y The Prism Corridor (Visions 6-1 y 6-2) y jefe Ghadius"
+  ],
+  [
+   5,
+   "Final Vision \"The Dream at Nightmare's End ~In the Skies Above Cress~\", jefe final Nahatomb y final del juego"
+  ]
+ ]
+}
