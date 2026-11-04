@@ -275,7 +275,9 @@ const GAMES = [
   { title: "F1 2000 (PSX)", genre: "Racing", releaseDate: "2000-03-27", updated: "2024-06-21", videos: 6, duration: "7h 3m", thumb: "./assets/images/F1-2000-psx/F1_2000_PSX_LOGO.png", bg: "./assets/images/F1-2000-psx/F1_2000_PSX_BKG.jpg", icon: "./assets/images/F1-2000-psx/F1_2000_PSX_ICON.png", folder: "F1-2000-psx", playlistUrl: "https://www.youtube.com/playlist?list=PLJXk52AjnOAM", files: ["01_F12000.txt", "02_F12000.txt", "03_F12000.txt", "04_F12000.txt", "05_F12000.txt", "06_F12000.txt"] },
   { title: "Resident Evil Director's Cut", genre: "Horror", releaseDate: "1997-09-30", updated: "2023-05-09", videos: 8, duration: "11h 26m", thumb: "./assets/images/REDC/REDC_LOGO.png", bg: "./assets/images/REDC/REDC_BKG.jpg", icon: "./assets/images/REDC/REDC_ICON.png", folder: "REDC", playlistUrl: "https://www.youtube.com/playlist?list=PLW92QaHn0kvw", files: ["01_ANALISIS_REDC.txt"] },
   { title: "Final Fantasy IX", genre: "RPG", releaseDate: "2000-11-14", updated: "2026-04-19", videos: 22, duration: "44h 18m", thumb: "./assets/images/FFIX/FFIX_LOGO.png", bg: "./assets/images/FFIX/FFIX_BKG.jpg", icon: "./assets/images/FFIX/FFIX_ICON.png", folder: "FFIX", playlistUrl: "https://www.youtube.com/playlist?list=PLeGuSdYfxKFw", files: ["01_FFIX.txt"] },
-  { title: "Final Fantasy 7 Remake | Intergrade", genre: "RPG", releaseDate: "2021-06-10", updated: "2026-07-06", videos: 21, duration: "36h 20m", thumb: "./assets/images/FF7REM/FF7REM_LOGO.png", bg: "./assets/images/FF7REM/FF7REM_BKG.jpg", icon: "./assets/images/FF7REM/FF7REM_ICON.png", folder: "FF7REM", playlistUrl: "https://www.youtube.com/playlist?list=PLV8T9JsLJRxs", files: ["01_FF7REM.txt"] }
+  { title: "Final Fantasy 7 Remake | Intergrade", genre: "RPG", releaseDate: "2021-06-10", updated: "2026-07-06", videos: 21, duration: "36h 20m", thumb: "./assets/images/FF7REM/FF7REM_LOGO.png", bg: "./assets/images/FF7REM/FF7REM_BKG.jpg", icon: "./assets/images/FF7REM/FF7REM_ICON.png", folder: "FF7REM", playlistUrl: "https://www.youtube.com/playlist?list=PLV8T9JsLJRxs", files: ["01_FF7REM.txt"] },
+  { title: "Sheep Raider", genre: "Platform", releaseDate: "2001-09-27", updated: "2020-06-27", videos: 8, duration: "7h 8m", thumb: "./assets/images/SHEEP/SHEEP_LOGO.png", bg: "./assets/images/SHEEP/SHEEP_BKG.jpg", icon: "./assets/images/SHEEP/SHEEP_ICON.png", folder: "SHEEP", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQe4wyV0VCpb6SnP5whF1t2", files: ["01_SHEEP.txt"] },
+  { title: "Klonoa: Door to Phantomile", genre: "Platform", releaseDate: "1998-03-10", updated: "2019-01-04", videos: 5, duration: "3h 0m", thumb: "./assets/images/KLO_DTPM/KLO_DTPM_LOGO.png", bg: "./assets/images/KLO_DTPM/KLO_DTPM_BKG.jpg", icon: "./assets/images/KLO_DTPM/KLO_DTPM_ICON.png", folder: "KLO_DTPM", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBRTK1HVJkNGD3eFzN6kWiq8", files: ["01_KLO_DTPM.txt"] }
 ];
 
 const GROUP_DEFS = [
@@ -485,7 +487,7 @@ function formatDate(iso) {
 // Título corto para las tarjetas: quita el nombre del juego y el "Capítulo N" del inicio.
 function shortTitle(title) {
   const parts = title.split(/\s+[–—|-]\s+|\s*\|\s*/).map(s => s.trim()).filter(Boolean);
-  const i = parts.findIndex(p => /^(cap[ií]tulo|chapter)\s*\d+/i.test(p));
+  const i = parts.findIndex(p => /^(cap[ií]tulo|chapter|episodio)\s*\d+/i.test(p));
   let out = i >= 0 && i < parts.length - 1 ? parts.slice(i + 1).join(' · ') : title;
   if (out === out.toUpperCase()) out = out.toLowerCase().replace(/(^|[\s(·&'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
   return out;
