@@ -1,4 +1,80 @@
 {
+ "_actualizado": "20261104.163312",
+ "hero|./assets/images/ACE_02/ACE_02_BKG.jpg": {
+  "x": -0.0053,
+  "y": -0.2362,
+  "z": 1
+ },
+ "hero|./assets/images/CRASH2/CRASH2_BKG.jpg": {
+  "x": 0.0016,
+  "y": -0.1521,
+  "z": 0.747
+ },
+ "hero|./assets/images/CTRNF/CTRNF_BKG.jpg": {
+  "x": 0.0441,
+  "y": -0.3239,
+  "z": 1
+ },
+ "hero|./assets/images/F1-2000-psx/F1_2000_PSX_BKG.jpg": {
+  "x": 0.0314,
+  "y": -0.2684,
+  "z": 0.89
+ },
+ "hero|./assets/images/FF7REM/FF7REM_BKG.jpg": {
+  "x": 0.0736,
+  "y": -0.0609,
+  "z": 0.89
+ },
+ "hero|./assets/images/FFIX/FFIX_BKG.jpg": {
+  "x": 0.0651,
+  "y": -0.0743,
+  "z": 1
+ },
+ "hero|./assets/images/GTAO/GTAO_BKG.jpg": {
+  "x": 0.031,
+  "y": -0.2416,
+  "z": 0.792
+ },
+ "hero|./assets/images/KLO_DTPM/KLO_DTPM_BKG.jpg": {
+  "x": -0.0221,
+  "y": -0.281,
+  "z": 0.943
+ },
+ "hero|./assets/images/MNCRFT/MNCRFT_BKG.jpg": {
+  "x": 0,
+  "y": -0.2479,
+  "z": 1
+ },
+ "hero|./assets/images/POKELGE/POKELGE_BKG.jpg": {
+  "x": 0.0236,
+  "y": -0.23,
+  "z": 0.89
+ },
+ "hero|./assets/images/REDC/REDC_BKG.jpg": {
+  "x": 0.0042,
+  "y": -0.1065,
+  "z": 1
+ },
+ "hero|./assets/images/REREM/REREM_BKG.jpg": {
+  "x": 0.052,
+  "y": -0.0027,
+  "z": 0.943
+ },
+ "hero|./assets/images/SHEEP/SHEEP_BKG.jpg": {
+  "x": 0.0442,
+  "y": -0.2791,
+  "z": 0.89
+ },
+ "hero|./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_BKG.jpg": {
+  "x": 0.0453,
+  "y": -0.2219,
+  "z": 1
+ },
+ "hero|./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_BKG.jpg": {
+  "x": -0.0063,
+  "y": -0.2667,
+  "z": 0.89
+ },
  "moment|./assets/images/ACE_02/ACE_02_GENRE.jpg": {
   "x": 0,
   "y": -0.089,
