@@ -271,7 +271,7 @@
 
   /* ===== Vistas de página completa (Colección y Estadísticas) ===== */
   .overlay.view { left: var(--rail); z-index: 30; background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; overflow-y: auto; }
-  .view .collection, .view .drawer { position: static; inset: auto; width: auto; max-width: 1480px; min-height: 100%; background: none; box-shadow: none; border-radius: 0; animation: viewIn 0.25s ease; overflow: visible; display: block; }
+  .view .collection, .view .drawer { position: static; inset: auto; width: auto; min-height: 100%; background: none; box-shadow: none; border-radius: 0; animation: viewIn 0.25s ease; overflow: visible; display: block; }
   @keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .view-head { display: flex; align-items: flex-end; gap: 14px; padding: 44px 48px 18px 28px; }
   .view-head h1 { font-size: 34px; font-weight: 900; line-height: 1.1; }
@@ -294,13 +294,13 @@
   .kpi b { font-size: 32px; font-weight: 900; line-height: 1; }
   .kpi b small { font-size: 14px; font-weight: 700; color: var(--muted); }
   .kpi span { font-size: 13px; color: var(--muted); }
-  .time-list { display: flex; flex-direction: column; gap: 10px; max-width: 900px; }
+  .time-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(520px, 1fr)); gap: 6px 40px; }
   .time-row { all: unset; cursor: pointer; display: grid; grid-template-columns: 53px 200px 1fr 70px; align-items: center; gap: 14px; padding: 6px 10px 6px 6px; border-radius: 10px; }
   .time-row:hover { background: rgba(255,255,255,0.05); }
   .time-row .thumb { position: relative; display: block; width: 53px; height: 80px; border-radius: 6px; overflow: hidden; }
   .time-row .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .time-row .t { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .time-row .v { font-size: 13px; font-weight: 700; text-align: right; color: var(--soft); }
+  .time-row .v { font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 700; text-align: right; color: var(--soft); }
   .s-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.08); overflow: hidden; }
   .s-bar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); }
   .art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(373px, 1fr)); gap: 16px; }
@@ -321,7 +321,7 @@
   .mini-posters button:hover { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent); }
   .mini-posters button { position: relative; }
   .mini-posters img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .cmp { display: grid; grid-template-columns: 1fr minmax(120px, 180px) 1fr; gap: 0 18px; max-width: 820px; align-items: center; }
+  .cmp { display: grid; grid-template-columns: 1fr minmax(120px, 180px) 1fr; gap: 0 28px; max-width: 1200px; margin: 0 auto; align-items: center; }
   .cmp-pick { display: flex; flex-direction: column; gap: 12px; align-items: center; }
   .cmp-pick .poster { width: 267px; cursor: default; }
   .cmp-pick .select { margin: 0; width: 100%; max-width: 260px; }
@@ -331,6 +331,46 @@
   .cmp-row > span { text-align: center; font-size: 12px; font-weight: 600; color: var(--muted); }
   .cmp-row > div:first-child { text-align: right; }
   .cmp-row .win { color: var(--accent-2); }
+
+
+  /* --- Estadísticas: gráficos (marcas finas, extremos redondeados, ejes discretos) --- */
+  .s-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 34px 48px; }
+  .s-card { padding: 22px 24px; border-radius: 16px; background: rgba(21,17,27,0.72); box-shadow: inset 0 0 0 1px var(--line); }
+  .s-card > h3 { font-size: 17px; font-weight: 800; }
+  .s-card > p.sub { font-size: 13px; color: var(--muted); margin: 4px 0 18px; }
+  .figs { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 14px; }
+  .figs .kpi.hero b { font-size: 56px; letter-spacing: -0.01em; }
+  .figs .kpi.hero { justify-content: flex-end; }
+  .seg { display: flex; gap: 2px; height: 28px; border-radius: 6px; overflow: hidden; }
+  .seg > i { display: flex; align-items: center; padding: 0 8px; font-style: normal; font-size: 12px; font-weight: 800; color: #fff; min-width: 0; white-space: nowrap; overflow: hidden; border-radius: 4px; cursor: default; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px; font-size: 13px; color: var(--soft); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; }
+  .legend b { font-weight: 700; color: var(--fg); }
+  .legend small { color: var(--muted); font-size: 12px; }
+  .s-bar { height: 12px; border-radius: 0 4px 4px 0; background: rgba(255,255,255,0.05); overflow: visible; position: relative; }
+  .s-bar i { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--accent); }
+  .time-row:hover .s-bar i { background: var(--accent-2); }
+  .viz { width: 100%; height: auto; display: block; overflow: visible; }
+  .viz text { font-family: var(--font); fill: var(--muted); font-size: 12px; }
+  .viz .grid { stroke: rgba(255,255,255,0.07); stroke-width: 1; }
+  .viz .lab { fill: var(--soft); font-size: 13px; font-weight: 600; }
+  .viz .val { fill: var(--fg); font-size: 12px; font-weight: 700; }
+  .viz [data-tip] { cursor: pointer; }
+  .viz .hit { fill: transparent; }
+  .viz .row:hover .hit { fill: rgba(255,255,255,0.04); }
+  .s-tip { position: fixed; z-index: 95; pointer-events: none; padding: 8px 11px; border-radius: 9px; background: #231d2e; box-shadow: 0 10px 30px rgba(0,0,0,0.55), inset 0 0 0 1px var(--line);
+    font-size: 12px; color: var(--soft); line-height: 1.45; opacity: 0; transition: opacity 0.12s; max-width: 260px; }
+  .s-tip b { color: var(--fg); }
+  .s-tip.on { opacity: 1; }
+  .cmp-row .duel { display: flex; align-items: center; gap: 10px; }
+  .cmp-row > div:first-child .duel { flex-direction: row-reverse; }
+  .duel .s-bar { flex: 1; height: 10px; }
+  .cmp-row > div:first-child .duel .s-bar, .cmp-row > div:first-child .duel .s-bar i { border-radius: 4px 0 0 4px; }
+  .cmp-row > div:first-child .duel .s-bar i { margin-left: auto; }
+  .duel .s-bar i.lose { background: rgba(155,138,196,0.35); }
+  .duel em { font-style: normal; min-width: 64px; }
+  .cmp-row > div:first-child .duel em { text-align: right; }
 
   /* ===== Panel de estadísticas ===== */
   .drawer { position: absolute; right: 0; top: 0; bottom: 0; width: min(580px, 100%); background: var(--panel); box-shadow: -30px 0 80px rgba(0,0,0,0.6), inset 1px 0 0 var(--line); display: flex; flex-direction: column; animation: slideIn 0.25s ease; }
@@ -463,7 +503,13 @@
     .view .grid { padding: 4px 16px 30px; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px 10px; }
     .view .tabs { margin: 0 16px 20px; flex-wrap: nowrap; overflow-x: auto; }
     .view .tab-body { padding: 0 16px 30px; }
-    .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .kpis, .figs { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .figs .kpi.hero { grid-column: 1 / -1; }
+    .figs .kpi.hero b { font-size: 40px; }
+    .s-grid2, .time-list { grid-template-columns: 1fr; }
+    .s-card { padding: 16px; }
+    .viz-scroll { overflow-x: auto; margin: 0 -16px; padding: 0 16px; }
+    .viz-scroll .viz { min-width: 760px; }
     .kpi { padding: 14px; }
     .kpi b { font-size: 24px; }
     .time-row { grid-template-columns: 43px 1fr 56px; gap: 10px; }
@@ -718,8 +764,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.8";
-const APP_BUILD = "20261104.155455";
+const APP_VERSION = "2.9";
+const APP_BUILD = "20261104.160733";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -1061,20 +1107,33 @@ function renderStats() {
   const withBit = playlists.filter(hasBitacora).length;
   const posterBtn = g => `<button type="button" data-title="${esc(g.title)}" title="${esc(g.title)}"><img class="bg" src="${esc(imgOf(g, 'poster'))}" alt="${esc(g.title)}" loading="lazy"></button>`;
 
-  // ===== GENERAL: cifras + en qué juegos se va el tiempo =====
+  // Colores categóricos de géneros (validados contra el fondo oscuro; orden fijo: el color sigue al género)
+  const GENRE_COLORS = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#9085e9'];
+  const allGenres = [...new Set(playlists.map(p => p.genre || 'Sin categoria'))].sort();
+  const genreColor = gn => GENRE_COLORS[allGenres.indexOf(gn) % GENRE_COLORS.length];
+  const tip = (title, lines) => `data-tip="${esc('<b>' + esc(title) + '</b><br>' + lines.map(esc).join('<br>'))}"`;
+
+  // ===== GENERAL: cifra principal, reparto por género y ranking de tiempo =====
   const byTime = playlists.filter(p => mins(p) > 0).sort((a, b) => mins(b) - mins(a));
   const maxMin = byTime.length ? mins(byTime[0]) : 1;
+  const genreMin = allGenres.map(gn => ({ gn, m: playlists.filter(p => (p.genre || 'Sin categoria') === gn).reduce((t, p) => t + mins(p), 0) })).filter(x => x.m > 0).sort((a, b) => b.m - a.m);
   $('statTabGeneral').innerHTML = `
-    <section class="s-sec"><div class="kpis">
+    <section class="s-sec"><div class="figs">
+      <div class="kpi hero"><b>${formatMinutes(totalMinutes)}</b><span>Horas grabadas en total</span></div>
       <div class="kpi"><b>${totalGames}</b><span>Juegos</span></div>
       <div class="kpi"><b>${totalVideos}</b><span>Videos</span></div>
-      <div class="kpi"><b>${formatMinutes(totalMinutes)}</b><span>Horas grabadas</span></div>
       <div class="kpi"><b>${withBit}</b><span>Con bitácora</span></div>
-      <div class="kpi"><b>${totalGames ? (totalVideos / totalGames).toFixed(1) : 0}</b><span>Videos por juego</span></div>
-      <div class="kpi"><b>${formatMinutes(totalGames ? totalMinutes / totalGames : 0)}</b><span>Tiempo por juego</span></div>
+      <div class="kpi"><b>${formatMinutes(totalGames ? totalMinutes / totalGames : 0)}</b><span>Promedio por juego</span></div>
     </div></section>
-    <section class="s-sec"><h3>Dónde se va tu tiempo</h3><div class="time-list">
-      ${byTime.map(g => `<button class="time-row" type="button" data-title="${esc(g.title)}">
+    <section class="s-sec s-card"><h3>Tiempo grabado por género</h3><p class="sub">Qué parte de tus ${formatMinutes(totalMinutes)} se fue a cada género</p>
+      <div class="seg" role="img" aria-label="Reparto del tiempo por género">${genreMin.map(({ gn, m }) => {
+        const pct = m / totalMinutes * 100;
+        return `<i style="flex:${m} 1 0;background:${genreColor(gn)}" ${tip(gn, [formatMinutes(m) + ' · ' + pct.toFixed(0) + '% del tiempo'])}>${pct >= 7 ? pct.toFixed(0) + '%' : ''}</i>`;
+      }).join('')}</div>
+      <div class="legend">${genreMin.map(({ gn, m }) => `<span><i style="background:${genreColor(gn)}"></i><b>${esc(gn)}</b><small>${formatMinutes(m)}</small></span>`).join('')}</div>
+    </section>
+    <section class="s-sec s-card"><h3>Dónde se va tu tiempo</h3><p class="sub">Horas grabadas por juego, de mayor a menor</p><div class="time-list">
+      ${byTime.map(g => `<button class="time-row" type="button" data-title="${esc(g.title)}" ${tip(g.title, [g.duration + ' · ' + videoCountOf(g) + ' videos', (mins(g) / totalMinutes * 100).toFixed(1) + '% de tu tiempo'])}>
         <span class="thumb"><img class="bg" src="${esc(imgOf(g, 'poster'))}" alt="" loading="lazy"></span><span class="t">${esc(g.title)}</span>
         <span class="s-bar"><i style="width:${(mins(g) / maxMin * 100).toFixed(1)}%"></i></span><span class="v">${esc(g.duration)}</span></button>`).join('')}
     </div></section>`;
@@ -1083,6 +1142,7 @@ function renderStats() {
   const pick = (arr, cmp) => arr.slice().sort(cmp)[0];
   const withRelease = playlists.filter(p => p.releaseDate), withUpdated = playlists.filter(p => p.updated);
   const year = d => new Date(d + 'T00:00:00').getFullYear();
+  const groupBy = (arr, keyFn) => arr.reduce((m, p) => { const k = keyFn(p); (m[k] = m[k] || []).push(p); return m; }, {});
   const records = [
     ['Juego más largo', pick(byTime, (a, b) => mins(b) - mins(a)), g => g.duration],
     ['Juego más corto', pick(byTime, (a, b) => mins(a) - mins(b)), g => g.duration],
@@ -1107,18 +1167,48 @@ function renderStats() {
     const pct = totalMinutes ? Math.round(minutes / totalMinutes * 100) : 0;
     return `<button class="art-card" type="button" data-genre="${esc(gn)}"><img src="${esc(imgOf(games[0], 'genre'))}" alt="" loading="lazy">
       <span class="in"><span class="lbl">${games.length} juego${games.length !== 1 ? 's' : ''} · ${formatMinutes(minutes)}</span><b>${esc(gn)}</b>
-      <span>${pct}% de tu tiempo grabado</span><span class="s-bar"><i style="width:${pct}%"></i></span></span></button>`;
+      <span>${pct}% de tu tiempo grabado</span><span class="s-bar"><i style="width:${pct}%;background:${genreColor(gn)}"></i></span></span></button>`;
   }).join('')}</div>`;
 
-  // ===== CRONOLOGÍA: por año de actualización y por década de lanzamiento =====
-  const groupBy = (arr, keyFn) => arr.reduce((m, p) => { const k = keyFn(p); (m[k] = m[k] || []).push(p); return m; }, {});
-  const yearRows = (groups, order, label) => order.map(k => `<div class="year-row"><b>${label(k)}<small>${groups[k].length} juego${groups[k].length !== 1 ? 's' : ''}</small></b>
-    <div class="mini-posters">${groups[k].map(posterBtn).join('')}</div></div>`).join('');
-  const byYear = groupBy(withUpdated.slice().sort(byUpdatedDesc), p => p.updated.slice(0, 4));
+  // ===== CRONOLOGÍA: lanzamiento → grabación (gráfico de pesas) + playlists por año (columnas) =====
+  const yrs = withRelease.filter(p => p.updated).map(p => ({ g: p, r: year(p.releaseDate), u: +p.updated.slice(0, 4) })).sort((a, b) => a.r - b.r);
+  const y0 = Math.floor(Math.min(...yrs.map(d => d.r)) / 5) * 5, y1 = Math.ceil((Math.max(...yrs.map(d => d.u)) + 1) / 5) * 5;
+  const DW = 1000, LW = 250, RW = 70, rowH = 30, top = 26, DH = top + yrs.length * rowH + 8;
+  const X = y => LW + (y - y0) / (y1 - y0) * (DW - LW - RW);
+  const ticks = []; for (let t = y0; t <= y1; t += 5) ticks.push(t);
+  const dumbbell = `<svg class="viz" viewBox="0 0 ${DW} ${DH}" role="img" aria-label="Año de lanzamiento y año de grabación de cada juego">
+    ${ticks.map(t => `<line class="grid" x1="${X(t)}" x2="${X(t)}" y1="${top - 8}" y2="${DH}"/><text x="${X(t)}" y="12" text-anchor="middle">${t}</text>`).join('')}
+    ${yrs.map((d, i) => { const cy = top + i * rowH + rowH / 2, gap = d.u - d.r;
+      return `<g class="row" data-title="${esc(d.g.title)}" ${tip(d.g.title, ['Lanzamiento: ' + d.r, 'Grabado: ' + d.u, gap ? gap + (gap === 1 ? ' año después' : ' años después') : 'El mismo año'])}>
+        <rect class="hit" x="0" y="${cy - rowH / 2}" width="${DW}" height="${rowH}" rx="6"/>
+        <text class="lab" x="${LW - 16}" y="${cy + 4}" text-anchor="end">${esc(d.g.title.length > 30 ? d.g.title.slice(0, 29) + '…' : d.g.title)}</text>
+        <line x1="${X(d.r)}" x2="${X(d.u)}" y1="${cy}" y2="${cy}" stroke="rgba(155,138,196,0.45)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="${X(d.r)}" cy="${cy}" r="5" fill="#6f6584" stroke="#15111b" stroke-width="2"/>
+        <circle cx="${X(d.u)}" cy="${cy}" r="5" fill="var(--accent)" stroke="#15111b" stroke-width="2"/>
+        <text class="val" x="${DW - RW + 14}" y="${cy + 4}">${gap ? '+' + gap + (gap === 1 ? ' año' : ' años') : '—'}</text></g>`; }).join('')}
+  </svg>`;
+  const perYear = groupBy(withUpdated, p => p.updated.slice(0, 4));
+  const yKeys = []; { const ys = Object.keys(perYear).map(Number); for (let y = Math.min(...ys); y <= Math.max(...ys); y++) yKeys.push(y); }
+  const maxY = Math.max(...yKeys.map(y => (perYear[y] || []).length));
+  const CW = 520, CH = 220, cb = 190, colW = Math.min(24, (CW - 20) / yKeys.length - 10), step = (CW - 20) / yKeys.length;
+  const columns = `<svg class="viz" viewBox="0 0 ${CW} ${CH}" role="img" aria-label="Playlists actualizadas por año">
+    <line class="grid" x1="0" x2="${CW}" y1="${cb}" y2="${cb}"/>
+    ${yKeys.map((y, i) => { const n = (perYear[y] || []).length, h = n / maxY * (cb - 30), cx = 10 + step * i + step / 2;
+      return `<g ${tip(String(y), [n + ' playlist' + (n !== 1 ? 's' : ''), ...(perYear[y] || []).map(p => p.title)])}>
+        <rect class="hit" x="${cx - step / 2}" y="0" width="${step}" height="${CH}"/>
+        ${n ? `<path d="M${cx - colW / 2},${cb} V${cb - h + 4} Q${cx - colW / 2},${cb - h} ${cx - colW / 2 + 4},${cb - h} H${cx + colW / 2 - 4} Q${cx + colW / 2},${cb - h} ${cx + colW / 2},${cb - h + 4} V${cb} Z" fill="var(--accent)"/>
+        <text class="val" x="${cx}" y="${cb - h - 8}" text-anchor="middle">${n}</text>` : ''}
+        <text x="${cx}" y="${cb + 20}" text-anchor="middle">'${String(y).slice(2)}</text></g>`; }).join('')}
+  </svg>`;
   const byDecade = groupBy(withRelease.slice().sort((a, b) => new Date(a.releaseDate) - new Date(b.releaseDate)), p => Math.floor(year(p.releaseDate) / 10) * 10);
   $('statTabCronologia').innerHTML = `
-    <section class="s-sec"><h3>Playlists actualizadas por año</h3>${yearRows(byYear, Object.keys(byYear).sort().reverse(), k => k)}</section>
-    <section class="s-sec"><h3>Juegos por década de lanzamiento</h3>${yearRows(byDecade, Object.keys(byDecade).sort(), k => (k < 2000 ? "'" + String(k).slice(2) : k) + 's')}</section>`;
+    <section class="s-sec s-card"><h3>Del lanzamiento a tu partida</h3>
+      <p class="sub">Cada juego: <span style="color:#a99fbe">●</span> año de lanzamiento → <span style="color:var(--accent)">●</span> año en que lo grabaste</p><div class="viz-scroll">${dumbbell}</div></section>
+    <section class="s-sec s-grid2">
+      <div class="s-card"><h3>Playlists actualizadas por año</h3><p class="sub">Cuántas playlists tocaste cada año</p>${columns}</div>
+      <div class="s-card"><h3>Juegos por década de lanzamiento</h3><p class="sub">De qué época son los juegos que grabas</p>
+        ${Object.keys(byDecade).sort().map(k => `<div class="year-row"><b>${k < 2000 ? "'" + String(k).slice(2) : k}s<small>${byDecade[k].length} juego${byDecade[k].length !== 1 ? 's' : ''}</small></b><div class="mini-posters">${byDecade[k].map(posterBtn).join('')}</div></div>`).join('')}</div>
+    </section>`;
 
   // ===== COMPARAR: dos pósters frente a frente; se resalta el valor mayor =====
   const options = playlists.map(p => `<option value="${esc(p.title)}">${esc(p.title)}</option>`).join('');
@@ -1137,9 +1227,13 @@ function renderStats() {
   const rows = () => {
     const A = playlists.find(p => p.title === state.a), B = playlists.find(p => p.title === state.b);
     const line = (label, va, vb, na, nb) => `<div class="cmp-row"><div class="${na > nb ? 'win' : ''}">${esc(va)}</div><span>${label}</span><div class="${nb > na ? 'win' : ''}">${esc(vb)}</div></div>`;
+    const duel = (label, va, vb, na, nb) => { const m = Math.max(na, nb) || 1;
+      const side = (v, n, o) => `<div class="duel"><em class="${n > o ? 'win' : ''}">${esc(v)}</em><span class="s-bar"><i class="${n >= o ? '' : 'lose'}" style="width:${(n / m * 100).toFixed(1)}%"></i></span></div>`;
+      return `<div class="cmp-row"><div>${side(va, na, nb)}</div><span>${label}</span><div>${side(vb, nb, na)}</div></div>`; };
     $('cmpRows').innerHTML =
-      line('Videos', videoCountOf(A), videoCountOf(B), videoCountOf(A), videoCountOf(B)) +
-      line('Duración', A.duration || '—', B.duration || '—', mins(A), mins(B)) +
+      duel('Videos', videoCountOf(A), videoCountOf(B), videoCountOf(A), videoCountOf(B)) +
+      duel('Horas grabadas', A.duration || '—', B.duration || '—', mins(A), mins(B)) +
+      duel('Minutos por video', videoCountOf(A) ? Math.round(mins(A) / videoCountOf(A)) + ' min' : '—', videoCountOf(B) ? Math.round(mins(B) / videoCountOf(B)) + ' min' : '—', videoCountOf(A) ? mins(A) / videoCountOf(A) : 0, videoCountOf(B) ? mins(B) / videoCountOf(B) : 0) +
       line('Lanzamiento', A.releaseDate ? year(A.releaseDate) : '—', B.releaseDate ? year(B.releaseDate) : '—', 0, 0) +
       line('Playlist actualizada', formatShortDate(A.updated) || '—', formatShortDate(B.updated) || '—', 0, 0) +
       line('Categoría', A.genre || '—', B.genre || '—', 0, 0) +
@@ -1169,6 +1263,12 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
   tab.classList.add('active');
   $('statTab' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.remove('hidden');
 }));
+
+// ===== Tooltip de las estadísticas (cualquier elemento con data-tip) =====
+const sTip = document.createElement('div'); sTip.className = 's-tip'; document.body.appendChild(sTip);
+document.addEventListener('mouseover', e => { const t = e.target.closest && e.target.closest('[data-tip]'); if (!t) { sTip.classList.remove('on'); return; } sTip.innerHTML = t.dataset.tip; sTip.classList.add('on'); });
+document.addEventListener('mousemove', e => { if (!sTip.classList.contains('on')) return; const x = Math.min(e.clientX + 14, innerWidth - sTip.offsetWidth - 8), y = e.clientY + 16 + sTip.offsetHeight > innerHeight ? e.clientY - sTip.offsetHeight - 12 : e.clientY + 16; sTip.style.left = x + 'px'; sTip.style.top = y + 'px'; });
+document.addEventListener('scroll', () => sTip.classList.remove('on'), true);
 
 // ===== Géneros: la imagen rota entre los juegos de esa categoría =====
 // Un solo reloj (cada GENRE_INTERVAL) cambia todas las tarjetas a la vez; cada paso busca las tarjetas
@@ -1247,6 +1347,9 @@ document.addEventListener('load', e => { if (e.target.matches && e.target.matche
 
 fetch('./' + FRAME_PATH, { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).catch(() => ({})).then(remote => {
   frames = remote || {};
+  // si los encuadres se guardaron desde la app después de la última publicación, la versión muestra esa hora
+  const updatedAt = frames._actualizado;
+  if (updatedAt && updatedAt > APP_BUILD) showVersion(updatedAt);
   // cambios recién guardados que GitHub Pages aún no publica (tarda ~1 min)
   try { const recent = JSON.parse(store2.get('wmc_frames_recent') || 'null'); if (recent && Date.now() - recent.at < 15 * 60000) Object.assign(frames, recent.data); } catch (e) {}
   frameImgs().forEach(applyFrame);
@@ -1321,6 +1424,7 @@ async function saveFrames() {
     // se parte de lo que haya en GitHub y se aplican encima solo los encuadres tocados aquí
     const remote = meta ? JSON.parse(decodeURIComponent(escape(atob(meta.content.replace(/\n/g, ''))))) : {};
     Object.keys(framesDirty).forEach(k => { if (frames[k]) remote[k] = frames[k]; else delete remote[k]; });
+    remote._actualizado = bogotaStamp();
     const sorted = Object.fromEntries(Object.keys(remote).sort().map(k => [k, remote[k]]));
     const body = { message: 'Encuadres ajustados desde la app', branch: 'main', content: btoa(unescape(encodeURIComponent(JSON.stringify(sorted, null, 1) + '\n'))) };
     if (meta) body.sha = meta.sha;
@@ -1329,6 +1433,7 @@ async function saveFrames() {
     store2.set('wmc_frames_recent', JSON.stringify({ at: Date.now(), data: sorted }));
     store2.set('wmc_frames_pending', null);
     framesDirty = {}; frames = { ...frames, ...sorted };
+    showVersion(sorted._actualizado);
     $('editMsg').textContent = 'Guardado ✓ (se publica en ~1 min)';
   } catch (err) {
     $('editMsg').textContent = 'No se pudo guardar: ' + err.message;
@@ -1353,7 +1458,13 @@ if (editing) {
 }
 
 // ===== Arranque =====
-$('appVersion').textContent = 'v' + APP_VERSION + '.' + APP_BUILD;
+function showVersion(build) { $('appVersion').textContent = 'v' + APP_VERSION + '.' + build; }
+showVersion(APP_BUILD);
+// Marca de tiempo en hora de Bogotá con el formato de la versión (AAAAMMDD.hhmmss)
+function bogotaStamp(d = new Date()) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }).formatToParts(d).map(x => [x.type, x.value]));
+  return `${p.year}${p.month}${p.day}.${p.hour}${p.minute}${p.second}`;
+}
 $('mobileAvatar').src = document.querySelector('.rail-avatar').src; // el avatar se embebe una sola vez
 function initHero() {
   heroQueue = playlists.slice().sort(byUpdatedDesc);
