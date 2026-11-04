@@ -169,7 +169,8 @@
   .saga:hover, .genre:hover, .moment:hover { transform: translateY(-3px); box-shadow: 0 0 0 2px var(--accent), 0 14px 30px rgba(0,0,0,0.5); }
 
   .genre { all: unset; cursor: pointer; position: relative; flex-shrink: 0; width: 210px; height: 100px; border-radius: 12px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); transition: transform 0.2s, box-shadow 0.2s; }
-  .genre .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .genre .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease; }
+  .genre .bg.show { opacity: 1; }
   .genre::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,9,16,0.92) 0%, rgba(11,9,16,0.3) 100%); }
   .genre div { position: absolute; z-index: 1; left: 14px; bottom: 12px; display: flex; flex-direction: column; }
   .genre b { font-size: 19px; font-weight: 900; }
@@ -505,8 +506,9 @@ const SHORT_NAMES = { "Final Fantasy 7 Remake | Intergrade": "FF7 Remake", "Fina
 // Tamaño del ícono pixel art en la portada (px); excepciones por título
 const ICON_SIZE = { "Minecraft": 38, "F1 2000 (PSX)": 64 };
 
-const HERO_COUNT = 5;          // juegos que rotan en la portada (los más recientes)
-const HERO_INTERVAL = 8000;    // ms entre cambios automáticos
+const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
+const HERO_INTERVAL = 5000;    // ms entre cambios automáticos de la portada (rotan todos los juegos)
+const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
 
 // ===== Utilidades =====
 const $ = id => document.getElementById(id);
@@ -565,7 +567,7 @@ function renderHero(game) {
     if (next.getAttribute('src') === src && next.complete) swap();
     else { next.onload = swap; next.src = src; }
   }
-  const isQueued = heroQueue.includes(game);
+  const isQueued = heroQueue.indexOf(game) > -1 && heroQueue.indexOf(game) < HERO_RECENT;
   const iconPx = ICON_SIZE[game.title] || 46;
   const bit = hasBitacora(game);
   const releaseYear = game.releaseDate ? new Date(game.releaseDate + 'T00:00:00').getFullYear() : '';
@@ -644,8 +646,8 @@ function bindCards(container) {
   container.querySelectorAll('.card').forEach(c => c.addEventListener('click', () => {
     const g = playlists.find(p => p.title === c.dataset.title);
     if (!g) return;
-    closeOverlay('collectionOverlay');
-    pinHero(g);
+    if (hasBitacora(g)) { location.href = bitacoraUrl(g.title); return; }
+    showConfirmModal(g); // sin bitácora: directo a la playlist (con confirmación)
   }));
 }
 
@@ -676,11 +678,12 @@ function renderRows() {
     .sort((a, b) => b.games.length - a.games.length || a.gn.localeCompare(b.gn));
   $('countGenres').textContent = genres.length + ' categorías';
   $('genreScroller').innerHTML = genreData.map(({ gn, games }) => `
-    <button class="genre" type="button" data-genre="${esc(gn)}">
-      <img class="bg" src="${esc(imgOf(games[0], 'genre'))}" alt="" loading="lazy">
+    <button class="genre" type="button" data-genre="${esc(gn)}" data-pool="${esc(JSON.stringify(games.map(g => imgOf(g, 'genre'))))}">
+      <img class="bg show" src="${esc(imgOf(games[0], 'genre'))}" alt="" loading="lazy"><img class="bg" alt="">
       <div><b>${esc(gn)}</b><span>${games.length} juego${games.length !== 1 ? 's' : ''}</span></div>
     </button>`).join('');
   $('genreScroller').querySelectorAll('.genre').forEach(b => b.addEventListener('click', () => openCollection({ genre: b.dataset.genre })));
+  startGenreRotation();
 
   // Momentos
   const moments = MOMENTOS.map(m => ({ ...m, game: playlists.find(p => p.title === m.juego) })).filter(m => m.game);
@@ -938,10 +941,40 @@ document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', (
   $('statTab' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1)).classList.remove('hidden');
 }));
 
+// ===== Géneros: la imagen rota entre los juegos de esa categoría =====
+// Un temporizador por género, iniciado una sola vez; cada paso busca la tarjeta actual en el DOM,
+// así sigue funcionando aunque las filas se vuelvan a pintar tras la sincronización con YouTube.
+const genreIdx = {};
+function startGenreRotation() {
+  document.querySelectorAll('#genreScroller .genre').forEach((card, n) => {
+    const gn = card.dataset.genre;
+    if (gn in genreIdx) { // ya rota: la tarjeta repintada arranca en la imagen actual
+      const pool = JSON.parse(card.dataset.pool || '[]'), src = pool[genreIdx[gn] % pool.length];
+      if (src) card.querySelector('.bg').src = src;
+      return;
+    }
+    genreIdx[gn] = 0;
+    const step = () => {
+      const c = document.querySelector(`#genreScroller .genre[data-genre="${CSS.escape(gn)}"]`);
+      if (!c) return;
+      const pool = JSON.parse(c.dataset.pool || '[]');
+      if (pool.length < 2) return;
+      genreIdx[gn] = (genreIdx[gn] + 1) % pool.length;
+      const src = pool[genreIdx[gn]];
+      const [a, b] = c.querySelectorAll('.bg');
+      const shown = a.classList.contains('show') ? a : b, next = shown === a ? b : a;
+      const swap = () => { next.classList.add('show'); shown.classList.remove('show'); };
+      if (next.getAttribute('src') === src && next.complete) swap(); else { next.onload = swap; next.src = src; }
+    };
+    // arranques escalonados para que no cambien todas a la vez
+    setTimeout(() => { step(); setInterval(step, GENRE_INTERVAL); }, GENRE_INTERVAL + n * 1200);
+  });
+}
+
 // ===== Arranque =====
 $('mobileAvatar').src = document.querySelector('.rail-avatar').src; // el avatar se embebe una sola vez
 function initHero() {
-  heroQueue = playlists.slice().sort(byUpdatedDesc).slice(0, HERO_COUNT);
+  heroQueue = playlists.slice().sort(byUpdatedDesc);
   heroIdx = 0;
   renderHero(heroQueue[0]);
   scheduleHero();
