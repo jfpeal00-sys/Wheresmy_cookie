@@ -1,1 +1,227 @@
-{}
+{
+ "moment|./assets/images/ACE_02/ACE_02_GENRE.jpg": {
+  "x": -0.0,
+  "y": -0.089,
+  "z": 0.62
+ },
+ "moment|./assets/images/ACE_02/ACE_02_POSTER.jpg": {
+  "x": 0.6409,
+  "y": -0.2136,
+  "z": 0.78
+ },
+ "moment|./assets/images/CRASH2/CRASH2_POSTER.jpg": {
+  "x": -0.8691,
+  "y": 0.045,
+  "z": 1.1
+ },
+ "moment|./assets/images/CRASH2/CRASH2_SAGA.jpg": {
+  "x": 0.2844,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/CTRNF/CTRNF_POSTER.jpg": {
+  "x": -0.5531,
+  "y": -0.125,
+  "z": 1.25
+ },
+ "moment|./assets/images/CTRNF/CTRNF_SAGA.jpg": {
+  "x": -0.1778,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/F1-2000-psx/F1_2000_PSX_POSTER.jpg": {
+  "x": -0.079,
+  "y": -0.145,
+  "z": 0.5
+ },
+ "moment|./assets/images/F1-2000-psx/F1_2000_PSX_SAGA.jpg": {
+  "x": -0.1778,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/FF7REM/FF7REM_CARD.jpg": {
+  "x": 0.158,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/FF7REM/FF7REM_POSTER.jpg": {
+  "x": -0.7301,
+  "y": 0.025,
+  "z": 1.05
+ },
+ "moment|./assets/images/FFIX/FFIX_GENRE.jpg": {
+  "x": -0.0,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/FFIX/FFIX_POSTER.jpg": {
+  "x": -0.493,
+  "y": 0.15,
+  "z": 1.3
+ },
+ "moment|./assets/images/GTAO/GTAO_GENRE.jpg": {
+  "x": -0.1778,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/GTAO/GTAO_POSTER.jpg": {
+  "x": -1.2326,
+  "y": 0.14,
+  "z": 1.3
+ },
+ "moment|./assets/images/KLO_DTPM/KLO_DTPM_POSTER.jpg": {
+  "x": 0.1343,
+  "y": -0.0775,
+  "z": 0.85
+ },
+ "moment|./assets/images/KLO_DTPM/KLO_DTPM_SAGA.jpg": {
+  "x": 0.1333,
+  "y": -0.06,
+  "z": 0.75
+ },
+ "moment|./assets/images/MNCRFT/MNCRFT_CARD.jpg": {
+  "x": 0.9481,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/MNCRFT/MNCRFT_POSTER.jpg": {
+  "x": -0.0,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/POKELGE/POKELGE_CARD.jpg": {
+  "x": 0.6852,
+  "y": -0.06,
+  "z": 0.75
+ },
+ "moment|./assets/images/POKELGE/POKELGE_POSTER.jpg": {
+  "x": -0.5997,
+  "y": -0.0625,
+  "z": 1.15
+ },
+ "moment|./assets/images/REDC/REDC_CARD.jpg": {
+  "x": 0.4741,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/REDC/REDC_POSTER.jpg": {
+  "x": -0.1896,
+  "y": 0.06,
+  "z": 1.2
+ },
+ "moment|./assets/images/REREM/REREM_GENRE.jpg": {
+  "x": -0.8889,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/REREM/REREM_POSTER.jpg": {
+  "x": -0.0,
+  "y": 0.0225,
+  "z": 0.95
+ },
+ "moment|./assets/images/SHEEP/SHEEP_POSTER.jpg": {
+  "x": 0.316,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/SHEEP/SHEEP_SAGA.jpg": {
+  "x": -0.0,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_GENRE.jpg": {
+  "x": 0.0711,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "moment|./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_POSTER.jpg": {
+  "x": 0.1422,
+  "y": -0.12,
+  "z": 1.5
+ },
+ "moment|./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_POSTER.jpg": {
+  "x": -0.0,
+  "y": -0.025,
+  "z": 1.05
+ },
+ "moment|./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_SAGA.jpg": {
+  "x": -0.0,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "poster|./assets/images/ACE_02/ACE_02_POSTER.jpg": {
+  "x": 0.54,
+  "y": -0.2136,
+  "z": 0.78
+ },
+ "poster|./assets/images/CRASH2/CRASH2_POSTER.jpg": {
+  "x": -0.7333,
+  "y": 0.045,
+  "z": 1.1
+ },
+ "poster|./assets/images/CTRNF/CTRNF_POSTER.jpg": {
+  "x": -0.4667,
+  "y": -0.125,
+  "z": 1.25
+ },
+ "poster|./assets/images/F1-2000-psx/F1_2000_PSX_POSTER.jpg": {
+  "x": -0.0667,
+  "y": -0.145,
+  "z": 0.5
+ },
+ "poster|./assets/images/FF7REM/FF7REM_POSTER.jpg": {
+  "x": -0.616,
+  "y": 0.025,
+  "z": 1.05
+ },
+ "poster|./assets/images/FFIX/FFIX_POSTER.jpg": {
+  "x": -0.416,
+  "y": 0.15,
+  "z": 1.3
+ },
+ "poster|./assets/images/GTAO/GTAO_POSTER.jpg": {
+  "x": -1.04,
+  "y": 0.14,
+  "z": 1.3
+ },
+ "poster|./assets/images/KLO_DTPM/KLO_DTPM_POSTER.jpg": {
+  "x": 0.1133,
+  "y": -0.0775,
+  "z": 0.85
+ },
+ "poster|./assets/images/MNCRFT/MNCRFT_POSTER.jpg": {
+  "x": -0.0,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "poster|./assets/images/POKELGE/POKELGE_POSTER.jpg": {
+  "x": -0.506,
+  "y": -0.0625,
+  "z": 1.15
+ },
+ "poster|./assets/images/REDC/REDC_POSTER.jpg": {
+  "x": -0.16,
+  "y": 0.06,
+  "z": 1.2
+ },
+ "poster|./assets/images/REREM/REREM_POSTER.jpg": {
+  "x": -0.0,
+  "y": 0.0225,
+  "z": 0.95
+ },
+ "poster|./assets/images/SHEEP/SHEEP_POSTER.jpg": {
+  "x": 0.2667,
+  "y": -0.0,
+  "z": 1.0
+ },
+ "poster|./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_POSTER.jpg": {
+  "x": 0.12,
+  "y": -0.12,
+  "z": 1.5
+ },
+ "poster|./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_POSTER.jpg": {
+  "x": -0.0,
+  "y": -0.025,
+  "z": 1.05
+ }
+}
