@@ -92,8 +92,8 @@
   .stage { position: absolute; top: 0; left: 0; right: 0; z-index: 0; height: max(var(--hero-h), 56.25vw); overflow: hidden; pointer-events: none; }
   .stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,9,16,0) 72%, var(--bg) 100%); }
   .stage-veil { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--hero-h) - 150px);
-    backdrop-filter: blur(22px) saturate(0.85); -webkit-backdrop-filter: blur(22px) saturate(0.85);
-    background: linear-gradient(180deg, rgba(11,9,16,0) 0, rgba(11,9,16,0.6) 150px, rgba(11,9,16,0.74) 100%);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    background: linear-gradient(180deg, rgba(11,9,16,0) 0, rgba(11,9,16,0.55) 150px, rgba(11,9,16,0.8) 55%, rgba(11,9,16,0.92) 100%);
     -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 150px); mask-image: linear-gradient(180deg, transparent 0, #000 150px); }
 
   /* ===== Portada ===== */
@@ -181,7 +181,7 @@
   .poster::after { content: ""; position: absolute; inset: 0; z-index: 1;
     background: linear-gradient(180deg, rgba(11,9,16,0) 38%, rgba(11,9,16,0.7) 64%, rgba(11,9,16,0.96) 100%); }
   .poster .info { position: absolute; z-index: 2; left: 12px; right: 12px; bottom: 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
-  .poster .logo { max-width: 84%; max-height: 80px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0,0,0,0.7)); }
+  .poster .logo { width: 68%; height: auto; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0,0,0,0.7)); }
   .poster .meta { font-size: 11px; font-weight: 600; color: #d9d2e6; line-height: 1.35; }
   .poster .meta i { font-style: normal; color: #7d7391; padding: 0 4px; }
   .poster .badge { position: absolute; left: 10px; top: 10px; z-index: 2; font-size: 9px; }
@@ -356,7 +356,6 @@
     .scroller { gap: 10px; padding-right: 16px; }
     .card { width: 168px; }
     .poster { width: 150px; border-radius: 10px; }
-    .poster .logo { max-height: 54px; }
     .poster .info { gap: 7px; bottom: 12px; left: 8px; right: 8px; }
     .poster .meta { font-size: 10px; }
     .saga { width: 210px; height: 104px; }
@@ -708,6 +707,12 @@ function cardHTML(g) {
     <span class="card-cap"><b>${esc(g.title)}</b><span>${esc(g.genre || 'Sin categoría')} · ${videoCountOf(g)} videos</span></span>
   </button>`;
 }
+// Todos los logos de los pósters ocupan la misma área visual, sin importar su proporción
+// (un logo cuadrado como el de GTA no se ve más grande que uno alargado como el de Minecraft).
+function sizePosterLogo(img) {
+  const r = img.naturalWidth / img.naturalHeight || 2;
+  img.style.width = (Math.min(0.86, Math.sqrt(0.231 * r), 0.26 * r) * 100).toFixed(1) + '%';
+}
 function posterHTML(g) {
   const year = g.releaseDate ? new Date(g.releaseDate + 'T00:00:00').getFullYear() : '';
   const meta = [year, g.genre || 'Sin categoría', videoCountOf(g) + ' videos'].filter(Boolean).map(esc).join('<i>·</i>');
@@ -715,7 +720,7 @@ function posterHTML(g) {
     <img class="bg" src="${esc(imgOf(g, 'poster'))}" alt="" loading="lazy">
     ${hasBitacora(g) ? '<span class="badge">BITÁCORA</span>' : ''}
     <span class="info">
-      ${g.thumb ? `<img class="logo" src="${esc(g.thumb)}" alt="">` : `<b>${esc(g.title)}</b>`}
+      ${g.thumb ? `<img class="logo" src="${esc(g.thumb)}" alt="" onload="sizePosterLogo(this)">` : `<b>${esc(g.title)}</b>`}
       <span class="meta">${meta}</span>
     </span>
   </button>`;
