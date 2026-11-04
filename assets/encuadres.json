@@ -1,5 +1,5 @@
 {
- "_actualizado": "20261104.164845",
+ "_actualizado": "20261104.170528",
  "hero-m|./assets/images/ACE_02/ACE_02_BKG.jpg": {
   "u": 0.4827,
   "v": 0.5572,
@@ -131,9 +131,9 @@
   "z": 1.305
  },
  "hero|./assets/images/REREM/REREM_BKG.jpg": {
-  "u": 0.4577,
-  "v": 0.1852,
-  "z": 1.231
+  "x": 0.0525,
+  "y": -0.06,
+  "z": 0.943
  },
  "hero|./assets/images/SHEEP/SHEEP_BKG.jpg": {
   "u": 0.4619,
