@@ -101,7 +101,8 @@
 
   /* ===== Portada ===== */
   .hero { position: relative; height: var(--hero-h); overflow: hidden; }
-  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: var(--pos-d, center 30%); opacity: 0; transition: opacity 0.9s ease; }
+  .hero-bg { position: absolute; inset: 0 0 auto 0; width: 100%; height: min(100%, max(calc(var(--hero-h) + 160px), 56.25vw)); object-fit: cover; object-position: var(--pos-d, center 30%); opacity: 0; transition: opacity 0.9s ease;
+    -webkit-mask-image: linear-gradient(180deg, #000 75%, transparent); mask-image: linear-gradient(180deg, #000 75%, transparent); }
   .hero-bg.show { opacity: 1; }
   .hero-scrim { position: absolute; inset: 0; background:
       linear-gradient(90deg, rgba(11,9,16,0.96) 0%, rgba(11,9,16,0.62) 38%, rgba(11,9,16,0) 72%),
@@ -817,8 +818,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.14";
-const APP_BUILD = "20261104.165901";
+const APP_VERSION = "2.15";
+const APP_BUILD = "20261104.170335";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
@@ -1398,6 +1399,13 @@ function frameKey(img) {
 // La imagen se dimensiona con su proporción real para cubrir la tarjeta (no con object-fit, que la recortaría
 // en su propia caja) y luego se desplaza/escala; así al moverla se ve el resto de la imagen y no un borde.
 const frameRO = new ResizeObserver(entries => entries.forEach(e => e.target.querySelectorAll('img.bg, img.hero-bg, :scope > img:not(.bg-fill)').forEach(applyFrame)));
+// Caja que ocupa la imagen de portada dentro del escenario (debe coincidir con el CSS de .hero-bg) y
+// altura del punto de enfoque: el centro de la portada visible, no el del escenario completo.
+function heroSlot(card) {
+  const cw = card.clientWidth, hh = $('hero').offsetHeight;
+  const ch = isMobileLayout() ? hh + 220 : Math.min(card.clientHeight, Math.max(hh + 160, cw * 9 / 16));
+  return { cw, ch, fy: hh / 2 };
+}
 function applyFrame(img) {
   const key = frameKey(img); if (!key) return;
   const f = frames[key], card = frameCard(img);
@@ -1412,13 +1420,16 @@ function applyFrame(img) {
   }
   if (!card.dataset.ro) { card.dataset.ro = '1'; frameRO.observe(card); }
   // en móvil la imagen de portada ocupa solo la portada + 220 px (ver CSS), no todo el escenario
-  const cw = card.clientWidth, ch = card.classList.contains('stage') && isMobileLayout() ? $('hero').offsetHeight + 220 : card.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
+  const isHero = card.classList.contains('stage'), hs = isHero ? heroSlot(card) : null;
+  const cw = card.clientWidth, ch = isHero ? hs.ch : card.clientHeight, nw = img.naturalWidth, nh = img.naturalHeight;
   if (!cw || !ch || !nw || !nh) return; // se reintenta al cargar la imagen o al hacerse visible la tarjeta
   const s0 = Math.max(cw / nw, ch / nh), w = nw * s0, h = nh * s0;
   // Encuadre por ancla: (u, v) es el punto de la imagen (0–1) que queda en el centro de la tarjeta y z el zoom
   // sobre "cubrir". Así el sujeto sigue centrado aunque cambie la proporción de la tarjeta (otro celular,
   // otro monitor). Los valores antiguos (x, y = desplazamiento) se siguen leyendo.
-  const tx = f.u !== undefined ? (0.5 - f.u) * w * f.z : f.x * cw, ty = f.u !== undefined ? (0.5 - f.v) * h * f.z : f.y * ch;
+  // en la portada el punto (u, v) se lleva al centro de la portada visible (fy), no al del escenario
+  const fy = isHero ? hs.fy : ch / 2;
+  const tx = f.u !== undefined ? (0.5 - f.u) * w * f.z : f.x * cw, ty = f.u !== undefined ? fy - ch / 2 - (f.v - 0.5) * h * f.z : f.y * ch;
   img.dataset.framed = '1';
   img.style.cssText = `inset:auto;left:${((cw - w) / 2).toFixed(1)}px;top:${((ch - h) / 2).toFixed(1)}px;width:${w.toFixed(1)}px;height:${h.toFixed(1)}px;` +
     `object-fit:fill;max-width:none;transform-origin:center;transform:translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${f.z})` +
@@ -1465,7 +1476,7 @@ function startFraming(card) {
   const img = card.querySelector('img.hero-bg.show') || card.querySelector('img.bg.show') || card.querySelector('img.bg') || card.querySelector(':scope > img:not(.bg-fill)');
   const key = frameKey(img); if (!key) return;
   const before = frames[key] ? { ...frames[key] } : null;
-  const slot = () => { const cw = card.clientWidth, ch = host !== card && isMobileLayout() ? $('hero').offsetHeight + 220 : card.clientHeight, s0 = Math.max(cw / img.naturalWidth, ch / img.naturalHeight); return { cw, ch, w: img.naturalWidth * s0, h: img.naturalHeight * s0 }; };
+  const slot = () => { const hs = host !== card ? heroSlot(card) : null, cw = card.clientWidth, ch = hs ? hs.ch : card.clientHeight, s0 = Math.max(cw / img.naturalWidth, ch / img.naturalHeight); return { cw, ch, w: img.naturalWidth * s0, h: img.naturalHeight * s0 }; };
   let f = { ...(frames[key] || { u: 0.5, v: 0.5, z: 1 }) };
   if (f.u === undefined) { const S = slot(); f = { u: 0.5 - f.x * S.cw / (S.w * f.z), v: 0.5 - f.y * S.ch / (S.h * f.z), z: f.z }; } // pasar a ancla
   frames[key] = f;
