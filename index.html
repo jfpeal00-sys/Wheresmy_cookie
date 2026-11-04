@@ -113,7 +113,8 @@
   .btn-ghost:hover { background: rgba(244,241,250,0.26); }
   .btn svg { width: 12px; height: 12px; }
 
-  .rotator { position: absolute; right: 48px; bottom: 56px; display: flex; gap: 10px; }
+  /* Miniaturas de la portada: ocultas (redundantes con "Recién actualizados"); la rotación se indica con puntos */
+  .rotator { display: none; }
   .rot-item { all: unset; cursor: pointer; width: 124px; display: flex; flex-direction: column; gap: 7px; }
   .rot-thumb { width: 124px; height: 70px; border-radius: 8px; overflow: hidden; opacity: 0.6; transition: opacity 0.2s, box-shadow 0.2s; }
   .rot-thumb img { width: 100%; height: 100%; object-fit: cover; }
@@ -124,7 +125,10 @@
   .rot-item.active .rot-bar i { animation: rotFill var(--rot-ms, 8000ms) linear forwards; }
   .rotator.paused .rot-item.active .rot-bar i { animation: none; width: 100%; opacity: 0.5; }
   @keyframes rotFill { from { width: 0; } to { width: 100%; } }
-  .hero-dots { display: none; }
+  .hero-dots { display: flex; gap: 7px; position: absolute; left: calc(var(--rail) + 56px); bottom: 26px; }
+  .hero-dots button { all: unset; cursor: pointer; width: 8px; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.35); transition: width 0.3s, background 0.3s; }
+  .hero-dots button:hover { background: rgba(255,255,255,0.7); }
+  .hero-dots button.active { width: 26px; background: var(--fg); }
   .mobile-top { display: none; }
   .sync-status { position: absolute; right: 48px; top: 22px; font-size: 11px; color: var(--accent-2); opacity: 0; transition: opacity 0.4s; }
 
