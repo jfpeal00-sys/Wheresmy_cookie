@@ -1,0 +1,12 @@
+JUEGO: Pokemon Let's Go Eevee
+CARPETA (SLUG): POKELGE
+PLAYLIST: https://www.youtube.com/playlist?list=PLWuETFGtHR7c
+FECHA: 2026-11-05T13:06:17
+VIDEOS DETECTADOS: 20
+CORRECTOS EN ESTA EJECUCIÓN: 18
+OMITIDOS: 0
+FALLIDOS: 2
+
+DETALLE DE FALLOS:
+06. POKEMON LET'S GO EEVEE | CHAPTER 15 | GIMNASIO FUCSIA, 18, 17, 16 & 19 (MAR) (AUDIO LOSS): No hay transcripción en español. Disponibles: ninguna
+07. POKEMON LET'S GO EEVEE | CHAPTER 14 | CIUDAD FUCSIA, GO PARK & MISCELANIOUS (AUDIO LOSS): No hay transcripción en español. Disponibles: ninguna

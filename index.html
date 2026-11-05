@@ -751,7 +751,7 @@
 // Campo "saga": agrupa juegos de la misma franquicia en la fila "Sagas" (nuevo en el rediseño).
 const playlists = [
   { title: "Ace Combat 2", saga: "Ace Combat", desc: "7 videos", url: "https://www.youtube.com/playlist?list=PLS1JI7LQbVss", thumb: "./assets/images/ACE_02/ACE_02_LOGO.png", genre: "Simulation", updated: "2026-09-23", releaseDate: "1997-08-15", duration: "0h 0m", bg: "./assets/images/ACE_02/ACE_02_BKG.jpg", icon: "./assets/images/ACE_02/ACE_02_ICON.png" , images: { card: "./assets/images/ACE_02/ACE_02_CARD.jpg", saga: "./assets/images/ACE_02/ACE_02_SAGA.jpg", genre: "./assets/images/ACE_02/ACE_02_GENRE.jpg", poster: "./assets/images/ACE_02/ACE_02_POSTER.jpg", moment: "./assets/images/ACE_02/ACE_02_GENRE.jpg" } },
-  { title: "Pokemon Let's Go Eevee", saga: "Pokémon", desc: "0 videos", url: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c", thumb: "./assets/images/POKELGE/POKELGE_LOGO.png", genre: "RPG", updated: "2023-07-14", releaseDate: "2018-11-16", duration: "0h 0m", bg: "./assets/images/POKELGE/POKELGE_BKG.jpg", icon: "./assets/images/POKELGE/POKELGE_ICON.png", images: { card: "./assets/images/POKELGE/POKELGE_CARD.jpg", saga: "./assets/images/POKELGE/POKELGE_SAGA.jpg", genre: "./assets/images/POKELGE/POKELGE_GENRE.jpg", poster: "./assets/images/POKELGE/POKELGE_POSTER.jpg", moment: "./assets/images/POKELGE/POKELGE_SAGA.jpg" } },
+  { title: "Pokemon Let's Go Eevee", saga: "Pokémon", desc: "20 videos", url: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c", thumb: "./assets/images/POKELGE/POKELGE_LOGO.png", genre: "RPG", updated: "2023-07-14", releaseDate: "2018-11-16", duration: "0h 0m", bg: "./assets/images/POKELGE/POKELGE_BKG.jpg", icon: "./assets/images/POKELGE/POKELGE_ICON.png", images: { card: "./assets/images/POKELGE/POKELGE_CARD.jpg", saga: "./assets/images/POKELGE/POKELGE_SAGA.jpg", genre: "./assets/images/POKELGE/POKELGE_GENRE.jpg", poster: "./assets/images/POKELGE/POKELGE_POSTER.jpg", moment: "./assets/images/POKELGE/POKELGE_SAGA.jpg" } },
   { title: "Resident Evil Remake", saga: "Resident Evil", desc: "16 videos", url: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", thumb: "./assets/images/REREM/REREM_LOGO.png", genre: "Horror", updated: "2023-05-23", releaseDate: "2002-04-30", duration: "18h 50m", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", images: { card: "./assets/images/REREM/REREM_CARD.jpg", saga: "./assets/images/REREM/REREM_SAGA.jpg", genre: "./assets/images/REREM/REREM_GENRE.jpg", poster: "./assets/images/REREM/REREM_POSTER.jpg", moment: "./assets/images/REREM/REREM_GENRE.jpg" } },
   { title: "Resident Evil Director's Cut", saga: "Resident Evil", desc: "8 videos", url: "https://www.youtube.com/playlist?list=PLW92QaHn0kvw", thumb: "./assets/images/REDC/REDC_LOGO.png", genre: "Horror", updated: "2023-05-09", releaseDate: "1997-09-30", duration: "11h 26m", bg: "./assets/images/REDC/REDC_BKG.jpg", icon: "./assets/images/REDC/REDC_ICON.png", images: { card: "./assets/images/REDC/REDC_CARD.jpg", saga: "./assets/images/REDC/REDC_SAGA.jpg", genre: "./assets/images/REDC/REDC_GENRE.jpg", poster: "./assets/images/REDC/REDC_POSTER.jpg", moment: "./assets/images/REDC/REDC_SAGA.jpg" } },
   { title: "F1 2000 (PSX)", saga: "F1", desc: "6 videos", url: "https://www.youtube.com/playlist?list=PLJXk52AjnOAM", thumb: "./assets/images/F1-2000-psx/F1_2000_PSX_LOGO.png", genre: "Racing", updated: "2024-06-21", releaseDate: "2000-03-27", duration: "7h 3m", bg: "./assets/images/F1-2000-psx/F1_2000_PSX_BKG.jpg", icon: "./assets/images/F1-2000-psx/F1_2000_PSX_ICON.png", images: { card: "./assets/images/F1-2000-psx/F1_2000_PSX_CARD.jpg", saga: "./assets/images/F1-2000-psx/F1_2000_PSX_SAGA.jpg", genre: "./assets/images/F1-2000-psx/F1_2000_PSX_GENRE.jpg", poster: "./assets/images/F1-2000-psx/F1_2000_PSX_POSTER.jpg", moment: "./assets/images/F1-2000-psx/F1_2000_PSX_SAGA.jpg" } },
@@ -779,6 +779,7 @@ const BITACORA_GAMES = {
   "Resident Evil Remake": "REREM",
   "Crash Bandicoot 2: Cortex Strikes Back": "CRASH2",
   "Crash Nitro Fuelled": "CTRNF",
+  "Pokemon Let's Go Eevee": "POKELGE",
 };
 
 // ===== Momentos: 12 capítulos al azar de todas las bitácoras, distintos en cada carga =====
@@ -832,8 +833,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.22";
-const APP_BUILD = "20261105.080553";
+const APP_VERSION = "2.23";
+const APP_BUILD = "20261105.182324";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género

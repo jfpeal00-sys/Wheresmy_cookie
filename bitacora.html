@@ -345,7 +345,8 @@ const GAMES = [
   { title: "Klonoa: Door to Phantomile", genre: "Platform", releaseDate: "1998-03-10", updated: "2019-01-04", videos: 5, duration: "3h 0m", thumb: "./assets/images/KLO_DTPM/KLO_DTPM_LOGO.png", bg: "./assets/images/KLO_DTPM/KLO_DTPM_BKG.jpg", icon: "./assets/images/KLO_DTPM/KLO_DTPM_ICON.png", folder: "KLO_DTPM", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBRTK1HVJkNGD3eFzN6kWiq8", files: ["01_KLO_DTPM.txt"] },
   { title: "Resident Evil Remake", genre: "Horror", releaseDate: "2002-04-30", updated: "2023-05-23", videos: 16, duration: "18h 50m", thumb: "./assets/images/REREM/REREM_LOGO.png", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", folder: "REREM", playlistUrl: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", files: ["01_REREM.txt"] },
   { title: "Crash Bandicoot 2: Cortex Strikes Back", genre: "Platform", releaseDate: "1997-11-06", updated: "2018-12-30", videos: 8, duration: "3h 59m", thumb: "./assets/images/CRASH2/CRASH2_LOGO.png", bg: "./assets/images/CRASH2/CRASH2_BKG.jpg", icon: "./assets/images/CRASH2/CRASH2_ICON.png", folder: "CRASH2", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe", files: ["01_CRASH2.txt"] },
-  { title: "Crash Nitro Fuelled", genre: "Racing", releaseDate: "2019-06-21", updated: "2020-06-07", videos: 15, duration: "11h 0m", thumb: "./assets/images/CTRNF/CTRNF_LOGO.png", bg: "./assets/images/CTRNF/CTRNF_BKG.jpg", icon: "./assets/images/CTRNF/CTRNF_ICON.png", folder: "CTRNF", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2", files: ["01_CTRNF.txt"] }
+  { title: "Crash Nitro Fuelled", genre: "Racing", releaseDate: "2019-06-21", updated: "2020-06-07", videos: 15, duration: "11h 0m", thumb: "./assets/images/CTRNF/CTRNF_LOGO.png", bg: "./assets/images/CTRNF/CTRNF_BKG.jpg", icon: "./assets/images/CTRNF/CTRNF_ICON.png", folder: "CTRNF", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2", files: ["01_CTRNF.txt"] },
+  { title: "Pokemon Let's Go Eevee", genre: "RPG", releaseDate: "2018-11-16", updated: "2023-07-14", videos: 20, duration: "0h 0m", thumb: "./assets/images/POKELGE/POKELGE_LOGO.png", bg: "./assets/images/POKELGE/POKELGE_BKG.jpg", icon: "./assets/images/POKELGE/POKELGE_ICON.png", folder: "POKELGE", playlistUrl: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c", files: ["01_POKELGE.txt"] }
 ];
 
 const GROUP_DEFS = [
@@ -859,6 +860,12 @@ async function fillMissingFromPlaylist(g, i) {
       data.items.forEach(it => { items[it.snippet.position + 1] = { id: it.snippet.resourceId.videoId, t: it.snippet.title }; });
       pageToken = data.nextPageToken || '';
     } while (pageToken);
+    // Si los títulos traen el número de capítulo ("CHAPTER 14"), manda ese número y no la posición
+    // (hay playlists en orden inverso). Solo si todos lo traen y no se repite.
+    const byNum = {};
+    const all = Object.values(items);
+    const nums = all.map(it => { const m = it.t.match(/(?:^|[\s|–—-])(?:cap[ií]tulo|chapter|episodio|parte)\s*0*(\d+)\b/i); return m ? +m[1] : 0; });
+    if (nums.every(n => n > 0) && new Set(nums).size === nums.length) { all.forEach((it, k) => { byNum[nums[k]] = it; }); items = byNum; }
     try { localStorage.setItem(cacheKey, JSON.stringify({ data: items, timestamp: Date.now() })); } catch (e) {}
   }
   missing.forEach(ch => {
