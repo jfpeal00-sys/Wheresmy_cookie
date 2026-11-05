@@ -552,6 +552,22 @@ function shortTitle(title) {
   return out;
 }
 
+// Número real del capítulo: el que trae el título ("Capítulo 4", "Parte 04", "Chapter 04", "Episodio 04").
+// Si falta una transcripción, ese número simplemente no aparece y la numeración no se corre.
+// Sin número en el título, se toma el del capítulo anterior + 1.
+function numberChapters(chapters) {
+  let prev = 0;
+  chapters.forEach(ch => {
+    const m = ch.title.match(/(?:^|[\s|–—-])(?:cap[ií]tulo|chapter|episodio|parte)\s*0*(\d+)\b/i);
+    const n = m ? parseInt(m[1], 10) : 0;
+    ch.num = n > prev ? n : prev + 1;
+    prev = ch.num;
+  });
+  return chapters;
+}
+const capTotal = g => Math.max(g.chapters.length, g.chapters.length ? g.chapters[g.chapters.length - 1].num : 0);
+const idxOfNum = (g, n) => g.chapters.findIndex(ch => ch.num === n);
+
 // Progreso de lectura por juego (solo en este navegador)
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
@@ -578,7 +594,7 @@ async function loadGame(game) {
       console.warn('No se pudo cargar', file, e.message);
     }
   }
-  return { ...game, chapters };
+  return { ...game, chapters: numberChapters(chapters) };
 }
 
 async function init() {
@@ -601,11 +617,12 @@ async function init() {
   }
   const game = loadedGames[currentGameIdx];
   const cap = parseInt(params.get('cap'), 10);
-  if (cap >= 1 && cap <= game.chapters.length) currentChapter = cap - 1;
+  const capIdx = cap >= 1 ? idxOfNum(game, cap) : -1;
+  if (capIdx >= 0) currentChapter = capIdx;
   else currentChapter = Math.min(store.get(lastKey(game), 0), game.chapters.length - 1);
 
   renderGameNav();
-  selectGame(currentGameIdx, currentChapter, !!cap);
+  selectGame(currentGameIdx, currentChapter, capIdx >= 0);
   syncGameStats();
 }
 
@@ -647,7 +664,7 @@ function renderHeroInfo() {
       <div><span class="k">Duración</span><span class="v" id="stat-duration">${esc(g.duration || 'No disponible')}</span></div>
     </div>
     <div class="actions">
-      <button class="btn btn-primary" type="button" id="resumeBtn">${last !== null ? 'Continuar' : 'Empezar'} · Cap. ${pad2(resumeCap + 1)}</button>
+      <button class="btn btn-primary" type="button" id="resumeBtn">${last !== null ? 'Continuar' : 'Empezar'} · Cap. ${pad2(g.chapters[Math.min(resumeCap, g.chapters.length - 1)].num)}</button>
       ${g.playlistUrl ? `<a class="btn btn-outline" href="${esc(g.playlistUrl)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4l14 8-14 8z"/></svg>Playlist en YouTube</a>` : ''}
     </div>`;
   $('resumeBtn').addEventListener('click', () => { goChapter(resumeCap); $('reader').scrollIntoView({ behavior: 'smooth' }); });
@@ -661,7 +678,7 @@ function renderEpisodes() {
     const active = i === currentChapter;
     const tag = active ? 'LEYENDO' : (read.has(i) ? 'LEÍDO' : '');
     return `<button class="ep${active ? ' active' : ''}${read.has(i) ? ' read' : ''}" type="button" data-i="${i}" title="${esc(ch.title)}">
-      <span class="ep-top"><span class="ep-num">${pad2(i + 1)}</span><span class="ep-tag">${tag}</span></span>
+      <span class="ep-top"><span class="ep-num">${pad2(ch.num)}</span><span class="ep-tag">${tag}</span></span>
       <span class="ep-title">${esc(shortTitle(ch.title))}</span>
     </button>`;
   }).join('');
@@ -695,9 +712,9 @@ function renderChapter() {
   const read = new Set(store.get(readKey(g), []));
   if (!read.has(currentChapter)) { read.add(currentChapter); store.set(readKey(g), [...read].sort((a, b) => a - b)); }
   store.set(lastKey(g), currentChapter);
-  try { history.replaceState(null, '', `?juego=${encodeURIComponent(g.title)}&cap=${currentChapter + 1}`); } catch (e) {}
+  try { history.replaceState(null, '', `?juego=${encodeURIComponent(g.title)}&cap=${ch.num}`); } catch (e) {}
 
-  $('chNum').textContent = `Capítulo ${pad2(currentChapter + 1)} de ${pad2(g.chapters.length)}`;
+  $('chNum').textContent = `Capítulo ${pad2(ch.num)} de ${pad2(capTotal(g))}`;
   $('chTitle').textContent = ch.title;
   const url = ch.url && /^https?:\/\//.test(ch.url) ? ch.url : (g.playlistUrl || '#');
   $('videoLink').href = url; $('videoM').href = url;
