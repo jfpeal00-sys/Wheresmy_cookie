@@ -172,6 +172,7 @@
   .missing-note svg { flex: 0 0 22px; width: 22px; height: 22px; color: var(--accent-2); margin-top: 2px; }
   .missing-note h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
   .missing-note p { color: #a99fbe; font-size: 14px; line-height: 1.55; }
+  .missing-note .yt-title { margin-top: 8px; color: #7d7392; font-size: 13px; }
 
   /* ===== Lectura ===== */
   .reader { display: flex; gap: 40px; padding: 30px var(--pad) 60px; scroll-margin-top: 10px; }
@@ -343,7 +344,8 @@ const GAMES = [
   { title: "Sheep Raider", genre: "Platform", releaseDate: "2001-09-27", updated: "2020-06-27", videos: 8, duration: "7h 8m", thumb: "./assets/images/SHEEP/SHEEP_LOGO.png", bg: "./assets/images/SHEEP/SHEEP_BKG.jpg", icon: "./assets/images/SHEEP/SHEEP_ICON.png", folder: "SHEEP", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQe4wyV0VCpb6SnP5whF1t2", files: ["01_SHEEP.txt"] },
   { title: "Klonoa: Door to Phantomile", genre: "Platform", releaseDate: "1998-03-10", updated: "2019-01-04", videos: 5, duration: "3h 0m", thumb: "./assets/images/KLO_DTPM/KLO_DTPM_LOGO.png", bg: "./assets/images/KLO_DTPM/KLO_DTPM_BKG.jpg", icon: "./assets/images/KLO_DTPM/KLO_DTPM_ICON.png", folder: "KLO_DTPM", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBRTK1HVJkNGD3eFzN6kWiq8", files: ["01_KLO_DTPM.txt"] },
   { title: "Resident Evil Remake", genre: "Horror", releaseDate: "2002-04-30", updated: "2023-05-23", videos: 16, duration: "18h 50m", thumb: "./assets/images/REREM/REREM_LOGO.png", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", folder: "REREM", playlistUrl: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", files: ["01_REREM.txt"] },
-  { title: "Crash Bandicoot 2: Cortex Strikes Back", genre: "Platform", releaseDate: "1997-11-06", updated: "2018-12-30", videos: 8, duration: "3h 59m", thumb: "./assets/images/CRASH2/CRASH2_LOGO.png", bg: "./assets/images/CRASH2/CRASH2_BKG.jpg", icon: "./assets/images/CRASH2/CRASH2_ICON.png", folder: "CRASH2", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe", files: ["01_CRASH2.txt"] }
+  { title: "Crash Bandicoot 2: Cortex Strikes Back", genre: "Platform", releaseDate: "1997-11-06", updated: "2018-12-30", videos: 8, duration: "3h 59m", thumb: "./assets/images/CRASH2/CRASH2_LOGO.png", bg: "./assets/images/CRASH2/CRASH2_BKG.jpg", icon: "./assets/images/CRASH2/CRASH2_ICON.png", folder: "CRASH2", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe", files: ["01_CRASH2.txt"] },
+  { title: "Crash Nitro Fuelled", genre: "Racing", releaseDate: "2019-06-21", updated: "2020-06-07", videos: 15, duration: "11h 0m", thumb: "./assets/images/CTRNF/CTRNF_LOGO.png", bg: "./assets/images/CTRNF/CTRNF_BKG.jpg", icon: "./assets/images/CTRNF/CTRNF_ICON.png", folder: "CTRNF", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2", files: ["01_CTRNF.txt"] }
 ];
 
 const GROUP_DEFS = [
@@ -754,7 +756,7 @@ function renderSections() {
   if (ch.missing) {
     $('sections').innerHTML = `<div class="missing-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>
       <h4>Análisis no disponible en este momento</h4>
-      <p>Este capítulo forma parte de la serie, pero todavía no tiene bitácora: YouTube no tiene la transcripción de este video. Puedes verlo completo en la playlist.</p></div></div>`;
+      <p>Este capítulo forma parte de la serie, pero todavía no tiene bitácora: YouTube no tiene la transcripción de este video. ${ch.url ? 'Puedes verlo completo en YouTube.' : 'Puedes verlo completo en la playlist.'}</p>${ch.ytTitle ? `<p class="yt-title">Video: ${esc(ch.ytTitle)}</p>` : ''}</div></div>`;
     $('tocTitle').textContent = GROUP_DEFS[currentGroup].name;
     $('toc').innerHTML = keys.map(key => `<a class="empty">${SECTION_LABELS[key]}</a>`).join('');
     return;
@@ -840,7 +842,36 @@ async function getPlaylistStats(playlistId) {
   try { localStorage.setItem(cacheKey, JSON.stringify({ data: stats, timestamp: Date.now() })); } catch (e) {}
   return stats;
 }
+// Capítulos sin análisis: su video y su título se toman de la playlist (posición = número de capítulo).
+async function fillMissingFromPlaylist(g, i) {
+  const missing = g.chapters.filter(ch => ch.missing);
+  const playlistId = extractPlaylistId(g.playlistUrl);
+  if (!missing.length || !playlistId) return;
+  const cacheKey = 'yt_items_' + playlistId;
+  let items = null;
+  try { const c = JSON.parse(localStorage.getItem(cacheKey) || 'null'); if (c && Date.now() - c.timestamp < YT_CACHE_HOURS * 3600000) items = c.data; } catch (e) {}
+  if (!items) {
+    items = {};
+    let pageToken = '';
+    do {
+      const data = await (await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistId}&pageToken=${pageToken}&key=${YOUTUBE_API_KEY}`)).json();
+      if (data.error) throw new Error(data.error.message);
+      data.items.forEach(it => { items[it.snippet.position + 1] = { id: it.snippet.resourceId.videoId, t: it.snippet.title }; });
+      pageToken = data.nextPageToken || '';
+    } while (pageToken);
+    try { localStorage.setItem(cacheKey, JSON.stringify({ data: items, timestamp: Date.now() })); } catch (e) {}
+  }
+  missing.forEach(ch => {
+    const it = items[ch.num];
+    if (!it) return;
+    ch.videoId = it.id; ch.url = 'https://www.youtube.com/watch?v=' + it.id;
+    ch.ytTitle = it.t.replace(/^[\s|]+|[\s|]+$/g, '').replace(/\s*\|\s*/g, ' | ');
+  });
+  if (i === currentGameIdx) renderChapter();
+}
+
 async function syncGameStats() {
+  loadedGames.forEach((g, i) => fillMissingFromPlaylist(g, i).catch(err => console.warn('Sin datos de la playlist para "' + g.title + '":', err.message)));
   await Promise.all(loadedGames.map(async (g, i) => {
     const playlistId = extractPlaylistId(g.playlistUrl);
     if (!playlistId) return;

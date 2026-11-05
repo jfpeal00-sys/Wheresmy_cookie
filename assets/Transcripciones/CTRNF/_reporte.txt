@@ -1,0 +1,12 @@
+JUEGO: Crash Nitro Fuelled
+CARPETA (SLUG): CTRNF
+PLAYLIST: https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2
+FECHA: 2026-11-05T12:19:25
+VIDEOS DETECTADOS: 15
+CORRECTOS EN ESTA EJECUCIÓN: 13
+OMITIDOS: 0
+FALLIDOS: 2
+
+DETALLE DE FALLOS:
+11. | CRASH NITRO FUELLED | GAMEPLAY 1 | EPISODIO 11 - RELIC RACES - CITADEL CIY AND THE LOST RUINS |: No hay transcripción en español. Disponibles: ninguna
+12. | CRASH NITRO FUELLED | GAMEPLAY 1 | EPISODIO 12 - N. OXIDEs FINAL SHOWDOWN |: No hay transcripción en español. Disponibles: ninguna
