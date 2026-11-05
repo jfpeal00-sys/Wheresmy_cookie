@@ -511,6 +511,8 @@ function initAuth() {
       renderTop(); render(); } });
   drive.client = google.accounts.oauth2.initTokenClient({ client_id: clientId, scope: DRIVE_SCOPE, include_granted_scopes: false,
     callback: async r => { if (r.error) return alertMsg("Drive: " + r.error); drive.token = r.access_token; drive.exp = Date.now() + (r.expires_in || 3600) * 1000;
+      drive.full = google.accounts.oauth2.hasGrantedAllScopes(r, DRIVE_SCOPE);
+      if (!drive.full) alertMsg("Google dio acceso limitado a Drive: la app no podrá ver las carpetas existentes ni los análisis. Revisa el permiso (ver Configuración).");
       try { const a = await driveFetch(DRIVE_API + "/about?fields=user(emailAddress)"); drive.email = a.user?.emailAddress || ""; } catch {}
       await ensureAssets(); renderTop(); render(); } });
   renderTop();
@@ -612,7 +614,19 @@ async function driveUploadBlob(parentId, name, blob, existingId) {
 const assets = { root: JSON.parse(lsGet("alta_assets") || "null"), images: null, trans: null, altas: null };
 async function ensureAssets() {
   try {
-    if (assets.root) { try { await driveFetch(DRIVE_API + "/files/" + assets.root.id + "?fields=id,trashed&supportsAllDrives=true"); } catch { assets.root = null; } }
+    if (assets.root) {
+      try {
+        const f = await driveFetch(DRIVE_API + "/files/" + assets.root.id + "?fields=id,name,trashed,parents&supportsAllDrives=true");
+        // Si se eligió una subcarpeta (Transcriptions, Images o Altas) en vez de Assets, se usa su carpeta madre
+        if (f.trashed) assets.root = null;
+        else if (/^(transcriptions|images|altas)$/i.test(f.name) && f.parents?.[0]) {
+          const wrong = f.id, par = await driveFetch(DRIVE_API + "/files/" + f.parents[0] + "?fields=id,name,parents&supportsAllDrives=true");
+          const gp = par.parents?.[0] && await driveFetch(DRIVE_API + "/files/" + par.parents[0] + "?fields=name&supportsAllDrives=true").catch(() => null);
+          assets.root = { id: par.id, path: (gp ? gp.name + " / " : "") + par.name };
+          await cleanupWrongRoot(wrong);
+        }
+      } catch { assets.root = null; }
+    }
     if (!assets.root) {
       // Busca una carpeta "Assets" dentro de una carpeta "Gameplays"
       const cands = await driveList("name = 'Assets' and mimeType = '" + FOLDER_MIME + "' and trashed = false", "id,name,parents");
@@ -627,6 +641,14 @@ async function ensureAssets() {
     } else alertMsg("No encontré la carpeta Gameplays / Assets en Drive. Elígela con el botón “Elegir”.");
   } catch (e) { alertMsg(e.message); }
   renderTop();
+}
+// Borra (a la papelera) las carpetas vacías Altas / Images / Transcriptions que se crearon por error dentro de otra carpeta
+async function cleanupWrongRoot(id) {
+  for (const f of await driveList("'" + id + "' in parents and mimeType = '" + FOLDER_MIME + "' and trashed = false")) {
+    if (!/^(transcriptions|images|altas)$/i.test(f.name)) continue;
+    const kids = await driveChildren(f.id);
+    if (!kids.length) await driveFetch(DRIVE_API + "/files/" + f.id + "?supportsAllDrives=true", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trashed: true }) }).catch(() => {});
+  }
 }
 $("assetsBtn").onclick = () => {
   if (!cfg.pickerKey() || !cfg.projectNumber()) { alertMsg("Para elegir la carpeta faltan la API key del selector y el número de proyecto."); return; }
