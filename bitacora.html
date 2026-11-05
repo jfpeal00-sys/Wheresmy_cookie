@@ -165,6 +165,13 @@
   .ep.active { background: rgba(155,138,196,0.16); box-shadow: inset 0 0 0 1.5px var(--accent); }
   .ep.active .ep-num { color: var(--accent); }
   .ep.active .ep-tag { color: var(--accent-2); }
+  .ep.missing { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
+  .ep.missing .ep-title { color: #7d7392; font-weight: 500; font-style: italic; }
+  .ep.missing.active { box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .missing-note { display: flex; gap: 16px; align-items: flex-start; padding: 22px 24px; border-radius: 14px; background: var(--panel); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); margin-top: 8px; }
+  .missing-note svg { flex: 0 0 22px; width: 22px; height: 22px; color: var(--accent-2); margin-top: 2px; }
+  .missing-note h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .missing-note p { color: #a99fbe; font-size: 14px; line-height: 1.55; }
 
   /* ===== Lectura ===== */
   .reader { display: flex; gap: 40px; padding: 30px var(--pad) 60px; scroll-margin-top: 10px; }
@@ -565,6 +572,18 @@ function numberChapters(chapters) {
   });
   return chapters;
 }
+// Los capítulos sin análisis se muestran igual, con una nota, para que la serie se vea completa.
+// El total sale del mayor número encontrado o de los videos de la playlist registrados en GAMES.
+function fillGaps(game, chapters) {
+  const total = Math.max(chapters.length ? chapters[chapters.length - 1].num : 0, game.videos || 0);
+  const byNum = new Map(chapters.map(ch => [ch.num, ch]));
+  const out = [];
+  for (let n = 1; n <= total; n++) {
+    out.push(byNum.get(n) || { num: n, title: `${game.title} | Capítulo ${pad2(n)}`, videoId: '', url: '', sections: {}, missing: true });
+  }
+  return out;
+}
+const chLabel = ch => ch.missing ? 'Análisis no disponible' : shortTitle(ch.title);
 const capTotal = g => Math.max(g.chapters.length, g.chapters.length ? g.chapters[g.chapters.length - 1].num : 0);
 const idxOfNum = (g, n) => g.chapters.findIndex(ch => ch.num === n);
 
@@ -594,7 +613,8 @@ async function loadGame(game) {
       console.warn('No se pudo cargar', file, e.message);
     }
   }
-  return { ...game, chapters: numberChapters(chapters) };
+  if (!chapters.length) return { ...game, chapters };
+  return { ...game, chapters: fillGaps(game, numberChapters(chapters)) };
 }
 
 async function init() {
@@ -656,7 +676,7 @@ function renderHeroInfo() {
   const resumeCap = last !== null ? last : 0;
   $('heroInfo').innerHTML = `
     ${g.thumb ? `<img class="hero-logo" src="${esc(g.thumb)}" alt="${esc(g.title)}">` : `<h1 style="font-size:36px;font-weight:900">${esc(g.title)}</h1>`}
-    <div class="hero-meta"><span class="lbl">${esc(g.genre)}</span><span class="dot">·</span><span class="lbl">${g.chapters.length} capítulos</span>${read.length ? `<span class="dot">·</span><span class="lbl">${read.length} leído${read.length !== 1 ? 's' : ''}</span>` : ''}</div>
+    <div class="hero-meta"><span class="lbl">${esc(g.genre)}</span><span class="dot">·</span><span class="lbl">${g.chapters.length} capítulos</span>${g.chapters.some(c => c.missing) ? `<span class="dot">·</span><span class="lbl">${g.chapters.filter(c => c.missing).length} sin análisis</span>` : ''}${read.length ? `<span class="dot">·</span><span class="lbl">${read.length} leído${read.length !== 1 ? 's' : ''}</span>` : ''}</div>
     <div class="ticket">
       <div><span class="k">Lanzamiento</span><span class="v">${esc(formatDate(g.releaseDate))}</span></div>
       <div><span class="k">Actualizada</span><span class="v">${esc(formatDate(g.updated))}</span></div>
@@ -676,10 +696,10 @@ function renderEpisodes() {
   const read = new Set(store.get(readKey(g), []));
   $('epScroller').innerHTML = g.chapters.map((ch, i) => {
     const active = i === currentChapter;
-    const tag = active ? 'LEYENDO' : (read.has(i) ? 'LEÍDO' : '');
-    return `<button class="ep${active ? ' active' : ''}${read.has(i) ? ' read' : ''}" type="button" data-i="${i}" title="${esc(ch.title)}">
+    const tag = ch.missing ? 'SIN ANÁLISIS' : (active ? 'LEYENDO' : (read.has(i) ? 'LEÍDO' : ''));
+    return `<button class="ep${active ? ' active' : ''}${read.has(i) ? ' read' : ''}${ch.missing ? ' missing' : ''}" type="button" data-i="${i}" title="${esc(ch.missing ? 'Capítulo ' + pad2(ch.num) + ': análisis no disponible' : ch.title)}">
       <span class="ep-top"><span class="ep-num">${pad2(ch.num)}</span><span class="ep-tag">${tag}</span></span>
-      <span class="ep-title">${esc(shortTitle(ch.title))}</span>
+      <span class="ep-title">${esc(chLabel(ch))}</span>
     </button>`;
   }).join('');
   $('epScroller').querySelectorAll('.ep').forEach(b => b.addEventListener('click', () => {
@@ -710,7 +730,7 @@ function renderChapter() {
   const ch = g.chapters[currentChapter];
   // Guardar progreso y dejar la URL lista para compartir/volver
   const read = new Set(store.get(readKey(g), []));
-  if (!read.has(currentChapter)) { read.add(currentChapter); store.set(readKey(g), [...read].sort((a, b) => a - b)); }
+  if (!ch.missing && !read.has(currentChapter)) { read.add(currentChapter); store.set(readKey(g), [...read].sort((a, b) => a - b)); }
   store.set(lastKey(g), currentChapter);
   try { history.replaceState(null, '', `?juego=${encodeURIComponent(g.title)}&cap=${ch.num}`); } catch (e) {}
 
@@ -720,8 +740,8 @@ function renderChapter() {
   $('videoLink').href = url; $('videoM').href = url;
   const prev = g.chapters[(currentChapter - 1 + g.chapters.length) % g.chapters.length];
   const next = g.chapters[(currentChapter + 1) % g.chapters.length];
-  $('prevTitle').textContent = shortTitle(prev.title);
-  $('nextTitle').textContent = shortTitle(next.title);
+  $('prevTitle').textContent = chLabel(prev);
+  $('nextTitle').textContent = chLabel(next);
   renderSections();
   $('readCount').textContent = `${read.size} de ${g.chapters.length} leídos`;
   renderHeroInfo();
@@ -731,6 +751,14 @@ function renderChapter() {
 function renderSections() {
   const ch = loadedGames[currentGameIdx].chapters[currentChapter];
   const keys = GROUP_DEFS[currentGroup].keys;
+  if (ch.missing) {
+    $('sections').innerHTML = `<div class="missing-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>
+      <h4>Análisis no disponible en este momento</h4>
+      <p>Este capítulo forma parte de la serie, pero todavía no tiene bitácora: YouTube no tiene la transcripción de este video. Puedes verlo completo en la playlist.</p></div></div>`;
+    $('tocTitle').textContent = GROUP_DEFS[currentGroup].name;
+    $('toc').innerHTML = keys.map(key => `<a class="empty">${SECTION_LABELS[key]}</a>`).join('');
+    return;
+  }
   $('sections').innerHTML = keys.map(key => {
     const text = ch.sections[key];
     return `<section class="sec" id="sec-${key}">
