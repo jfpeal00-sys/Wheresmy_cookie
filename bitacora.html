@@ -335,7 +335,8 @@ const GAMES = [
   { title: "Final Fantasy 7 Remake | Intergrade", genre: "RPG", releaseDate: "2021-06-10", updated: "2026-07-06", videos: 21, duration: "36h 20m", thumb: "./assets/images/FF7REM/FF7REM_LOGO.png", bg: "./assets/images/FF7REM/FF7REM_BKG.jpg", icon: "./assets/images/FF7REM/FF7REM_ICON.png", folder: "FF7REM", playlistUrl: "https://www.youtube.com/playlist?list=PLV8T9JsLJRxs", files: ["01_FF7REM.txt"] },
   { title: "Sheep Raider", genre: "Platform", releaseDate: "2001-09-27", updated: "2020-06-27", videos: 8, duration: "7h 8m", thumb: "./assets/images/SHEEP/SHEEP_LOGO.png", bg: "./assets/images/SHEEP/SHEEP_BKG.jpg", icon: "./assets/images/SHEEP/SHEEP_ICON.png", folder: "SHEEP", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQe4wyV0VCpb6SnP5whF1t2", files: ["01_SHEEP.txt"] },
   { title: "Klonoa: Door to Phantomile", genre: "Platform", releaseDate: "1998-03-10", updated: "2019-01-04", videos: 5, duration: "3h 0m", thumb: "./assets/images/KLO_DTPM/KLO_DTPM_LOGO.png", bg: "./assets/images/KLO_DTPM/KLO_DTPM_BKG.jpg", icon: "./assets/images/KLO_DTPM/KLO_DTPM_ICON.png", folder: "KLO_DTPM", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBRTK1HVJkNGD3eFzN6kWiq8", files: ["01_KLO_DTPM.txt"] },
-  { title: "Resident Evil Remake", genre: "Horror", releaseDate: "2002-04-30", updated: "2023-05-23", videos: 16, duration: "18h 50m", thumb: "./assets/images/REREM/REREM_LOGO.png", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", folder: "REREM", playlistUrl: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", files: ["01_REREM.txt"] }
+  { title: "Resident Evil Remake", genre: "Horror", releaseDate: "2002-04-30", updated: "2023-05-23", videos: 16, duration: "18h 50m", thumb: "./assets/images/REREM/REREM_LOGO.png", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", folder: "REREM", playlistUrl: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", files: ["01_REREM.txt"] },
+  { title: "Crash Bandicoot 2: Cortex Strikes Back", genre: "Platform", releaseDate: "1997-11-06", updated: "2018-12-30", videos: 8, duration: "3h 59m", thumb: "./assets/images/CRASH2/CRASH2_LOGO.png", bg: "./assets/images/CRASH2/CRASH2_BKG.jpg", icon: "./assets/images/CRASH2/CRASH2_ICON.png", folder: "CRASH2", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe", files: ["01_CRASH2.txt"] }
 ];
 
 const GROUP_DEFS = [
@@ -545,7 +546,7 @@ function formatDate(iso) {
 // Título corto para las tarjetas: quita el nombre del juego y el "Capítulo N" del inicio.
 function shortTitle(title) {
   const parts = title.split(/\s+[–—|-]\s+|\s*\|\s*/).map(s => s.trim()).filter(Boolean);
-  const i = parts.findIndex(p => /^(cap[ií]tulo|chapter|episodio)\s*\d+/i.test(p));
+  const i = parts.findIndex(p => /^(cap[ií]tulo|chapter|episodio|parte)\s*\d+/i.test(p));
   let out = i >= 0 && i < parts.length - 1 ? parts.slice(i + 1).join(' · ') : title;
   if (out === out.toUpperCase()) out = out.toLowerCase().replace(/(^|[\s(·&'-])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
   return out;
