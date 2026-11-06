@@ -347,7 +347,8 @@ const GAMES = [
   { title: "Crash Bandicoot 2: Cortex Strikes Back", genre: "Platform", releaseDate: "1997-11-06", updated: "2018-12-30", videos: 8, duration: "3h 59m", thumb: "./assets/images/CRASH2/CRASH2_LOGO.png", bg: "./assets/images/CRASH2/CRASH2_BKG.jpg", icon: "./assets/images/CRASH2/CRASH2_ICON.png", folder: "CRASH2", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSPTXkjx7GnKkHAXPrWMDYe", files: ["01_CRASH2.txt"] },
   { title: "Crash Nitro Fuelled", genre: "Racing", releaseDate: "2019-06-21", updated: "2020-06-07", videos: 15, duration: "11h 0m", thumb: "./assets/images/CTRNF/CTRNF_LOGO.png", bg: "./assets/images/CTRNF/CTRNF_BKG.jpg", icon: "./assets/images/CTRNF/CTRNF_ICON.png", folder: "CTRNF", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBQGiHOepeX1qHevtJtV4Pw2", files: ["01_CTRNF.txt"] },
   { title: "Pokemon Let's Go Eevee", genre: "RPG", releaseDate: "2018-11-16", updated: "2023-07-14", videos: 20, duration: "0h 0m", thumb: "./assets/images/POKELGE/POKELGE_LOGO.png", bg: "./assets/images/POKELGE/POKELGE_BKG.jpg", icon: "./assets/images/POKELGE/POKELGE_ICON.png", folder: "POKELGE", playlistUrl: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c", files: ["01_POKELGE.txt"] },
-  { title: "Spyro Reignited Trilogy - Spyro 2 Ripto's Rage", genre: "Platform", releaseDate: "2018-11-13", updated: "2019-01-04", videos: 17, duration: "11h 15m", thumb: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_LOGO.png", bg: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_BKG.jpg", icon: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_ICON.png", folder: "SPYRO2RE_LEG", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSEbhi3Wg97QiuJ0dD9r9US", files: ["01_SPYRO2RE_LEG.txt"] }
+  { title: "Spyro Reignited Trilogy - Spyro 2 Ripto's Rage", genre: "Platform", releaseDate: "2018-11-13", updated: "2019-01-04", videos: 17, duration: "11h 15m", thumb: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_LOGO.png", bg: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_BKG.jpg", icon: "./assets/images/SPYRO2RE_LEG/SPYRO2RE_LEG_ICON.png", folder: "SPYRO2RE_LEG", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSEbhi3Wg97QiuJ0dD9r9US", files: ["01_SPYRO2RE_LEG.txt"] },
+  { title: "Spyro Reignited Trilogy - Spyro 3 Year of the Dragon", genre: "Platform", releaseDate: "2018-11-13", updated: "2019-01-07", videos: 8, duration: "4h 44m", thumb: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_LOGO.png", bg: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_BKG.jpg", icon: "./assets/images/SPYRO3RE_LEG/SPYRO3RE_LEG_ICON.png", folder: "SPYRO3RE_LEG", playlistUrl: "https://www.youtube.com/playlist?list=PL2VIAcWUrvBSyqFFRSLydJgFQeVXhsEGC", files: ["01_SPYRO3RE_LEG.txt"] }
 ];
 
 const GROUP_DEFS = [
@@ -758,7 +759,7 @@ function renderSections() {
   if (ch.missing) {
     $('sections').innerHTML = `<div class="missing-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg><div>
       <h4>Análisis no disponible en este momento</h4>
-      <p>Este capítulo forma parte de la serie, pero todavía no tiene bitácora: YouTube no tiene la transcripción de este video. ${ch.url ? 'Puedes verlo completo en YouTube.' : 'Puedes verlo completo en la playlist.'}</p>${ch.ytTitle ? `<p class="yt-title">Video: ${esc(ch.ytTitle)}</p>` : ''}</div></div>`;
+      <p>${ch.notInPlaylist ? 'Este capítulo forma parte de la numeración de la serie, pero su video no está en la playlist de YouTube, así que no hay transcripción ni bitácora.' : 'Este capítulo forma parte de la serie, pero todavía no tiene bitácora: YouTube no tiene la transcripción de este video. ' + (ch.url ? 'Puedes verlo completo en YouTube.' : 'Puedes verlo completo en la playlist.')}</p>${ch.ytTitle ? `<p class="yt-title">Video: ${esc(ch.ytTitle)}</p>` : ''}</div></div>`;
     $('tocTitle').textContent = GROUP_DEFS[currentGroup].name;
     $('toc').innerHTML = keys.map(key => `<a class="empty">${SECTION_LABELS[key]}</a>`).join('');
     return;
@@ -871,7 +872,7 @@ async function fillMissingFromPlaylist(g, i) {
   }
   missing.forEach(ch => {
     const it = items[ch.num];
-    if (!it) return;
+    if (!it) { ch.notInPlaylist = true; return; }
     ch.videoId = it.id; ch.url = 'https://www.youtube.com/watch?v=' + it.id;
     ch.ytTitle = it.t.replace(/^[\s|]+|[\s|]+$/g, '').replace(/\s*\|\s*/g, ' | ');
   });

@@ -1,0 +1,9 @@
+JUEGO: Spyro Reignited Trilogy - Spyro 3 Year of the Dragon
+CARPETA (SLUG): SPYRO3RE_LEG
+PLAYLIST: https://www.youtube.com/playlist?list=PL2VIAcWUrvBSyqFFRSLydJgFQeVXhsEGC
+FECHA: 2026-11-06T13:29:51
+VIDEOS DETECTADOS: 8
+CORRECTOS EN ESTA EJECUCIÓN: 8
+OMITIDOS: 0
+FALLIDOS: 0
+
