@@ -750,6 +750,7 @@
 // ===== Catálogo de playlists =====
 // Campo "saga": agrupa juegos de la misma franquicia en la fila "Sagas" (nuevo en el rediseño).
 const playlists = [
+  { title: "Toy Story 2", saga: "Toy Story", desc: "5 videos", url: "https://www.youtube.com/playlist?list=PLKYGadIOhnMY", thumb: "./assets/images/TOY2/TOY2_LOGO.png", genre: "Platform", updated: "2026-11-06", releaseDate: "1999-11-16", duration: "0h 0m", bg: "./assets/images/TOY2/TOY2_BKG.jpg", icon: "./assets/images/TOY2/TOY2_ICON.png", images: { card: "./assets/images/TOY2/TOY2_CARD.jpg", saga: "./assets/images/TOY2/TOY2_SAGA.jpg", genre: "./assets/images/TOY2/TOY2_GENRE.jpg", poster: "./assets/images/TOY2/TOY2_POSTER.jpg", moment: "./assets/images/TOY2/TOY2_GENRE.jpg" } },
   { title: "Ace Combat 2", saga: "Ace Combat", desc: "7 videos", url: "https://www.youtube.com/playlist?list=PLS1JI7LQbVss", thumb: "./assets/images/ACE_02/ACE_02_LOGO.png", genre: "Simulation", updated: "2026-09-23", releaseDate: "1997-08-15", duration: "0h 0m", bg: "./assets/images/ACE_02/ACE_02_BKG.jpg", icon: "./assets/images/ACE_02/ACE_02_ICON.png" , images: { card: "./assets/images/ACE_02/ACE_02_CARD.jpg", saga: "./assets/images/ACE_02/ACE_02_SAGA.jpg", genre: "./assets/images/ACE_02/ACE_02_GENRE.jpg", poster: "./assets/images/ACE_02/ACE_02_POSTER.jpg", moment: "./assets/images/ACE_02/ACE_02_GENRE.jpg" } },
   { title: "Pokemon Let's Go Eevee", saga: "Pokémon", desc: "20 videos", url: "https://www.youtube.com/playlist?list=PLWuETFGtHR7c", thumb: "./assets/images/POKELGE/POKELGE_LOGO.png", genre: "RPG", updated: "2023-07-14", releaseDate: "2018-11-16", duration: "0h 0m", bg: "./assets/images/POKELGE/POKELGE_BKG.jpg", icon: "./assets/images/POKELGE/POKELGE_ICON.png", images: { card: "./assets/images/POKELGE/POKELGE_CARD.jpg", saga: "./assets/images/POKELGE/POKELGE_SAGA.jpg", genre: "./assets/images/POKELGE/POKELGE_GENRE.jpg", poster: "./assets/images/POKELGE/POKELGE_POSTER.jpg", moment: "./assets/images/POKELGE/POKELGE_SAGA.jpg" } },
   { title: "Resident Evil Remake", saga: "Resident Evil", desc: "16 videos", url: "https://www.youtube.com/playlist?list=PLG0KbLMm5O2M", thumb: "./assets/images/REREM/REREM_LOGO.png", genre: "Horror", updated: "2023-05-23", releaseDate: "2002-04-30", duration: "18h 50m", bg: "./assets/images/REREM/REREM_BKG.jpg", icon: "./assets/images/REREM/REREM_ICON.png", images: { card: "./assets/images/REREM/REREM_CARD.jpg", saga: "./assets/images/REREM/REREM_SAGA.jpg", genre: "./assets/images/REREM/REREM_GENRE.jpg", poster: "./assets/images/REREM/REREM_POSTER.jpg", moment: "./assets/images/REREM/REREM_GENRE.jpg" } },
@@ -782,6 +783,7 @@ const BITACORA_GAMES = {
   "Pokemon Let's Go Eevee": "POKELGE",
   "Spyro Reignited Trilogy - Spyro 2 Ripto's Rage": "SPYRO2RE_LEG",
   "Spyro Reignited Trilogy - Spyro 3 Year of the Dragon": "SPYRO3RE_LEG",
+  "Toy Story 2": "TOY2",
 };
 
 // ===== Momentos: 12 capítulos al azar de todas las bitácoras, distintos en cada carga =====
@@ -835,8 +837,8 @@ const HERO_POS = {
 // ===== Versión de la app =====
 // MAYOR.MENOR.FECHA.HORA — MAYOR sube con un rediseño grande de la interfaz; MENOR sube con cada entrega
 // de cambios visibles; FECHA.HORA (AAAAMMDD.hhmmss, hora de Bogotá) se actualiza en cada publicación.
-const APP_VERSION = "2.25";
-const APP_BUILD = "20261106.144905";
+const APP_VERSION = "2.26";
+const APP_BUILD = "20261106.152329";
 const HERO_RECENT = 5;         // los N más recientes llevan la etiqueta "Recién actualizado"
 const HERO_INTERVAL = 7000;    // ms que se muestra cada juego en la portada (cuenta desde que su imagen aparece)
 const GENRE_INTERVAL = 10000;  // ms entre cambios de imagen en cada tarjeta de género
