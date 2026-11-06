@@ -1,0 +1,11 @@
+JUEGO: Spyro Reignited Trilogy - Spyro 2 Ripto's Rage
+CARPETA (SLUG): SPYRO2RE_LEG
+PLAYLIST: https://www.youtube.com/playlist?list=PL2VIAcWUrvBSEbhi3Wg97QiuJ0dD9r9US
+FECHA: 2026-11-06T12:30:42
+VIDEOS DETECTADOS: 17
+CORRECTOS EN ESTA EJECUCIÓN: 8
+OMITIDOS: 8
+FALLIDOS: 1
+
+DETALLE DE FALLOS:
+14. | SPYRO REIGNITED TRYLOGY | SPYRO 2 RIPTOS RAGE | EPISODIO 14 - RIPTO (SIN CENSURA) |: No hay transcripción en español. Disponibles: ja (asr)
